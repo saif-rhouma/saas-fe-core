@@ -46,15 +46,56 @@ export const navData = [
    * Overview
    */
   {
-    subheader: 'Overview',
+    // subheader: 'Overview',
     items: [
-      { title: 'App', path: paths.dashboard.root, icon: ICONS.dashboard },
-      { title: 'Ecommerce', path: paths.dashboard.general.ecommerce, icon: ICONS.ecommerce },
-      { title: 'Analytics', path: paths.dashboard.general.analytics, icon: ICONS.analytics },
-      { title: 'Banking', path: paths.dashboard.general.banking, icon: ICONS.banking },
-      { title: 'Booking', path: paths.dashboard.general.booking, icon: ICONS.booking },
-      { title: 'File', path: paths.dashboard.general.file, icon: ICONS.file },
-      { title: 'Course', path: paths.dashboard.general.course, icon: ICONS.course },
+      { title: 'Dashboard', path: paths.dashboard.root, icon: ICONS.dashboard },
+      { title: 'Orders', path: paths.dashboard.order.root, icon: ICONS.order },
+      {
+        title: 'Products',
+        path: paths.dashboard.product.root,
+        icon: ICONS.file,
+        children: [
+          { title: 'Products List', path: paths.dashboard.product.root },
+          { title: 'Products Addons', path: paths.dashboard.product.addons },
+          { title: 'Product Stock', path: paths.dashboard.product.stock },
+        ],
+      },
+      { title: 'Orders Status', path: paths.dashboard.general.analytics, icon: ICONS.analytics },
+      { title: 'Plans', path: paths.dashboard.plan.root, icon: ICONS.booking },
+      { title: 'Plans Status', path: paths.dashboard.general.banking, icon: ICONS.banking },
+
+      { title: 'Customers', path: paths.dashboard.customers.root, icon: ICONS.course },
+      { title: 'Payments', path: paths.dashboard.payments.root, icon: ICONS.course },
+      { title: 'Reminders', path: paths.dashboard.reminders.root, icon: ICONS.course },
+      { title: 'Tickets', path: paths.dashboard.tickets.root, icon: ICONS.course },
+      { title: 'Staff', path: paths.dashboard.staff.root, icon: ICONS.course },
+      {
+        title: 'Reports',
+        path: paths.dashboard.reports.root,
+        icon: ICONS.root,
+        children: [
+          { title: 'Profile', path: paths.dashboard.user.root },
+          { title: 'Cards', path: paths.dashboard.user.cards },
+          { title: 'List', path: paths.dashboard.user.list },
+          { title: 'Create', path: paths.dashboard.user.new },
+          { title: 'Edit', path: paths.dashboard.user.demo.edit },
+          { title: 'Account', path: paths.dashboard.user.account },
+        ],
+      },
+      {
+        title: 'Tools',
+        path: paths.dashboard.tools.root,
+        icon: ICONS.course,
+        children: [
+          { title: 'Profile', path: paths.dashboard.user.root },
+          { title: 'Cards', path: paths.dashboard.user.cards },
+          { title: 'List', path: paths.dashboard.user.list },
+          { title: 'Create', path: paths.dashboard.user.new },
+          { title: 'Edit', path: paths.dashboard.user.demo.edit },
+          { title: 'Account', path: paths.dashboard.user.account },
+        ],
+      },
+      { title: 'Logout', path: paths.dashboard.general.course, icon: ICONS.course },
     ],
   },
   /**

@@ -5,6 +5,7 @@ import { HelmetProvider } from 'react-helmet-async';
 
 import App from './app';
 import { CONFIG } from './config-global';
+import AppContext from './context/context';
 
 // ----------------------------------------------------------------------
 
@@ -15,7 +16,9 @@ root.render(
     <HelmetProvider>
       <BrowserRouter basename={CONFIG.site.basePath}>
         <Suspense>
-          <App />
+          <AppContext>
+            <App />
+          </AppContext>
         </Suspense>
       </BrowserRouter>
     </HelmetProvider>

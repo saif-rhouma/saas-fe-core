@@ -64,41 +64,44 @@ export const Logo = forwardRef(
     );
 
     return (
-      <NoSsr
-        fallback={
+      <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 20 }}>
+        <NoSsr
+          fallback={
+            <Box
+              width={width}
+              height={height}
+              className={logoClasses.root.concat(className ? ` ${className}` : '')}
+              sx={{
+                flexShrink: 0,
+                display: 'inline-flex',
+                verticalAlign: 'middle',
+                ...sx,
+              }}
+            />
+          }
+        >
           <Box
+            ref={ref}
+            component={RouterLink}
+            href={href}
             width={width}
             height={height}
             className={logoClasses.root.concat(className ? ` ${className}` : '')}
+            aria-label="logo"
             sx={{
               flexShrink: 0,
               display: 'inline-flex',
               verticalAlign: 'middle',
+              ...(disableLink && { pointerEvents: 'none' }),
               ...sx,
             }}
-          />
-        }
-      >
-        <Box
-          ref={ref}
-          component={RouterLink}
-          href={href}
-          width={width}
-          height={height}
-          className={logoClasses.root.concat(className ? ` ${className}` : '')}
-          aria-label="logo"
-          sx={{
-            flexShrink: 0,
-            display: 'inline-flex',
-            verticalAlign: 'middle',
-            ...(disableLink && { pointerEvents: 'none' }),
-            ...sx,
-          }}
-          {...other}
-        >
-          {logo}
-        </Box>
-      </NoSsr>
+            {...other}
+          >
+            {logo}
+          </Box>
+        </NoSsr>
+        <span style={{ fontWeight: 'bold' }}>NFCAC</span>
+      </div>
     );
   }
 );

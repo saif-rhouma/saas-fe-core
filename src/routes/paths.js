@@ -122,15 +122,107 @@ export const paths = {
         edit: `${ROOTS.DASHBOARD}/user/${MOCK_ID}/edit`,
       },
     },
+    order: {
+      root: `${ROOTS.DASHBOARD}/order`,
+      new: `${ROOTS.DASHBOARD}/order/new`,
+      details: (id) => `${ROOTS.DASHBOARD}/order/${id}`,
+      edit: (id) => `${ROOTS.DASHBOARD}/order/${id}/edit`,
+      demo: {
+        details: `${ROOTS.DASHBOARD}/order/${MOCK_ID}`,
+        edit: `${ROOTS.DASHBOARD}/order/${MOCK_ID}/edit`,
+      },
+    },
+    plan: {
+      root: `${ROOTS.DASHBOARD}/plan`,
+      new: `${ROOTS.DASHBOARD}/plan/new`,
+      details: (id) => `${ROOTS.DASHBOARD}/plan/${id}`,
+      edit: (id) => `${ROOTS.DASHBOARD}/plan/${id}/edit`,
+      demo: {
+        details: `${ROOTS.DASHBOARD}/plan/${MOCK_ID}`,
+        edit: `${ROOTS.DASHBOARD}/plan/${MOCK_ID}/edit`,
+      },
+    },
     product: {
       root: `${ROOTS.DASHBOARD}/product`,
       new: `${ROOTS.DASHBOARD}/product/new`,
+      addons: `${ROOTS.DASHBOARD}/product/addons`,
+      stock: `${ROOTS.DASHBOARD}/product/stock`,
       details: (id) => `${ROOTS.DASHBOARD}/product/${id}`,
       edit: (id) => `${ROOTS.DASHBOARD}/product/${id}/edit`,
       demo: {
         details: `${ROOTS.DASHBOARD}/product/${MOCK_ID}`,
         edit: `${ROOTS.DASHBOARD}/product/${MOCK_ID}/edit`,
       },
+    },
+    customers: {
+      root: `${ROOTS.DASHBOARD}/customer`,
+      // new: `${ROOTS.DASHBOARD}/plan/new`,
+      // details: (id) => `${ROOTS.DASHBOARD}/plan/${id}`,
+      // edit: (id) => `${ROOTS.DASHBOARD}/plan/${id}/edit`,
+      // demo: {
+      //   details: `${ROOTS.DASHBOARD}/plan/${MOCK_ID}`,
+      //   edit: `${ROOTS.DASHBOARD}/plan/${MOCK_ID}/edit`,
+      // },
+    },
+    payments: {
+      root: `${ROOTS.DASHBOARD}/payments`,
+      // new: `${ROOTS.DASHBOARD}/plan/new`,
+      // details: (id) => `${ROOTS.DASHBOARD}/plan/${id}`,
+      // edit: (id) => `${ROOTS.DASHBOARD}/plan/${id}/edit`,
+      // demo: {
+      //   details: `${ROOTS.DASHBOARD}/plan/${MOCK_ID}`,
+      //   edit: `${ROOTS.DASHBOARD}/plan/${MOCK_ID}/edit`,
+      // },
+    },
+    reminders: {
+      root: `${ROOTS.DASHBOARD}/reminders`,
+      // new: `${ROOTS.DASHBOARD}/plan/new`,
+      // details: (id) => `${ROOTS.DASHBOARD}/plan/${id}`,
+      // edit: (id) => `${ROOTS.DASHBOARD}/plan/${id}/edit`,
+      // demo: {
+      //   details: `${ROOTS.DASHBOARD}/plan/${MOCK_ID}`,
+      //   edit: `${ROOTS.DASHBOARD}/plan/${MOCK_ID}/edit`,
+      // },
+    },
+    tickets: {
+      root: `${ROOTS.DASHBOARD}/tickets`,
+      // new: `${ROOTS.DASHBOARD}/plan/new`,
+      // details: (id) => `${ROOTS.DASHBOARD}/plan/${id}`,
+      // edit: (id) => `${ROOTS.DASHBOARD}/plan/${id}/edit`,
+      // demo: {
+      //   details: `${ROOTS.DASHBOARD}/plan/${MOCK_ID}`,
+      //   edit: `${ROOTS.DASHBOARD}/plan/${MOCK_ID}/edit`,
+      // },
+    },
+    staff: {
+      root: `${ROOTS.DASHBOARD}/staff`,
+      // new: `${ROOTS.DASHBOARD}/plan/new`,
+      // details: (id) => `${ROOTS.DASHBOARD}/plan/${id}`,
+      // edit: (id) => `${ROOTS.DASHBOARD}/plan/${id}/edit`,
+      // demo: {
+      //   details: `${ROOTS.DASHBOARD}/plan/${MOCK_ID}`,
+      //   edit: `${ROOTS.DASHBOARD}/plan/${MOCK_ID}/edit`,
+      // },
+    },
+    reports: {
+      root: `${ROOTS.DASHBOARD}/reports`,
+      // new: `${ROOTS.DASHBOARD}/plan/new`,
+      // details: (id) => `${ROOTS.DASHBOARD}/plan/${id}`,
+      // edit: (id) => `${ROOTS.DASHBOARD}/plan/${id}/edit`,
+      // demo: {
+      //   details: `${ROOTS.DASHBOARD}/plan/${MOCK_ID}`,
+      //   edit: `${ROOTS.DASHBOARD}/plan/${MOCK_ID}/edit`,
+      // },
+    },
+    tools: {
+      root: `${ROOTS.DASHBOARD}/tools`,
+      // new: `${ROOTS.DASHBOARD}/plan/new`,
+      // details: (id) => `${ROOTS.DASHBOARD}/plan/${id}`,
+      // edit: (id) => `${ROOTS.DASHBOARD}/plan/${id}/edit`,
+      // demo: {
+      //   details: `${ROOTS.DASHBOARD}/plan/${MOCK_ID}`,
+      //   edit: `${ROOTS.DASHBOARD}/plan/${MOCK_ID}/edit`,
+      // },
     },
     invoice: {
       root: `${ROOTS.DASHBOARD}/invoice`,
@@ -152,13 +244,7 @@ export const paths = {
         edit: `${ROOTS.DASHBOARD}/post/${paramCase(MOCK_TITLE)}/edit`,
       },
     },
-    order: {
-      root: `${ROOTS.DASHBOARD}/order`,
-      details: (id) => `${ROOTS.DASHBOARD}/order/${id}`,
-      demo: {
-        details: `${ROOTS.DASHBOARD}/order/${MOCK_ID}`,
-      },
-    },
+
     job: {
       root: `${ROOTS.DASHBOARD}/job`,
       new: `${ROOTS.DASHBOARD}/job/new`,

@@ -12,7 +12,6 @@ export function ProductCreateView() {
   return (
     <DashboardContent>
       <CustomBreadcrumbs
-        heading="Create a new product"
         links={[
           { name: 'Dashboard', href: paths.dashboard.root },
           { name: 'Product', href: paths.dashboard.product.root },

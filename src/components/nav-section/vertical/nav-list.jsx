@@ -4,6 +4,8 @@ import { usePathname } from 'src/routes/hooks';
 import { isExternalLink } from 'src/routes/utils';
 import { useActiveLink } from 'src/routes/hooks/use-active-link';
 
+import { useGlobalContext } from 'src/context/context';
+
 import { NavItem } from './nav-item';
 import { navSectionClasses } from '../classes';
 import { NavUl, NavLi, NavCollapse } from '../styles';
@@ -17,9 +19,13 @@ export function NavList({ data, render, depth, slotProps, enabledRootRedirect })
 
   const [openMenu, setOpenMenu] = useState(active);
 
+  const { changeActivePage } = useGlobalContext();
+
   useEffect(() => {
     if (!active) {
       handleCloseMenu();
+    } else {
+      changeActivePage(data.title);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname]);
@@ -28,6 +34,7 @@ export function NavList({ data, render, depth, slotProps, enabledRootRedirect })
     if (data.children) {
       setOpenMenu((prev) => !prev);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data.children]);
 
   const handleCloseMenu = useCallback(() => {

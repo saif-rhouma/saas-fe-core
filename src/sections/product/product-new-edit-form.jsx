@@ -1,33 +1,30 @@
-import { z as zod } from 'zod';
-import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useMemo, useState, useEffect, useCallback } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { z as zod } from 'zod';
 
 import Box from '@mui/material/Box';
-import Chip from '@mui/material/Chip';
 import Card from '@mui/material/Card';
+import Divider from '@mui/material/Divider';
+import FormControlLabel from '@mui/material/FormControlLabel';
 import Stack from '@mui/material/Stack';
 import Switch from '@mui/material/Switch';
-import Divider from '@mui/material/Divider';
-import CardHeader from '@mui/material/CardHeader';
 import Typography from '@mui/material/Typography';
-import LoadingButton from '@mui/lab/LoadingButton';
-import InputAdornment from '@mui/material/InputAdornment';
-import FormControlLabel from '@mui/material/FormControlLabel';
 
-import { paths } from 'src/routes/paths';
+import Accordion from '@mui/material/Accordion';
+import AccordionDetails from '@mui/material/AccordionDetails';
+import AccordionSummary from '@mui/material/AccordionSummary';
+import { Iconify } from 'src/components/iconify';
+
 import { useRouter } from 'src/routes/hooks';
+import { paths } from 'src/routes/paths';
 
-import {
-  _tags,
-  PRODUCT_SIZE_OPTIONS,
-  PRODUCT_GENDER_OPTIONS,
-  PRODUCT_COLOR_NAME_OPTIONS,
-  PRODUCT_CATEGORY_GROUP_OPTIONS,
-} from 'src/_mock';
+import { PRODUCT_CATEGORY_GROUP_OPTIONS } from 'src/_mock';
 
+import { Button, TextField } from '@mui/material';
+import { Form, schemaHelper } from 'src/components/hook-form';
+import ProductItemButton from 'src/components/product/product-Item-button';
 import { toast } from 'src/components/snackbar';
-import { Form, Field, schemaHelper } from 'src/components/hook-form';
 
 // ----------------------------------------------------------------------
 
@@ -96,8 +93,6 @@ export function ProductNewEditForm({ currentProduct }) {
     formState: { isSubmitting },
   } = methods;
 
-  const values = watch();
-
   useEffect(() => {
     if (currentProduct) {
       reset(defaultValues);
@@ -124,258 +119,74 @@ export function ProductNewEditForm({ currentProduct }) {
     }
   });
 
-  const handleRemoveFile = useCallback(
-    (inputFile) => {
-      const filtered = values.images && values.images?.filter((file) => file !== inputFile);
-      setValue('images', filtered);
-    },
-    [setValue, values.images]
-  );
-
-  const handleRemoveAllFiles = useCallback(() => {
-    setValue('images', [], { shouldValidate: true });
-  }, [setValue]);
-
-  const handleChangeIncludeTaxes = useCallback((event) => {
-    setIncludeTaxes(event.target.checked);
-  }, []);
-
-  const renderDetails = (
-    <Card>
-      <CardHeader title="Details" subheader="Title, short description, image..." sx={{ mb: 3 }} />
-
-      <Divider />
-
-      <Stack spacing={3} sx={{ p: 3 }}>
-        <Field.Text name="name" label="Product name" />
-
-        <Field.Text name="subDescription" label="Sub description" multiline rows={4} />
-
-        <Stack spacing={1.5}>
-          <Typography variant="subtitle2">Content</Typography>
-          <Field.Editor name="description" sx={{ maxHeight: 480 }} />
-        </Stack>
-
-        <Stack spacing={1.5}>
-          <Typography variant="subtitle2">Images</Typography>
-          <Field.Upload
-            multiple
-            thumbnail
-            name="images"
-            maxSize={3145728}
-            onRemove={handleRemoveFile}
-            onRemoveAll={handleRemoveAllFiles}
-            onUpload={() => console.info('ON UPLOAD')}
-          />
-        </Stack>
-      </Stack>
-    </Card>
-  );
-
-  const renderProperties = (
-    <Card>
-      <CardHeader
-        title="Properties"
-        subheader="Additional functions and attributes..."
-        sx={{ mb: 3 }}
-      />
-
-      <Divider />
-
-      <Stack spacing={3} sx={{ p: 3 }}>
-        <Box
-          columnGap={2}
-          rowGap={3}
-          display="grid"
-          gridTemplateColumns={{ xs: 'repeat(1, 1fr)', md: 'repeat(2, 1fr)' }}
-        >
-          <Field.Text name="code" label="Product code" />
-
-          <Field.Text name="sku" label="Product SKU" />
-
-          <Field.Text
-            name="quantity"
-            label="Quantity"
-            placeholder="0"
-            type="number"
-            InputLabelProps={{ shrink: true }}
-          />
-
-          <Field.Select native name="category" label="Category" InputLabelProps={{ shrink: true }}>
-            {PRODUCT_CATEGORY_GROUP_OPTIONS.map((category) => (
-              <optgroup key={category.group} label={category.group}>
-                {category.classify.map((classify) => (
-                  <option key={classify} value={classify}>
-                    {classify}
-                  </option>
-                ))}
-              </optgroup>
-            ))}
-          </Field.Select>
-
-          <Field.MultiSelect
-            checkbox
-            name="colors"
-            label="Colors"
-            options={PRODUCT_COLOR_NAME_OPTIONS}
-          />
-
-          <Field.MultiSelect checkbox name="sizes" label="Sizes" options={PRODUCT_SIZE_OPTIONS} />
-        </Box>
-
-        <Field.Autocomplete
-          name="tags"
-          label="Tags"
-          placeholder="+ Tags"
-          multiple
-          freeSolo
-          disableCloseOnSelect
-          options={_tags.map((option) => option)}
-          getOptionLabel={(option) => option}
-          renderOption={(props, option) => (
-            <li {...props} key={option}>
-              {option}
-            </li>
-          )}
-          renderTags={(selected, getTagProps) =>
-            selected.map((option, index) => (
-              <Chip
-                {...getTagProps({ index })}
-                key={option}
-                label={option}
-                size="small"
-                color="info"
-                variant="soft"
-              />
-            ))
-          }
-        />
-
-        <Stack spacing={1}>
-          <Typography variant="subtitle2">Gender</Typography>
-          <Field.MultiCheckbox row name="gender" options={PRODUCT_GENDER_OPTIONS} sx={{ gap: 2 }} />
-        </Stack>
-
-        <Divider sx={{ borderStyle: 'dashed' }} />
-
-        <Stack direction="row" alignItems="center" spacing={3}>
-          <Field.Switch name="saleLabel.enabled" label={null} sx={{ m: 0 }} />
-          <Field.Text
-            name="saleLabel.content"
-            label="Sale label"
-            fullWidth
-            disabled={!values.saleLabel.enabled}
-          />
-        </Stack>
-
-        <Stack direction="row" alignItems="center" spacing={3}>
-          <Field.Switch name="newLabel.enabled" label={null} sx={{ m: 0 }} />
-          <Field.Text
-            name="newLabel.content"
-            label="New label"
-            fullWidth
-            disabled={!values.newLabel.enabled}
-          />
-        </Stack>
-      </Stack>
-    </Card>
-  );
-
-  const renderPricing = (
-    <Card>
-      <CardHeader title="Pricing" subheader="Price related inputs" sx={{ mb: 3 }} />
-
-      <Divider />
-
-      <Stack spacing={3} sx={{ p: 3 }}>
-        <Field.Text
-          name="price"
-          label="Regular price"
-          placeholder="0.00"
-          type="number"
-          InputLabelProps={{ shrink: true }}
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <Box component="span" sx={{ color: 'text.disabled' }}>
-                  $
-                </Box>
-              </InputAdornment>
-            ),
-          }}
-        />
-
-        <Field.Text
-          name="priceSale"
-          label="Sale price"
-          placeholder="0.00"
-          type="number"
-          InputLabelProps={{ shrink: true }}
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <Box component="span" sx={{ color: 'text.disabled' }}>
-                  $
-                </Box>
-              </InputAdornment>
-            ),
-          }}
-        />
-
-        <FormControlLabel
-          control={
-            <Switch id="toggle-taxes" checked={includeTaxes} onChange={handleChangeIncludeTaxes} />
-          }
-          label="Price includes taxes"
-        />
-
-        {!includeTaxes && (
-          <Field.Text
-            name="taxes"
-            label="Tax (%)"
-            placeholder="0.00"
-            type="number"
-            InputLabelProps={{ shrink: true }}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <Box component="span" sx={{ color: 'text.disabled' }}>
-                    %
-                  </Box>
-                </InputAdornment>
-              ),
-            }}
-          />
-        )}
-      </Stack>
-    </Card>
-  );
-
-  const renderActions = (
-    <Stack spacing={3} direction="row" alignItems="center" flexWrap="wrap">
-      <FormControlLabel
-        control={<Switch defaultChecked inputProps={{ id: 'publish-switch' }} />}
-        label="Publish"
-        sx={{ pl: 3, flexGrow: 1 }}
-      />
-
-      <LoadingButton type="submit" variant="contained" size="large" loading={isSubmitting}>
-        {!currentProduct ? 'Create product' : 'Save changes'}
-      </LoadingButton>
-    </Stack>
-  );
+  const handleOrderId = useCallback((event) => {}, []);
 
   return (
     <Form methods={methods} onSubmit={onSubmit}>
-      <Stack spacing={{ xs: 3, md: 5 }} sx={{ mx: 'auto', maxWidth: { xs: 720, xl: 880 } }}>
-        {renderDetails}
-
-        {renderProperties}
-
-        {renderPricing}
-
-        {renderActions}
-      </Stack>
+      <Card>
+        <Stack spacing={4} sx={{ p: 3 }}>
+          <Box
+            columnGap={2}
+            rowGap={3}
+            display="grid"
+            gridTemplateColumns={{ xs: 'repeat(1, 1fr)', md: 'repeat(2, 1fr)' }}
+          >
+            <TextField label="Product Name" onChange={handleOrderId} />
+            <TextField label="Product Price" onChange={handleOrderId} />
+          </Box>
+          <Box
+            sx={{
+              borderRadius: 1,
+              overflow: 'hidden',
+              border: (theme) => `solid 1px ${theme.vars.palette.divider}`,
+            }}
+          >
+            <Accordion>
+              <AccordionSummary expandIcon={<Iconify icon="eva:arrow-ios-downward-fill" />}>
+                <Typography>Select Icon</Typography>
+              </AccordionSummary>
+              <Divider />
+              <AccordionDetails>
+                <Box
+                  spacing={2}
+                  gap={3}
+                  display="grid"
+                  gridTemplateColumns={{ xs: 'repeat(2, 1fr)', md: 'repeat(12, 1fr)' }}
+                >
+                  <ProductItemButton image="--->" />
+                  <ProductItemButton image="--->" />
+                  <ProductItemButton image="--->" />
+                  <ProductItemButton image="--->" />
+                  <ProductItemButton image="--->" />
+                  <ProductItemButton image="--->" />
+                  <ProductItemButton image="--->" />
+                  <ProductItemButton image="--->" />
+                  <ProductItemButton image="--->" />
+                  <ProductItemButton image="--->" />
+                  <ProductItemButton image="--->" />
+                  <ProductItemButton image="--->" />
+                  <ProductItemButton image="--->" />
+                  <ProductItemButton image="--->" />
+                  <ProductItemButton image="--->" />
+                  <ProductItemButton image="--->" />
+                  <ProductItemButton image="--->" />
+                  <ProductItemButton image="--->" />
+                </Box>
+              </AccordionDetails>
+            </Accordion>
+          </Box>
+          <FormControlLabel
+            control={<Switch name="isActive" defaultChecked />}
+            label="Is Active?"
+          />
+          <Box display="flex" flexDirection="column" alignItems="flex-end" justifyContent="center">
+            <Box display="flex" gap={2} height={50}>
+              <Button variant="contained">Submit</Button>
+              <Button variant="outlined">Cancel</Button>
+            </Box>
+          </Box>
+        </Stack>
+      </Card>
     </Form>
   );
 }

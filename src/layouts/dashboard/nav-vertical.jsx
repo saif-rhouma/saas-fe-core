@@ -18,7 +18,7 @@ export function NavVertical({ sx, data, slots, isNavMini, layoutQuery, onToggleN
   const renderNavVertical = (
     <>
       {slots?.topArea ?? (
-        <Box sx={{ pl: 3.5, pt: 2.5, pb: 1 }}>
+        <Box sx={{ pl: 3.5, pt: 2.5, pb: 1 }} marginBottom={2}>
           <Logo />
         </Box>
       )}
@@ -57,6 +57,7 @@ export function NavVertical({ sx, data, slots, isNavMini, layoutQuery, onToggleN
         height: 1,
         display: 'none',
         position: 'fixed',
+
         flexDirection: 'column',
         bgcolor: 'var(--layout-nav-bg)',
         zIndex: 'var(--layout-nav-zIndex)',

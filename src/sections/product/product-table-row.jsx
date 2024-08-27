@@ -1,96 +1,131 @@
 import Box from '@mui/material/Box';
 import Link from '@mui/material/Link';
+import Paper from '@mui/material/Paper';
 import Stack from '@mui/material/Stack';
+import Button from '@mui/material/Button';
 import Avatar from '@mui/material/Avatar';
+import MenuList from '@mui/material/MenuList';
+import Collapse from '@mui/material/Collapse';
+import MenuItem from '@mui/material/MenuItem';
+import TableRow from '@mui/material/TableRow';
+import Checkbox from '@mui/material/Checkbox';
+import TableCell from '@mui/material/TableCell';
+import IconButton from '@mui/material/IconButton';
 import ListItemText from '@mui/material/ListItemText';
-import LinearProgress from '@mui/material/LinearProgress';
+
+import { useBoolean } from 'src/hooks/use-boolean';
 
 import { fCurrency } from 'src/utils/format-number';
-import { fTime, fDate } from 'src/utils/format-time';
 
 import { Label } from 'src/components/label';
+import { Iconify } from 'src/components/iconify';
+import { ConfirmDialog } from 'src/components/custom-dialog';
+import { usePopover, CustomPopover } from 'src/components/custom-popover';
 
-// ----------------------------------------------------------------------
+const ProductTableRow = ({ row, selected, onViewRow, onSelectRow, onDeleteRow }) => {
+  const confirm = useBoolean();
 
-export function RenderCellPrice({ params }) {
-  return fCurrency(params.row.price);
-}
+  const collapse = useBoolean();
 
-// ----------------------------------------------------------------------
+  const popover = usePopover();
 
-export function RenderCellPublish({ params }) {
-  return (
-    <Label variant="soft" color={(params.row.publish === 'published' && 'info') || 'default'}>
-      {params.row.publish}
-    </Label>
+  const renderPrimary = (
+    <TableRow hover selected={selected}>
+      <TableCell padding="checkbox">
+        <Checkbox
+          checked={selected}
+          onClick={onSelectRow}
+          inputProps={{ id: `row-checkbox-${row.id}`, 'aria-label': `Row checkbox` }}
+        />
+      </TableCell>
+
+      <TableCell>
+        <Link color="inherit" onClick={onViewRow} underline="always" sx={{ cursor: 'pointer' }}>
+          {row.orderNumber}
+        </Link>
+      </TableCell>
+
+      <TableCell>{row.customer.name}</TableCell>
+      <TableCell>{row.totalQuantity}</TableCell>
+
+      <TableCell align="center"> {row.totalQuantity} </TableCell>
+      <TableCell>
+        <Label
+          variant="soft"
+          color={
+            (row.status === 'completed' && 'success') ||
+            (row.status === 'pending' && 'warning') ||
+            (row.status === 'cancelled' && 'error') ||
+            'default'
+          }
+        >
+          {row.status}
+        </Label>
+      </TableCell>
+
+      <TableCell align="right" sx={{ px: 1, whiteSpace: 'nowrap' }}>
+        <IconButton color={popover.open ? 'inherit' : 'default'} onClick={popover.onOpen}>
+          <Iconify icon="eva:more-vertical-fill" />
+        </IconButton>
+      </TableCell>
+    </TableRow>
   );
-}
 
-// ----------------------------------------------------------------------
-
-export function RenderCellCreatedAt({ params }) {
   return (
-    <Stack spacing={0.5}>
-      <Box component="span">{fDate(params.row.createdAt)}</Box>
-      <Box component="span" sx={{ typography: 'caption', color: 'text.secondary' }}>
-        {fTime(params.row.createdAt)}
-      </Box>
-    </Stack>
-  );
-}
-
-// ----------------------------------------------------------------------
-
-export function RenderCellStock({ params }) {
-  return (
-    <Stack justifyContent="center" sx={{ typography: 'caption', color: 'text.secondary' }}>
-      <LinearProgress
-        value={(params.row.available * 100) / params.row.quantity}
-        variant="determinate"
-        color={
-          (params.row.inventoryType === 'out of stock' && 'error') ||
-          (params.row.inventoryType === 'low stock' && 'warning') ||
-          'success'
-        }
-        sx={{ mb: 1, width: 1, height: 6, maxWidth: 80 }}
-      />
-      {!!params.row.available && params.row.available} {params.row.inventoryType}
-    </Stack>
-  );
-}
-
-// ----------------------------------------------------------------------
-
-export function RenderCellProduct({ params, onViewRow }) {
-  return (
-    <Stack direction="row" alignItems="center" sx={{ py: 2, width: 1 }}>
-      <Avatar
-        alt={params.row.name}
-        src={params.row.coverUrl}
-        variant="rounded"
-        sx={{ width: 64, height: 64, mr: 2 }}
-      />
-
-      <ListItemText
-        disableTypography
-        primary={
-          <Link
-            noWrap
-            color="inherit"
-            variant="subtitle2"
-            onClick={onViewRow}
-            sx={{ cursor: 'pointer' }}
+    <>
+      {renderPrimary}
+      <CustomPopover
+        open={popover.open}
+        anchorEl={popover.anchorEl}
+        onClose={popover.onClose}
+        slotProps={{ arrow: { placement: 'right-top' } }}
+      >
+        <MenuList>
+          <MenuItem
+            onClick={() => {
+              confirm.onTrue();
+              popover.onClose();
+            }}
+            sx={{ color: 'error.main' }}
           >
-            {params.row.name}
-          </Link>
+            <Iconify icon="solar:trash-bin-trash-bold" />
+            Delete
+          </MenuItem>
+
+          <MenuItem
+            onClick={() => {
+              onViewRow();
+              popover.onClose();
+            }}
+          >
+            <Iconify icon="solar:eye-bold" />
+            View
+          </MenuItem>
+
+          <MenuItem
+            onClick={() => {
+              onViewRow();
+              popover.onClose();
+            }}
+          >
+            <Iconify icon="solar:eye-bold" />
+            Edit
+          </MenuItem>
+        </MenuList>
+      </CustomPopover>
+
+      <ConfirmDialog
+        open={confirm.value}
+        onClose={confirm.onFalse}
+        title="Delete"
+        content="Are you sure want to delete?"
+        action={
+          <Button variant="contained" color="error" onClick={onDeleteRow}>
+            Delete
+          </Button>
         }
-        secondary={
-          <Box component="div" sx={{ typography: 'body2', color: 'text.disabled' }}>
-            {params.row.category}
-          </Box>
-        }
-        sx={{ display: 'flex', flexDirection: 'column' }}
       />
-    </Stack>
+    </>
   );
-}
+};
+export default ProductTableRow;

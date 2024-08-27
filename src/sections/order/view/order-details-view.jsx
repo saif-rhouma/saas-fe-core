@@ -1,40 +1,29 @@
-import { useState, useCallback } from 'react';
-
 import Stack from '@mui/material/Stack';
 import Grid from '@mui/material/Unstable_Grid2';
 
 import { paths } from 'src/routes/paths';
 
-import { ORDER_STATUS_OPTIONS } from 'src/_mock';
 import { DashboardContent } from 'src/layouts/dashboard';
 
-import { OrderDetailsInfo } from '../order-details-info';
-import { OrderDetailsItems } from '../order-details-item';
-import { OrderDetailsToolbar } from '../order-details-toolbar';
-import { OrderDetailsHistory } from '../order-details-history';
+import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 
+import OrderProductAddons from '../order-product-addons';
+import { OrderDetailsItems } from '../order-details-item';
 // ----------------------------------------------------------------------
 
 export function OrderDetailsView({ order }) {
-  const [status, setStatus] = useState(order?.status);
-
-  const handleChangeStatus = useCallback((newValue) => {
-    setStatus(newValue);
-  }, []);
-
   return (
     <DashboardContent>
-      <OrderDetailsToolbar
-        backLink={paths.dashboard.order.root}
-        orderNumber={order?.orderNumber}
-        createdAt={order?.createdAt}
-        status={status}
-        onChangeStatus={handleChangeStatus}
-        statusOptions={ORDER_STATUS_OPTIONS}
+      <CustomBreadcrumbs
+        links={[
+          { name: 'Dashboard', href: paths.dashboard.root },
+          { name: 'Order', href: paths.dashboard.order.root },
+          { name: 'Order Details' },
+        ]}
+        sx={{ mb: { xs: 3, md: 5 } }}
       />
-
       <Grid container spacing={3}>
-        <Grid xs={12} md={8}>
+        <Grid xs={12} md={9}>
           <Stack spacing={3} direction={{ xs: 'column-reverse', md: 'column' }}>
             <OrderDetailsItems
               items={order?.items}
@@ -44,17 +33,16 @@ export function OrderDetailsView({ order }) {
               subtotal={order?.subtotal}
               totalAmount={order?.totalAmount}
             />
-
-            <OrderDetailsHistory history={order?.history} />
           </Stack>
         </Grid>
 
-        <Grid xs={12} md={4}>
-          <OrderDetailsInfo
+        <Grid xs={12} md={3}>
+          <OrderProductAddons
             customer={order?.customer}
             delivery={order?.delivery}
             payment={order?.payment}
             shippingAddress={order?.shippingAddress}
+            history={order?.history}
           />
         </Grid>
       </Grid>

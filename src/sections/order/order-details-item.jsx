@@ -1,15 +1,12 @@
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
-import Stack from '@mui/material/Stack';
-import Avatar from '@mui/material/Avatar';
 import CardHeader from '@mui/material/CardHeader';
-import IconButton from '@mui/material/IconButton';
-import ListItemText from '@mui/material/ListItemText';
+import Stack from '@mui/material/Stack';
 
 import { fCurrency } from 'src/utils/format-number';
 
-import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
+import OrderProductTable from './order-product-table';
 
 // ----------------------------------------------------------------------
 
@@ -29,7 +26,7 @@ export function OrderDetailsItems({
       </Stack>
 
       <Stack direction="row">
-        <Box sx={{ color: 'text.secondary' }}>Shipping</Box>
+        <Box sx={{ color: 'text.secondary' }}>Addon</Box>
         <Box sx={{ width: 160, ...(shipping && { color: 'error.main' }) }}>
           {shipping ? `- ${fCurrency(shipping)}` : '-'}
         </Box>
@@ -43,12 +40,12 @@ export function OrderDetailsItems({
       </Stack>
 
       <Stack direction="row">
-        <Box sx={{ color: 'text.secondary' }}>Taxes</Box>
+        <Box sx={{ color: 'text.secondary' }}>Tax (0%)</Box>
         <Box sx={{ width: 160 }}>{taxes ? fCurrency(taxes) : '-'}</Box>
       </Stack>
 
       <Stack direction="row" sx={{ typography: 'subtitle1' }}>
-        <div>Total</div>
+        <div>Gross Total</div>
         <Box sx={{ width: 160 }}>{fCurrency(totalAmount) || '-'}</Box>
       </Stack>
     </Stack>
@@ -56,50 +53,113 @@ export function OrderDetailsItems({
 
   return (
     <Card>
-      <CardHeader
-        title="Details"
-        action={
-          <IconButton>
-            <Iconify icon="solar:pen-bold" />
-          </IconButton>
-        }
-      />
+      <CardHeader title="Details" />
+      <Stack
+        direction="row"
+        justifyContent="space-between"
+        sx={{
+          p: 3,
+          typography: 'body2',
+        }}
+      >
+        <Box
+          flexDirection="column"
+          sx={{
+            display: 'flex',
+            width: '100%',
+            p: 1,
+          }}
+        >
+          <Stack direction="row" sx={{ typography: 'subtitle2', marginBottom: 1 }}>
+            <div>Order Details</div>
+          </Stack>
+          <Box sx={{ color: 'text.secondary' }}>ORDER ID: #ORD-0004</Box>
+          <Box sx={{ color: 'text.secondary' }}>Order Date: 20/06/2024</Box>
+          <Box sx={{ color: 'text.secondary' }}>Delivery Date: 26/06/2024</Box>
+        </Box>
+        <Box
+          flexDirection="column"
+          gap={0.5}
+          sx={{
+            display: 'flex',
+            width: '100%',
+            p: 1,
+            borderRight: (theme) => `dashed 2px ${theme.vars.palette.background.neutral}`,
+            borderLeft: (theme) => `dashed 2px ${theme.vars.palette.background.neutral}`,
+          }}
+        >
+          <Stack
+            display="flex"
+            justifyContent="center"
+            alignItems="center"
+            sx={{ typography: 'subtitle2', width: '100%', marginBottom: 1 }}
+          >
+            <div>NFCAC</div>
+          </Stack>
+          <Box sx={{ color: 'text.secondary' }}>122125541</Box>
+          <Box sx={{ color: 'text.secondary' }}>12212-5458</Box>
+          <Box sx={{ color: 'text.secondary' }}>TAX: 124</Box>
+        </Box>
+        <Box
+          flexDirection="column"
+          alignItems="center"
+          sx={{
+            p: 1,
+            display: 'flex',
+            width: '100%',
+          }}
+        >
+          <Stack
+            display="flex"
+            alignItems="center"
+            gap={1}
+            sx={{ typography: 'subtitle2', width: '100%', marginBottom: 1 }}
+          >
+            <div>Invoice To</div>
+          </Stack>
+          <Box sx={{ color: 'text.secondary' }}>Thrid co.</Box>
+        </Box>
+      </Stack>
 
       <Scrollbar>
-        {items.map((item) => (
-          <Stack
-            key={item.id}
-            direction="row"
-            alignItems="center"
-            sx={{
-              p: 3,
-              minWidth: 640,
-              borderBottom: (theme) => `dashed 2px ${theme.vars.palette.background.neutral}`,
-            }}
-          >
-            <Avatar src={item.coverUrl} variant="rounded" sx={{ width: 48, height: 48, mr: 2 }} />
-
-            <ListItemText
-              primary={item.name}
-              secondary={item.sku}
-              primaryTypographyProps={{ typography: 'body2' }}
-              secondaryTypographyProps={{
-                component: 'span',
-                color: 'text.disabled',
-                mt: 0.5,
-              }}
-            />
-
-            <Box sx={{ typography: 'body2' }}>x{item.quantity}</Box>
-
-            <Box sx={{ width: 110, textAlign: 'right', typography: 'subtitle2' }}>
-              {fCurrency(item.price)}
-            </Box>
-          </Stack>
-        ))}
+        <Box
+          fullWidth
+          alignItems="center"
+          sx={{
+            p: 3,
+            borderBottom: (theme) => `dashed 2px ${theme.vars.palette.background.neutral}`,
+          }}
+        >
+          <OrderProductTable />
+        </Box>
       </Scrollbar>
 
       {renderTotal}
+      <Stack
+        justifyContent="space-between"
+        sx={{
+          p: 3,
+          typography: 'body2',
+        }}
+      >
+        <Box
+          flexDirection="column"
+          sx={{
+            display: 'flex',
+            width: '100%',
+            p: 1,
+          }}
+        >
+          <Stack sx={{ typography: 'subtitle2', marginBottom: 1 }}>
+            <div>Notes:</div>
+          </Stack>
+          <Box sx={{ color: 'text.secondary' }}>
+            Lorem ipsum dolor sit amet consectetur adipisicing elit. Odio minima quibusdam, impedit
+            cum aliquid perferendis molestias alias quia voluptatem fugit quas recusandae officiis
+            mollitia ducimus laboriosam modi voluptatibus commodi debitis.{' '}
+          </Box>
+        </Box>
+      </Stack>
     </Card>
   );
 }

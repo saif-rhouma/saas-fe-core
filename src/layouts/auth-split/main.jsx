@@ -7,7 +7,6 @@ import { layoutClasses } from 'src/layouts/classes';
 
 export function Main({ sx, children, layoutQuery, ...other }) {
   const theme = useTheme();
-
   return (
     <Box
       component="main"
