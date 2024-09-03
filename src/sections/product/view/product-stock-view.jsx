@@ -1,8 +1,6 @@
 import { useCallback, useState } from 'react';
 
 import { Stack, useTheme } from '@mui/material';
-import Button from '@mui/material/Button';
-import Grid from '@mui/material/Unstable_Grid2';
 import Card from '@mui/material/Card';
 
 import { useRouter } from 'src/routes/hooks';
@@ -13,35 +11,30 @@ import { useSetState } from 'src/hooks/use-set-state';
 
 import { fIsAfter, fIsBetween } from 'src/utils/format-time';
 
-import { _orders, ORDER_STATUS_OPTIONS } from 'src/_mock';
-import { DashboardContent } from 'src/layouts/dashboard';
-import Tooltip from '@mui/material/Tooltip';
-import TableBody from '@mui/material/TableBody';
-import Table from '@mui/material/Table';
+import Box from '@mui/material/Box';
 import IconButton from '@mui/material/IconButton';
-import { Scrollbar } from 'src/components/scrollbar';
-import { ConfirmDialog } from 'src/components/custom-dialog';
+import Table from '@mui/material/Table';
+import TableBody from '@mui/material/TableBody';
+import Tooltip from '@mui/material/Tooltip';
+import { _orders } from 'src/_mock';
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 import { Iconify } from 'src/components/iconify';
+import { Scrollbar } from 'src/components/scrollbar';
 import { toast } from 'src/components/snackbar';
-import { ProductTableToolbar } from '../product-table-toolbar';
-import Box from '@mui/material/Box';
 import {
-  useTable,
   emptyRows,
-  rowInPage,
-  TableNoData,
   getComparator,
+  rowInPage,
   TableEmptyRows,
   TableHeadCustom,
-  TableSelectedAction,
+  TableNoData,
   TablePaginationCustom,
+  TableSelectedAction,
+  useTable,
 } from 'src/components/table';
-import { ProductAddonTableToolbar } from '../product-addon-table-toolbar';
-import ProductAddonTableRow from '../product-addon-table-row';
-import ProductAddonCreateDialog from '../product-addon-create-dialog';
-import { ProductStockTableToolbar } from '../product-stock-table-toolbar';
+import { DashboardContent } from 'src/layouts/dashboard';
 import ProductStockTableRow from '../product-stock-table-row';
+import { ProductStockTableToolbar } from '../product-stock-table-toolbar';
 
 // ----------------------------------------------------------------------
 

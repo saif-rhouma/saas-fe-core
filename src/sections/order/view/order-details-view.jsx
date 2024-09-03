@@ -7,11 +7,12 @@ import { DashboardContent } from 'src/layouts/dashboard';
 
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 
-import OrderProductAddons from '../order-product-addons';
 import { OrderDetailsItems } from '../order-details-item';
+import OrderProductAddons from '../order-product-addons';
 // ----------------------------------------------------------------------
 
 export function OrderDetailsView({ order }) {
+  console.log('----------->> order', order);
   return (
     <DashboardContent>
       <CustomBreadcrumbs
@@ -26,24 +27,19 @@ export function OrderDetailsView({ order }) {
         <Grid xs={12} md={9}>
           <Stack spacing={3} direction={{ xs: 'column-reverse', md: 'column' }}>
             <OrderDetailsItems
-              items={order?.items}
-              taxes={order?.taxes}
+              order={order}
+              customer={order?.customer}
+              taxes={order?.customer?.customer}
               shipping={order?.shipping}
               discount={order?.discount}
               subtotal={order?.subtotal}
-              totalAmount={order?.totalAmount}
+              totalAmount={order?.totalOrderAmount}
             />
           </Stack>
         </Grid>
 
         <Grid xs={12} md={3}>
-          <OrderProductAddons
-            customer={order?.customer}
-            delivery={order?.delivery}
-            payment={order?.payment}
-            shippingAddress={order?.shippingAddress}
-            history={order?.history}
-          />
+          <OrderProductAddons payments={order?.payments} />
         </Grid>
       </Grid>
     </DashboardContent>

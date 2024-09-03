@@ -1,22 +1,14 @@
-import Stack from '@mui/material/Stack';
-import { useCallback } from 'react';
 import { LoadingButton } from '@mui/lab';
+import { Button, DialogActions, DialogTitle, MenuItem, Select, TextField } from '@mui/material';
+import Box from '@mui/material/Box';
 import Dialog from '@mui/material/Dialog';
 import DialogContent from '@mui/material/DialogContent';
 import Divider from '@mui/material/Divider';
-import Box from '@mui/material/Box';
+import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-import { Upload, UploadBox } from 'src/components/upload';
-import {
-  Button,
-  Switch,
-  TextField,
-  DialogTitle,
-  DialogActions,
-  Select,
-  MenuItem,
-} from '@mui/material';
+import { useCallback } from 'react';
+import { Upload } from 'src/components/upload';
 
 const OrderPaymentDetailsDialog = ({ payment, open, onClose }) => {
   const handleDrop = useCallback(() => {}, []);

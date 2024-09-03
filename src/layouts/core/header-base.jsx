@@ -53,12 +53,7 @@ export function HeaderBase({
   slotsDisplay: {
     signIn = true,
     account = true,
-    helpLink = true,
     settings = true,
-    purchase = true,
-    contacts = true,
-    searchbar = true,
-    workspaces = true,
     menuButton = true,
     localization = true,
     notifications = true,
@@ -69,7 +64,6 @@ export function HeaderBase({
   const theme = useTheme();
 
   const { activePage } = useGlobalContext();
-
   return (
     <HeaderSection
       sx={sx}
@@ -127,24 +121,6 @@ export function HeaderBase({
               {account && <AccountDrawer data-slot="account" data={data?.account} />}
               {/* -- Sign in button -- */}
               {signIn && <SignInButton />}
-              {/* -- Purchase button -- */}
-              {purchase && (
-                <Button
-                  data-slot="purchase"
-                  variant="contained"
-                  rel="noopener"
-                  target="_blank"
-                  href={paths.minimalStore}
-                  sx={{
-                    display: 'none',
-                    [theme.breakpoints.up(layoutQuery)]: {
-                      display: 'inline-flex',
-                    },
-                  }}
-                >
-                  Purchase
-                </Button>
-              )}
             </Box>
 
             {slots?.rightAreaEnd}

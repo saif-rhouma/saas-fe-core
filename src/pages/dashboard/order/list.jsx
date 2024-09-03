@@ -1,21 +1,36 @@
+import { useQuery } from '@tanstack/react-query';
 import { Helmet } from 'react-helmet-async';
+import { LoadingScreen } from 'src/components/loading-screen';
 
 import { CONFIG } from 'src/config-global';
 
 import { OrderListView } from 'src/sections/order/view';
 
+import axios, { endpoints } from 'src/utils/axios';
 // ----------------------------------------------------------------------
 
 const metadata = { title: `Order list | Dashboard - ${CONFIG.site.name}` };
 
 export default function Page() {
+  const response = useQuery({
+    queryKey: ['orders'],
+    queryFn: async () => {
+      const res = await axios.get(endpoints.order.list);
+      return res.data;
+    },
+  });
+
+  if (response.isPending || response.isLoading) {
+    return <LoadingScreen />;
+  }
+
   return (
     <>
       <Helmet>
         <title> {metadata.title}</title>
       </Helmet>
 
-      <OrderListView />
+      <OrderListView orders={response.data} />
     </>
   );
 }

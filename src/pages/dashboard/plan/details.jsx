@@ -7,6 +7,10 @@ import { CONFIG } from 'src/config-global';
 
 import { PlanDetailsView } from 'src/sections/plan/view';
 
+import { useQuery } from '@tanstack/react-query';
+import axios, { endpoints } from 'src/utils/axios';
+import { LoadingScreen } from 'src/components/loading-screen';
+
 // ----------------------------------------------------------------------
 
 const metadata = { title: `Plan details | Dashboard - ${CONFIG.site.name}` };
@@ -14,7 +18,17 @@ const metadata = { title: `Plan details | Dashboard - ${CONFIG.site.name}` };
 export default function Page() {
   const { id = '' } = useParams();
 
-  const currentOrder = _orders.find((order) => order.id === id);
+  const response = useQuery({
+    queryKey: ['plan', id],
+    queryFn: async () => {
+      const res = await axios.get(endpoints.plan.details + id);
+      return res.data;
+    },
+  });
+
+  if (response.isPending || response.isLoading) {
+    return <LoadingScreen />;
+  }
 
   return (
     <>
@@ -22,7 +36,7 @@ export default function Page() {
         <title> {metadata.title}</title>
       </Helmet>
 
-      <PlanDetailsView order={currentOrder} />
+      <PlanDetailsView plan={response.data} />
     </>
   );
 }

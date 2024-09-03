@@ -44,8 +44,12 @@ const TicketsListPage = lazy(() => import('src/pages/dashboard/tickets/list'));
 const TicketsDetailsPage = lazy(() => import('src/pages/dashboard/tickets/details'));
 // Staff
 // const StaffListPage = lazy(() => import('src/pages/dashboard/reminders/list'));
-// Reports
-// const ReportsListPage = lazy(() => import('src/pages/dashboard/reminders/list'));
+// Reports;
+const ReportsDailyListPage = lazy(() => import('src/pages/dashboard/reports/daily-list'));
+const ReportsOrderListPage = lazy(() => import('src/pages/dashboard/reports/order-list'));
+const ReportsPlanListPage = lazy(() => import('src/pages/dashboard/reports/plan-list'));
+const ReportsStockListPage = lazy(() => import('src/pages/dashboard/reports/stock-list'));
+// const ReportsCustomListPage = lazy(() => import('src/pages/dashboard/reports/custom-list'));
 // Tools
 // const ToolsListPage = lazy(() => import('src/pages/dashboard/reminders/list'));
 
@@ -163,15 +167,21 @@ export const dashboardRoutes = [
       {
         path: 'reports',
         children: [
-          { element: <PaymentsListPage />, index: true },
-          { path: 'list', element: <PaymentsListPage /> },
+          { element: <ReportsDailyListPage />, index: true },
+          { path: 'daily', element: <ReportsDailyListPage /> },
+          { path: 'order', element: <ReportsOrderListPage /> },
+          { path: 'plan', element: <ReportsPlanListPage /> },
+          { path: 'stock', element: <ReportsStockListPage /> },
+          { path: 'custom', element: <ReportsDailyListPage /> },
         ],
       },
       {
         path: 'tools',
         children: [
           { element: <PaymentsListPage />, index: true },
-          { path: 'list', element: <PaymentsListPage /> },
+          { path: 'account-setting', element: <PaymentsListPage /> },
+          { path: 'financial-year', element: <PaymentsListPage /> },
+          { path: 'master-setting', element: <PaymentsListPage /> },
         ],
       },
       { path: 'kanban', element: <KanbanPage /> },

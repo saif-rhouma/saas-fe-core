@@ -206,13 +206,11 @@ export const paths = {
     },
     reports: {
       root: `${ROOTS.DASHBOARD}/reports`,
-      // new: `${ROOTS.DASHBOARD}/plan/new`,
-      // details: (id) => `${ROOTS.DASHBOARD}/plan/${id}`,
-      // edit: (id) => `${ROOTS.DASHBOARD}/plan/${id}/edit`,
-      // demo: {
-      //   details: `${ROOTS.DASHBOARD}/plan/${MOCK_ID}`,
-      //   edit: `${ROOTS.DASHBOARD}/plan/${MOCK_ID}/edit`,
-      // },
+      daily: `${ROOTS.DASHBOARD}/reports/daily`,
+      order: `${ROOTS.DASHBOARD}/reports/order`,
+      plan: `${ROOTS.DASHBOARD}/reports/plan`,
+      stock: `${ROOTS.DASHBOARD}/reports/stock`,
+      custom: `${ROOTS.DASHBOARD}/reports/custom`,
     },
     tools: {
       root: `${ROOTS.DASHBOARD}/tools`,

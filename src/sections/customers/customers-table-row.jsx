@@ -1,26 +1,15 @@
-import Box from '@mui/material/Box';
-import Link from '@mui/material/Link';
-import Paper from '@mui/material/Paper';
-import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
-import Avatar from '@mui/material/Avatar';
-import MenuList from '@mui/material/MenuList';
-import Collapse from '@mui/material/Collapse';
-import MenuItem from '@mui/material/MenuItem';
-import TableRow from '@mui/material/TableRow';
-import Checkbox from '@mui/material/Checkbox';
-import TableCell from '@mui/material/TableCell';
 import IconButton from '@mui/material/IconButton';
-import ListItemText from '@mui/material/ListItemText';
+import MenuItem from '@mui/material/MenuItem';
+import MenuList from '@mui/material/MenuList';
+import TableCell from '@mui/material/TableCell';
+import TableRow from '@mui/material/TableRow';
 
 import { useBoolean } from 'src/hooks/use-boolean';
 
-import { fCurrency } from 'src/utils/format-number';
-
-import { Label } from 'src/components/label';
-import { Iconify } from 'src/components/iconify';
 import { ConfirmDialog } from 'src/components/custom-dialog';
-import { usePopover, CustomPopover } from 'src/components/custom-popover';
+import { CustomPopover, usePopover } from 'src/components/custom-popover';
+import { Iconify } from 'src/components/iconify';
 
 const CustomersTableRow = ({ row, selected, onViewRow, onSelectRow, onDeleteRow }) => {
   const confirm = useBoolean();
@@ -29,14 +18,21 @@ const CustomersTableRow = ({ row, selected, onViewRow, onSelectRow, onDeleteRow 
 
   const popover = usePopover();
 
+  const getFullAddress = (address) => {
+    if (!address) {
+      return ' - ';
+    }
+    return `${address?.street}, ${address?.city}, ${address?.country}`;
+  };
+
   const renderPrimary = (
     <TableRow hover selected={selected}>
-      <TableCell>{row.orderNumber}</TableCell>
+      <TableCell>{row?.id}</TableCell>
 
-      <TableCell>{row.customer.name}</TableCell>
-      <TableCell>{row.customer.email}</TableCell>
-      <TableCell>{row.shippingAddress.phoneNumber}</TableCell>
-      <TableCell>{row.shippingAddress.fullAddress}</TableCell>
+      <TableCell>{row?.name}</TableCell>
+      <TableCell>{row?.email}</TableCell>
+      <TableCell>{row?.phoneNumber}</TableCell>
+      <TableCell>{getFullAddress(row?.address)}</TableCell>
 
       <TableCell align="right" sx={{ px: 1, whiteSpace: 'nowrap' }}>
         <IconButton color={popover.open ? 'inherit' : 'default'} onClick={popover.onOpen}>

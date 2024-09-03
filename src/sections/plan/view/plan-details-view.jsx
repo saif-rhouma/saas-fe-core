@@ -10,7 +10,7 @@ import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 import { PlanDetailsItems } from '../plan-details-item';
 // ----------------------------------------------------------------------
 
-export function PlanDetailsView({ order }) {
+export function PlanDetailsView({ plan }) {
   return (
     <DashboardContent>
       <CustomBreadcrumbs
@@ -25,12 +25,13 @@ export function PlanDetailsView({ order }) {
         <Grid xs={12} md={12}>
           <Stack spacing={3} direction={{ xs: 'column-reverse', md: 'column' }}>
             <PlanDetailsItems
-              items={order?.items}
-              taxes={order?.taxes}
-              shipping={order?.shipping}
-              discount={order?.discount}
-              subtotal={order?.subtotal}
-              totalAmount={order?.totalAmount}
+              items={plan?.items}
+              plan={plan}
+              taxes={plan?.taxes}
+              shipping={plan?.shipping}
+              discount={plan?.discount}
+              subtotal={plan?.subtotal}
+              totalAmount={plan?.totalAmount}
             />
           </Stack>
         </Grid>

@@ -1,30 +1,30 @@
-import Tab from '@mui/material/Tab';
 import Box from '@mui/material/Box';
-import Tabs from '@mui/material/Tabs';
-import Card from '@mui/material/Card';
 import Button from '@mui/material/Button';
-import Grid from '@mui/material/Unstable_Grid2';
+import Card from '@mui/material/Card';
 import Container from '@mui/material/Container';
+import Tab from '@mui/material/Tab';
+import Tabs from '@mui/material/Tabs';
 import Typography from '@mui/material/Typography';
+import Grid from '@mui/material/Unstable_Grid2';
 
-import { paths } from 'src/routes/paths';
 import { RouterLink } from 'src/routes/components';
+import { paths } from 'src/routes/paths';
 
 import { useTabs } from 'src/hooks/use-tabs';
 
 import { varAlpha } from 'src/theme/styles';
 
-import { Iconify } from 'src/components/iconify';
-import { EmptyContent } from 'src/components/empty-content';
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
+import { EmptyContent } from 'src/components/empty-content';
+import { Iconify } from 'src/components/iconify';
 
-import { CartIcon } from '../components/cart-icon';
 import { useCheckoutContext } from '../../checkout/context';
-import { ProductDetailsSkeleton } from '../product-skeleton';
-import { ProductDetailsReview } from '../product-details-review';
-import { ProductDetailsSummary } from '../product-details-summary';
+import { CartIcon } from '../components/cart-icon';
 import { ProductDetailsCarousel } from '../product-details-carousel';
 import { ProductDetailsDescription } from '../product-details-description';
+import { ProductDetailsReview } from '../product-details-review';
+import { ProductDetailsSummary } from '../product-details-summary';
+import { ProductDetailsSkeleton } from '../product-skeleton';
 
 // ----------------------------------------------------------------------
 

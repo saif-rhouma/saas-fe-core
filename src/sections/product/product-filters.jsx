@@ -1,26 +1,26 @@
 import { useCallback } from 'react';
 
-import Box from '@mui/material/Box';
-import Radio from '@mui/material/Radio';
-import Stack from '@mui/material/Stack';
 import Badge from '@mui/material/Badge';
-import Drawer from '@mui/material/Drawer';
-import Rating from '@mui/material/Rating';
+import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
-import Slider from '@mui/material/Slider';
-import Divider from '@mui/material/Divider';
-import Tooltip from '@mui/material/Tooltip';
 import Checkbox from '@mui/material/Checkbox';
-import IconButton from '@mui/material/IconButton';
-import Typography from '@mui/material/Typography';
+import Divider from '@mui/material/Divider';
+import Drawer from '@mui/material/Drawer';
 import FormControlLabel from '@mui/material/FormControlLabel';
+import IconButton from '@mui/material/IconButton';
 import InputBase, { inputBaseClasses } from '@mui/material/InputBase';
+import Radio from '@mui/material/Radio';
+import Rating from '@mui/material/Rating';
+import Slider from '@mui/material/Slider';
+import Stack from '@mui/material/Stack';
+import Tooltip from '@mui/material/Tooltip';
+import Typography from '@mui/material/Typography';
 
 import { varAlpha } from 'src/theme/styles';
 
+import { ColorPicker } from 'src/components/color-utils';
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
-import { ColorPicker } from 'src/components/color-utils';
 
 // ----------------------------------------------------------------------
 

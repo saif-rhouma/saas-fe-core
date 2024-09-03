@@ -54,6 +54,7 @@ module.exports = {
     'jsx-a11y/anchor-is-valid': 0,
     'jsx-a11y/control-has-associated-label': 0,
     // unused imports
+    'no-multi-spaces': ['error'],
     'unused-imports/no-unused-imports': 1,
     'unused-imports/no-unused-vars': [
       0,

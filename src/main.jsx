@@ -6,21 +6,26 @@ import { HelmetProvider } from 'react-helmet-async';
 import App from './app';
 import { CONFIG } from './config-global';
 import AppContext from './context/context';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 // ----------------------------------------------------------------------
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 
+const queryClient = new QueryClient();
+
 root.render(
   <StrictMode>
-    <HelmetProvider>
-      <BrowserRouter basename={CONFIG.site.basePath}>
-        <Suspense>
-          <AppContext>
-            <App />
-          </AppContext>
-        </Suspense>
-      </BrowserRouter>
-    </HelmetProvider>
+    <QueryClientProvider client={queryClient}>
+      <HelmetProvider>
+        <BrowserRouter basename={CONFIG.site.basePath}>
+          <Suspense>
+            <AppContext>
+              <App />
+            </AppContext>
+          </Suspense>
+        </BrowserRouter>
+      </HelmetProvider>
+    </QueryClientProvider>
   </StrictMode>
 );

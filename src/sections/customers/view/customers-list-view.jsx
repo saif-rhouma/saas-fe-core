@@ -35,7 +35,6 @@ import {
   useTable,
 } from 'src/components/table';
 
-import CustomerCreateDialog from '../customers-create-dialog';
 import CustomersTableRow from '../customers-table-row';
 import { CustomersTableToolbar } from '../customers-table-toolbar';
 
@@ -62,8 +61,8 @@ const TABLE_HEAD = [
 
 // ----------------------------------------------------------------------
 
-const CustomersListView = () => {
-  const table = useTable({ defaultOrderBy: 'orderNumber' });
+const CustomersListView = ({ customers }) => {
+  const table = useTable({ defaultOrderBy: 'customerId' });
 
   const router = useRouter();
 
@@ -71,7 +70,7 @@ const CustomersListView = () => {
 
   const confirm = useBoolean();
 
-  const [tableData, setTableData] = useState(_orders);
+  const [tableData, setTableData] = useState(customers);
 
   const filters = useSetState({
     name: '',

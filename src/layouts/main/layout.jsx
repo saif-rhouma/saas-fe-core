@@ -49,25 +49,6 @@ export function MainLayout({ sx, data, children }) {
               localization: false,
               notifications: false,
             }}
-            slots={{
-              topArea: (
-                <Alert severity="info" sx={{ display: 'none', borderRadius: 0 }}>
-                  This is an info Alert.
-                </Alert>
-              ),
-              rightAreaStart: (
-                <NavDesktop
-                  data={navData}
-                  sx={{
-                    display: 'none',
-                    [theme.breakpoints.up(layoutQuery)]: {
-                      mr: 2.5,
-                      display: 'flex',
-                    },
-                  }}
-                />
-              ),
-            }}
           />
         }
         /** **************************************

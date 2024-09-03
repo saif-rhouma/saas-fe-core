@@ -2,8 +2,8 @@ import { useCallback, useState } from 'react';
 
 import { useTheme } from '@mui/material';
 import Button from '@mui/material/Button';
-import Grid from '@mui/material/Unstable_Grid2';
 import Card from '@mui/material/Card';
+import Grid from '@mui/material/Unstable_Grid2';
 
 import { useRouter } from 'src/routes/hooks';
 import { paths } from 'src/routes/paths';
@@ -13,31 +13,31 @@ import { useSetState } from 'src/hooks/use-set-state';
 
 import { fIsAfter, fIsBetween } from 'src/utils/format-time';
 
-import { _orders, ORDER_STATUS_OPTIONS } from 'src/_mock';
-import { DashboardContent } from 'src/layouts/dashboard';
-import Tooltip from '@mui/material/Tooltip';
-import TableBody from '@mui/material/TableBody';
-import Table from '@mui/material/Table';
-import IconButton from '@mui/material/IconButton';
-import { Scrollbar } from 'src/components/scrollbar';
-import { ConfirmDialog } from 'src/components/custom-dialog';
-import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
-import { Iconify } from 'src/components/iconify';
-import { toast } from 'src/components/snackbar';
-import { ProductTableToolbar } from '../product-table-toolbar';
 import Box from '@mui/material/Box';
+import IconButton from '@mui/material/IconButton';
+import Table from '@mui/material/Table';
+import TableBody from '@mui/material/TableBody';
+import Tooltip from '@mui/material/Tooltip';
+import { _orders, ORDER_STATUS_OPTIONS } from 'src/_mock';
+import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
+import { ConfirmDialog } from 'src/components/custom-dialog';
+import { Iconify } from 'src/components/iconify';
+import { Scrollbar } from 'src/components/scrollbar';
+import { toast } from 'src/components/snackbar';
 import {
-  useTable,
   emptyRows,
-  rowInPage,
-  TableNoData,
   getComparator,
+  rowInPage,
   TableEmptyRows,
   TableHeadCustom,
-  TableSelectedAction,
+  TableNoData,
   TablePaginationCustom,
+  TableSelectedAction,
+  useTable,
 } from 'src/components/table';
+import { DashboardContent } from 'src/layouts/dashboard';
 import ProductTableRow from '../product-table-row';
+import { ProductTableToolbar } from '../product-table-toolbar';
 
 // ----------------------------------------------------------------------
 
@@ -59,7 +59,7 @@ const TABLE_HEAD = [
 
 // ----------------------------------------------------------------------
 
-export function ProductListView() {
+export function ProductListView({ products }) {
   const table = useTable({ defaultOrderBy: 'planId' });
 
   const router = useRouter();
@@ -68,7 +68,7 @@ export function ProductListView() {
 
   const confirm = useBoolean();
 
-  const [tableData, setTableData] = useState(_orders);
+  const [tableData, setTableData] = useState(products);
 
   const filters = useSetState({
     name: '',

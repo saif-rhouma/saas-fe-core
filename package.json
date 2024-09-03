@@ -48,6 +48,7 @@
     "@mui/x-tree-view": "^7.7.0",
     "@react-pdf/renderer": "^3.4.4",
     "@supabase/supabase-js": "^2.43.4",
+    "@tanstack/react-query": "^5.53.2",
     "@tiptap/core": "^2.4.0",
     "@tiptap/extension-code-block": "^2.4.0",
     "@tiptap/extension-code-block-lowlight": "^2.4.0",

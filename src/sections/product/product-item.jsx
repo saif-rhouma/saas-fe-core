@@ -1,19 +1,19 @@
-import Fab from '@mui/material/Fab';
 import Box from '@mui/material/Box';
-import Link from '@mui/material/Link';
 import Card from '@mui/material/Card';
+import Fab from '@mui/material/Fab';
+import Link from '@mui/material/Link';
 import Stack from '@mui/material/Stack';
 import Tooltip from '@mui/material/Tooltip';
 
-import { paths } from 'src/routes/paths';
 import { RouterLink } from 'src/routes/components';
+import { paths } from 'src/routes/paths';
 
 import { fCurrency } from 'src/utils/format-number';
 
-import { Label } from 'src/components/label';
-import { Image } from 'src/components/image';
-import { Iconify } from 'src/components/iconify';
 import { ColorPreview } from 'src/components/color-utils';
+import { Iconify } from 'src/components/iconify';
+import { Image } from 'src/components/image';
+import { Label } from 'src/components/label';
 
 import { useCheckoutContext } from '../checkout/context';
 

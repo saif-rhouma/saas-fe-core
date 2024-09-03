@@ -1,22 +1,23 @@
-import Box from '@mui/material/Box';
-import Card from '@mui/material/Card';
-import Stack from '@mui/material/Stack';
 import Timeline from '@mui/lab/Timeline';
-import Button from '@mui/material/Button';
-import TimelineDot from '@mui/lab/TimelineDot';
-import TextField from '@mui/material/TextField';
-import CardHeader from '@mui/material/CardHeader';
-import Typography from '@mui/material/Typography';
-import TimelineContent from '@mui/lab/TimelineContent';
-import TimelineSeparator from '@mui/lab/TimelineSeparator';
 import TimelineConnector from '@mui/lab/TimelineConnector';
+import TimelineContent from '@mui/lab/TimelineContent';
+import TimelineDot from '@mui/lab/TimelineDot';
 import TimelineItem, { timelineItemClasses } from '@mui/lab/TimelineItem';
+import TimelineSeparator from '@mui/lab/TimelineSeparator';
+import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
+import Card from '@mui/material/Card';
+import CardHeader from '@mui/material/CardHeader';
+import Stack from '@mui/material/Stack';
+import TextField from '@mui/material/TextField';
+import Typography from '@mui/material/Typography';
 
 import { fDateTime } from 'src/utils/format-time';
 
 import { Label } from 'src/components/label';
+import { fCurrency } from 'src/utils/format-number';
 
-const OrderProductAddons = ({ history }) => {
+const OrderProductAddons = ({ payments }) => {
   const renderTimeline = (
     <Box sx={{ pr: 4, pl: 4, pb: 4, pt: 2 }}>
       <Box sx={{ mb: 2 }}>
@@ -28,13 +29,13 @@ const OrderProductAddons = ({ history }) => {
       <Timeline
         sx={{ p: 0, m: 0, [`& .${timelineItemClasses.root}:before`]: { flex: 0, padding: 0 } }}
       >
-        {history?.timeline.map((item, index) => {
+        {payments?.map((item, index) => {
           const firstTimeline = index === 0;
 
-          const lastTimeline = index === history.timeline.length - 1;
+          const lastTimeline = index === payments.length - 1;
 
           return (
-            <TimelineItem key={item.title}>
+            <TimelineItem key={item.id}>
               <TimelineSeparator>
                 <TimelineDot color={(firstTimeline && 'primary') || 'grey'} />
                 {lastTimeline ? null : <TimelineConnector />}
@@ -50,13 +51,13 @@ const OrderProductAddons = ({ history }) => {
                   }}
                 >
                   <Box>
-                    <Typography variant="subtitle2">{item.title}</Typography>
+                    <Typography variant="subtitle2">{fCurrency(item.amount)}</Typography>
 
                     <Box sx={{ color: 'text.disabled', typography: 'caption', mt: 0.5 }}>
-                      {fDateTime(item.time)}
+                      {fDateTime(item.paymentDate)}
                     </Box>
                   </Box>
-                  <Label color="success">CASH</Label>
+                  <Label color="success">{item.paymentType}</Label>
                 </Box>
               </TimelineContent>
             </TimelineItem>
