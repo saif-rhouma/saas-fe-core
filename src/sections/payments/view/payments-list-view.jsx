@@ -51,7 +51,7 @@ const TABLE_HEAD = [
 
 // ----------------------------------------------------------------------
 
-const PaymentsListView = () => {
+const PaymentsListView = ({ payments }) => {
   const table = useTable({ defaultOrderBy: 'orderNumber' });
 
   const router = useRouter();
@@ -60,7 +60,7 @@ const PaymentsListView = () => {
 
   const confirm = useBoolean();
 
-  const [tableData, setTableData] = useState(_orders);
+  const [tableData, setTableData] = useState(payments);
 
   const filters = useSetState({
     name: '',
@@ -194,7 +194,7 @@ const PaymentsListView = () => {
         </Stack>
       </DashboardContent>
       {/* <PaymentDetailsDialog open={() => true} /> */}
-      <PaymentEditDialog open={() => true} />
+      {/* <PaymentEditDialog open={() => true} /> */}
     </>
   );
 };

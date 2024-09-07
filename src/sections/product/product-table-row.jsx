@@ -13,16 +13,14 @@ import { ConfirmDialog } from 'src/components/custom-dialog';
 import { CustomPopover, usePopover } from 'src/components/custom-popover';
 import { Iconify } from 'src/components/iconify';
 import { Label } from 'src/components/label';
+import { fCurrency } from 'src/utils/format-number';
+import { Avatar, Box, Stack } from '@mui/material';
 
 const ProductTableRow = ({ row, selected, onViewRow, onSelectRow, onDeleteRow }) => {
   const confirm = useBoolean();
 
-  console.log('---> row', row);
-
-  const collapse = useBoolean();
-
   const popover = usePopover();
-
+  const storageHost = 'http://localhost:3000/api/files/show/';
   const renderPrimary = (
     <TableRow hover selected={selected}>
       <TableCell padding="checkbox">
@@ -39,21 +37,25 @@ const ProductTableRow = ({ row, selected, onViewRow, onSelectRow, onDeleteRow })
         </Link>
       </TableCell>
 
-      <TableCell>{row?.name}</TableCell>
-      <TableCell>{row?.price}</TableCell>
+      {/* <TableCell>{row?.name}</TableCell> */}
+      <TableCell>
+        <Stack spacing={2} direction="row" alignItems="center">
+          <Avatar alt={row?.name} src={storageHost + row?.image} />
+          <Box component="span">{row?.name}</Box>
+        </Stack>
+      </TableCell>
 
-      <TableCell align="center"> {row?.price} </TableCell>
+      <TableCell>{fCurrency(row?.price)}</TableCell>
+
+      <TableCell align="center"> - </TableCell>
       <TableCell>
         <Label
           variant="soft"
           color={
-            (row.status === 'completed' && 'success') ||
-            (row.status === 'pending' && 'warning') ||
-            (row.status === 'cancelled' && 'error') ||
-            'default'
+            (row.isActive === true && 'success') || (row.isActive === false && 'error') || 'default'
           }
         >
-          {row?.status}
+          {row?.isActive ? 'ACTIVE' : 'INACTIVE'}
         </Label>
       </TableCell>
 
@@ -77,6 +79,15 @@ const ProductTableRow = ({ row, selected, onViewRow, onSelectRow, onDeleteRow })
         <MenuList>
           <MenuItem
             onClick={() => {
+              onViewRow();
+              popover.onClose();
+            }}
+          >
+            <Iconify icon="solar:pen-bold" />
+            Edit
+          </MenuItem>
+          <MenuItem
+            onClick={() => {
               confirm.onTrue();
               popover.onClose();
             }}
@@ -84,26 +95,6 @@ const ProductTableRow = ({ row, selected, onViewRow, onSelectRow, onDeleteRow })
           >
             <Iconify icon="solar:trash-bin-trash-bold" />
             Delete
-          </MenuItem>
-
-          <MenuItem
-            onClick={() => {
-              onViewRow();
-              popover.onClose();
-            }}
-          >
-            <Iconify icon="solar:eye-bold" />
-            View
-          </MenuItem>
-
-          <MenuItem
-            onClick={() => {
-              onViewRow();
-              popover.onClose();
-            }}
-          >
-            <Iconify icon="solar:eye-bold" />
-            Edit
           </MenuItem>
         </MenuList>
       </CustomPopover>

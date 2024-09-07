@@ -8,7 +8,7 @@ import { ProductNewEditForm } from '../product-new-edit-form';
 
 // ----------------------------------------------------------------------
 
-export function ProductCreateView() {
+export function ProductCreateView({ productsImages }) {
   return (
     <DashboardContent>
       <CustomBreadcrumbs
@@ -20,7 +20,7 @@ export function ProductCreateView() {
         sx={{ mb: { xs: 3, md: 5 } }}
       />
 
-      <ProductNewEditForm />
+      <ProductNewEditForm productsImages={productsImages} />
     </DashboardContent>
   );
 }

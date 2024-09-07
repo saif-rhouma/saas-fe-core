@@ -7,7 +7,7 @@ import axios, { fetcher, endpoints } from 'src/utils/axios';
 
 const enableServer = false;
 
-const KANBAN_ENDPOINT = endpoints.kanban;
+const KANBAN_ENDPOINT = endpoints.order.list;
 
 const swrOptions = {
   revalidateIfStale: enableServer,
@@ -266,26 +266,25 @@ export async function moveTask(updateTasks) {
   /**
    * Work in local
    */
+  console.log('*****************');
   mutate(
     KANBAN_ENDPOINT,
     (currentData) => {
       const { board } = currentData;
-
+      console.log('---------->> currentData', currentData);
       // update board.tasks
       const tasks = updateTasks;
-
       return { ...currentData, board: { ...board, tasks } };
     },
     false
   );
-
-  /**
-   * Work on server
-   */
-  if (enableServer) {
-    const data = { updateTasks };
-    await axios.post(KANBAN_ENDPOINT, data, { params: { endpoint: 'move-task' } });
-  }
+  // /**
+  //  * Work on server
+  //  */
+  // if (enableServer) {
+  //   const data = { updateTasks };
+  //   await axios.post(KANBAN_ENDPOINT, data, { params: { endpoint: 'move-task' } });
+  // }
 }
 
 // ----------------------------------------------------------------------

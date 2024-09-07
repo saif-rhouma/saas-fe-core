@@ -1,13 +1,12 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
-import { Stack, useTheme } from '@mui/material';
+import { Stack } from '@mui/material';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Card from '@mui/material/Card';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 
-import { useRouter } from 'src/routes/hooks';
 import { paths } from 'src/routes/paths';
 
 import { useBoolean } from 'src/hooks/use-boolean';
@@ -15,7 +14,6 @@ import { useSetState } from 'src/hooks/use-set-state';
 
 import { fIsAfter, fIsBetween } from 'src/utils/format-time';
 
-import { _orders, ORDER_STATUS_OPTIONS } from 'src/_mock';
 import { DashboardContent } from 'src/layouts/dashboard';
 
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
@@ -37,14 +35,12 @@ import {
 
 import CustomersTableRow from '../customers-table-row';
 import { CustomersTableToolbar } from '../customers-table-toolbar';
-
-// import { OrderTableRow } from '../order-table-row';
-// import { OrderTableToolbar } from '../order-table-toolbar';
-// import { OrderTableFiltersResult } from '../order-table-filters-result';
+import CustomerCreateDialog from '../customers-create-dialog';
+import axios, { endpoints } from 'src/utils/axios';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import CustomerEditDialog from '../customers-edit-dialog';
 
 // ----------------------------------------------------------------------
-
-const STATUS_OPTIONS = [{ value: 'all', label: 'All' }, ...ORDER_STATUS_OPTIONS];
 
 const TABLE_HEAD = [
   { id: 'customerId', label: '#', width: 88 },
@@ -62,15 +58,16 @@ const TABLE_HEAD = [
 // ----------------------------------------------------------------------
 
 const CustomersListView = ({ customers }) => {
-  const table = useTable({ defaultOrderBy: 'customerId' });
+  const table = useTable({ defaultOrderBy: 'id' });
 
-  const router = useRouter();
-
-  const theme = useTheme();
+  const dialog = useBoolean();
+  const dialogEdit = useBoolean();
 
   const confirm = useBoolean();
 
   const [tableData, setTableData] = useState(customers);
+
+  const [setselectedCustomer, setSelectedCustomer] = useState();
 
   const filters = useSetState({
     name: '',
@@ -88,6 +85,10 @@ const CustomersListView = ({ customers }) => {
     dateError,
   });
 
+  useEffect(() => {
+    setTableData(customers);
+  }, [customers]);
+
   const dataInPage = rowInPage(dataFiltered, table.page, table.rowsPerPage);
 
   const canReset =
@@ -99,13 +100,15 @@ const CustomersListView = ({ customers }) => {
 
   const handleDeleteRow = useCallback(
     (id) => {
-      const deleteRow = tableData.filter((row) => row.id !== id);
+      deleteCustomer(id);
+    },
+    [dataInPage.length, table, tableData]
+  );
 
-      toast.success('Delete success!');
-
-      setTableData(deleteRow);
-
-      table.onUpdatePageDeleteRow(dataInPage.length);
+  const handleEditRow = useCallback(
+    (row) => {
+      setSelectedCustomer(row);
+      dialogEdit.onToggle();
     },
     [dataInPage.length, table, tableData]
   );
@@ -123,12 +126,54 @@ const CustomersListView = ({ customers }) => {
     });
   }, [dataFiltered.length, dataInPage.length, table, tableData]);
 
-  const handleViewRow = useCallback(
-    (id) => {
-      router.push(paths.dashboard.order.details(id));
+  const queryClient = useQueryClient();
+
+  const { mutate: handleCreateCustomer } = useMutation({
+    mutationFn: (payload) => axios.post(endpoints.customers.create, payload),
+    onSuccess: async () => {
+      toast.success('New Customer Has Been Created!');
     },
-    [router]
-  );
+    onSettled: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['customers'] });
+      dialog.onFalse();
+    },
+    onError: (err) => {
+      console.log(err);
+    },
+  });
+
+  const { mutate: handleEditCustomer } = useMutation({
+    mutationFn: ({ id, payload }) => axios.patch(endpoints.customers.edit + id, payload),
+    onSuccess: async () => {
+      toast.success('New Customer Has Been Modified!');
+    },
+    onSettled: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['customers'] });
+      dialogEdit.onFalse();
+    },
+    onError: (err) => {
+      console.log(err);
+    },
+  });
+
+  const { mutate: deleteCustomer } = useMutation({
+    mutationFn: (id) => axios.delete(endpoints.customers.delete + id),
+    onSuccess: async () => {
+      const deleteRow = tableData.filter((row) => row.id !== id);
+
+      toast.success('Delete success!');
+
+      setTableData(deleteRow);
+
+      table.onUpdatePageDeleteRow(dataInPage.length);
+      confirm.onFalse();
+    },
+    onSettled: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['customers'] });
+      confirm.onFalse();
+    },
+    onError: () => {},
+  });
 
   return (
     <>
@@ -141,8 +186,7 @@ const CustomersListView = ({ customers }) => {
             ]}
             action={
               <Button
-                // component={RouterLink}
-                href={paths.dashboard.product.new}
+                onClick={() => dialog.onToggle()}
                 variant="contained"
                 startIcon={<Iconify icon="mingcute:add-line" />}
               >
@@ -184,9 +228,8 @@ const CustomersListView = ({ customers }) => {
                           key={row.id}
                           row={row}
                           selected={table.selected.includes(row.id)}
-                          onSelectRow={() => table.onSelectRow(row.id)}
+                          onEditRow={() => handleEditRow(row)}
                           onDeleteRow={() => handleDeleteRow(row.id)}
-                          onViewRow={() => handleViewRow(row.id)}
                         />
                       ))}
 
@@ -213,7 +256,17 @@ const CustomersListView = ({ customers }) => {
           </Card>
         </Stack>
       </DashboardContent>
-      {/* <CustomerCreateDialog open={() => true} /> */}
+      <CustomerCreateDialog
+        open={dialog.value}
+        onClose={dialog.onFalse}
+        handler={handleCreateCustomer}
+      />
+      <CustomerEditDialog
+        open={dialogEdit.value}
+        onClose={dialogEdit.onFalse}
+        handler={handleEditCustomer}
+        customer={setselectedCustomer}
+      />
       <ConfirmDialog
         open={confirm.value}
         onClose={confirm.onFalse}
@@ -257,14 +310,11 @@ function applyFilter({ inputData, comparator, filters, dateError }) {
   if (name) {
     inputData = inputData.filter(
       (order) =>
-        order.orderNumber.toLowerCase().indexOf(name.toLowerCase()) !== -1 ||
-        order.customer.name.toLowerCase().indexOf(name.toLowerCase()) !== -1 ||
-        order.customer.email.toLowerCase().indexOf(name.toLowerCase()) !== -1
+        order.id.toString().toLowerCase().indexOf(name.toLowerCase()) !== -1 ||
+        order.name.toLowerCase().indexOf(name.toLowerCase()) !== -1 ||
+        order.email.toLowerCase().indexOf(name.toLowerCase()) !== -1 ||
+        order.phoneNumber.toString().toLowerCase().indexOf(name.toLowerCase()) !== -1
     );
-  }
-
-  if (status !== 'all') {
-    inputData = inputData.filter((order) => order.status === status);
   }
 
   if (!dateError) {

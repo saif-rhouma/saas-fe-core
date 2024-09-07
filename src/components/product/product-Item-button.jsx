@@ -1,8 +1,9 @@
 import { Box } from '@mui/material';
-
-const ProductItemButton = ({ image, productName }) => {
+import { useTheme } from '@mui/material/styles';
+const ProductItemButton = ({ payload, image, productName, handleClick, selected }) => {
   const previewUrl = typeof image === 'string' ? image : URL.createObjectURL(image);
-
+  const theme = useTheme();
+  const PRIMARY_MAIN = theme.vars.palette.primary.main;
   return (
     <Box
       gap={1}
@@ -11,13 +12,15 @@ const ProductItemButton = ({ image, productName }) => {
       alignItems="center"
       justifyContent="center"
       sx={{
+        backgroundColor: selected ? PRIMARY_MAIN : '',
         p: 3,
         borderRadius: 1,
         overflow: 'hidden',
         border: (theme) => `solid 1px ${theme.vars.palette.divider}`,
       }}
+      onClick={() => handleClick(payload)}
     >
-      <Box sx={{ display: 'inline-flex', width: 60, height: 60 }}>
+      <Box sx={{ display: 'inline-flex', width: 65, height: 65 }}>
         <Box
           component="img"
           src={previewUrl}
@@ -25,7 +28,7 @@ const ProductItemButton = ({ image, productName }) => {
             width: 1,
             height: 1,
             objectFit: 'cover',
-            borderRadius: 'inherit',
+            borderRadius: 2,
           }}
         />
       </Box>

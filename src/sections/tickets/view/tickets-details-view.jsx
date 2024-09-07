@@ -13,7 +13,6 @@ import TicketsPreviousMessage from '../tickets-previous-message';
 // ----------------------------------------------------------------------
 
 export function TicketDetailsView({ ticket }) {
-  const row = { status: 'completed' };
   return (
     <DashboardContent>
       <CustomBreadcrumbs
@@ -27,17 +26,19 @@ export function TicketDetailsView({ ticket }) {
       <Grid container spacing={3}>
         <Grid xs={12} md={9}>
           <Stack spacing={3} direction={{ xs: 'column-reverse', md: 'column' }}>
-            <TicketDetailsItems row={row} />
+            <TicketDetailsItems ticket={ticket} />
           </Stack>
         </Grid>
 
         <Grid xs={12} md={3}>
           <TicketsPreviousMessage
-            customer={ticket?.customer}
-            delivery={ticket?.delivery}
-            payment={ticket?.payment}
-            shippingAddress={ticket?.shippingAddress}
-            history={ticket?.history}
+            // customer={ticket?.customer}
+            // delivery={ticket?.delivery}
+            // payment={ticket?.payment}
+            // shippingAddress={ticket?.shippingAddress}
+            // history={ticket?.history}
+
+            messages={ticket?.messages}
           />
         </Grid>
       </Grid>

@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 import { useTheme } from '@mui/material';
 import Box from '@mui/material/Box';
@@ -40,6 +40,7 @@ import { TicketsTableToolbar } from '../tickets-table-toolbar';
 import TicketsDetailsDialog from '../tickets-details-dialog';
 import TicketsCloseDialog from '../tickets-close-dialog';
 import TicketsCreateDialog from '../tickets-create-dialog';
+import { OrderTableFiltersResult } from 'src/sections/order/order-table-filters-result';
 
 // ----------------------------------------------------------------------
 
@@ -57,16 +58,14 @@ const TABLE_HEAD = [
 
 // ----------------------------------------------------------------------
 
-const TicketsListView = () => {
+const TicketsListView = ({ tickets, analytics }) => {
   const table = useTable({ defaultOrderBy: 'orderNumber' });
 
   const router = useRouter();
 
-  const theme = useTheme();
+  // const confirm = useBoolean();
 
-  const confirm = useBoolean();
-
-  const [tableData, setTableData] = useState(_orders);
+  const [tableData, setTableData] = useState(tickets);
 
   const filters = useSetState({
     name: '',
@@ -74,6 +73,10 @@ const TicketsListView = () => {
     startDate: null,
     endDate: null,
   });
+
+  useEffect(() => {
+    setTableData(tickets);
+  }, [tickets]);
 
   const dateError = fIsAfter(filters.state.startDate, filters.state.endDate);
 
@@ -121,7 +124,7 @@ const TicketsListView = () => {
 
   const handleViewRow = useCallback(
     (id) => {
-      router.push(paths.dashboard.order.details(id));
+      router.push(paths.dashboard.tickets.details(id));
     },
     [router]
   );
@@ -149,40 +152,22 @@ const TicketsListView = () => {
             />
           </Grid>
           <Grid xs={12} md={4}>
-            <AppWidgetSummary
-              title="All Tickets"
-              percent={2.6}
-              total={18765}
-              chart={{
-                categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug'],
-                series: [15, 18, 12, 51, 68, 11, 39, 37],
-              }}
-            />
+            <AppWidgetSummary title="All Tickets" total={tickets.length} chart={{}} />
           </Grid>
 
           <Grid xs={12} md={4}>
             <AppWidgetSummary
               title="Open Tickets"
-              percent={0.2}
-              total={4876}
-              chart={{
-                colors: [theme.vars.palette.info.main],
-                categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug'],
-                series: [20, 41, 63, 33, 28, 35, 50, 46],
-              }}
+              total={analytics.data.analytics.Open}
+              chart={{}}
             />
           </Grid>
 
           <Grid xs={12} md={4}>
             <AppWidgetSummary
               title="Close Tickets"
-              percent={-0.1}
-              total={678}
-              chart={{
-                colors: [theme.vars.palette.error.main],
-                categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug'],
-                series: [18, 19, 31, 8, 16, 37, 12, 33],
-              }}
+              total={analytics.data.analytics.Closed}
+              chart={{}}
             />
           </Grid>
           <Grid xs={12} md={12}>
@@ -192,6 +177,15 @@ const TicketsListView = () => {
                 onResetPage={table.onResetPage}
                 dateError={dateError}
               />
+
+              {canReset && (
+                <OrderTableFiltersResult
+                  filters={filters}
+                  totalResults={dataFiltered.length}
+                  onResetPage={table.onResetPage}
+                  sx={{ p: 2.5, pt: 0 }}
+                />
+              )}
 
               <Box sx={{ position: 'relative' }}>
                 <TableSelectedAction
@@ -274,9 +268,9 @@ function applyFilter({ inputData, comparator, filters, dateError }) {
   if (name) {
     inputData = inputData.filter(
       (order) =>
-        order.orderNumber.toLowerCase().indexOf(name.toLowerCase()) !== -1 ||
-        order.customer.name.toLowerCase().indexOf(name.toLowerCase()) !== -1 ||
-        order.customer.email.toLowerCase().indexOf(name.toLowerCase()) !== -1
+        order.id.toString().indexOf(name.toLowerCase()) !== -1 ||
+        order.topic.toLowerCase().indexOf(name.toLowerCase()) !== -1 ||
+        order.priority.toLowerCase().indexOf(name.toLowerCase()) !== -1
     );
   }
 

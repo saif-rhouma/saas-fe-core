@@ -13,7 +13,7 @@ import { Iconify } from 'src/components/iconify';
 import { Label } from 'src/components/label';
 import { fDate } from 'src/utils/format-time';
 
-const TicketsTableRow = ({ row, selected, onViewRow, onSelectRow, onDeleteRow }) => {
+const TicketsTableRow = ({ row, selected, onViewRow, onDeleteRow }) => {
   const confirm = useBoolean();
 
   const collapse = useBoolean();
@@ -22,31 +22,28 @@ const TicketsTableRow = ({ row, selected, onViewRow, onSelectRow, onDeleteRow })
 
   const renderPrimary = (
     <TableRow hover selected={selected}>
-      <TableCell>{row.orderNumber}</TableCell>
-      <TableCell>{fDate(row.createdAt)}</TableCell>
-      <TableCell>{row.customer.name}</TableCell>
+      <TableCell>{row.id}</TableCell>
+      <TableCell>{fDate(row.createTime)}</TableCell>
+      <TableCell>{row.topic}</TableCell>
       <TableCell>
         <Label
           variant="soft"
           color={
-            (row.status === 'completed' && 'success') ||
-            (row.status === 'pending' && 'warning') ||
-            (row.status === 'cancelled' && 'error') ||
+            (row.priority === 'Low' && 'success') ||
+            (row.priority === 'Medium' && 'warning') ||
+            (row.priority === 'Hight' && 'error') ||
             'default'
           }
         >
-          {row.status}
+          {row.priority}
         </Label>
       </TableCell>
-      <TableCell>{fDate(row.createdAt)}</TableCell>
+      <TableCell>{fDate(row.updateTime)}</TableCell>
       <TableCell>
         <Label
           variant="soft"
           color={
-            (row.status === 'completed' && 'success') ||
-            (row.status === 'pending' && 'warning') ||
-            (row.status === 'cancelled' && 'error') ||
-            'default'
+            (row.status === 'Open' && 'info') || (row.status === 'Closed' && 'default') || 'default'
           }
         >
           {row.status}

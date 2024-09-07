@@ -124,6 +124,7 @@ export const paths = {
     },
     order: {
       root: `${ROOTS.DASHBOARD}/order`,
+      status: `${ROOTS.DASHBOARD}/order-status`,
       new: `${ROOTS.DASHBOARD}/order/new`,
       details: (id) => `${ROOTS.DASHBOARD}/order/${id}`,
       edit: (id) => `${ROOTS.DASHBOARD}/order/${id}/edit`,
@@ -134,6 +135,7 @@ export const paths = {
     },
     plan: {
       root: `${ROOTS.DASHBOARD}/plan`,
+      status: `${ROOTS.DASHBOARD}/plan-status`,
       new: `${ROOTS.DASHBOARD}/plan/new`,
       details: (id) => `${ROOTS.DASHBOARD}/plan/${id}`,
       edit: (id) => `${ROOTS.DASHBOARD}/plan/${id}/edit`,
@@ -187,7 +189,7 @@ export const paths = {
     tickets: {
       root: `${ROOTS.DASHBOARD}/tickets`,
       // new: `${ROOTS.DASHBOARD}/plan/new`,
-      // details: (id) => `${ROOTS.DASHBOARD}/plan/${id}`,
+      details: (id) => `${ROOTS.DASHBOARD}/tickets/${id}`,
       // edit: (id) => `${ROOTS.DASHBOARD}/plan/${id}/edit`,
       // demo: {
       //   details: `${ROOTS.DASHBOARD}/plan/${MOCK_ID}`,

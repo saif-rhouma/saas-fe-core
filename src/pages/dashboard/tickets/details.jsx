@@ -5,6 +5,9 @@ import { useParams } from 'src/routes/hooks';
 import { _orders } from 'src/_mock/_order';
 import { CONFIG } from 'src/config-global';
 import { TicketDetailsView } from 'src/sections/tickets/view/tickets-details-view';
+import { useQuery } from '@tanstack/react-query';
+import axios, { endpoints } from 'src/utils/axios';
+import { LoadingScreen } from 'src/components/loading-screen';
 
 // ----------------------------------------------------------------------
 
@@ -13,7 +16,17 @@ const metadata = { title: `Ticket details | Dashboard - ${CONFIG.site.name}` };
 export default function Page() {
   const { id = '' } = useParams();
 
-  const currentOrder = _orders.find((order) => order.id === id);
+  const response = useQuery({
+    queryKey: ['tickets', id],
+    queryFn: async () => {
+      const { data } = await axios.get(endpoints.tickets.details + id);
+      return data;
+    },
+  });
+
+  if (response.isPending || response.isLoading) {
+    return <LoadingScreen />;
+  }
 
   return (
     <>
@@ -21,7 +34,7 @@ export default function Page() {
         <title> {metadata.title}</title>
       </Helmet>
 
-      <TicketDetailsView ticket={currentOrder} />
+      <TicketDetailsView ticket={response.data} />
     </>
   );
 }

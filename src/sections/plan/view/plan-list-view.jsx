@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 import { useTheme } from '@mui/material';
 import Box from '@mui/material/Box';
@@ -41,6 +41,7 @@ import {
 import { PlanTableFiltersResult } from '../plan-table-filters-result';
 import { PlanTableRow } from '../plan-table-row';
 import { PlanTableToolbar } from '../plan-table-toolbar';
+import { RouterLink } from 'src/routes/components';
 
 // ----------------------------------------------------------------------
 
@@ -80,6 +81,10 @@ export function PlanListView({ plans }) {
     startDate: null,
     endDate: null,
   });
+
+  useEffect(() => {
+    setTableData(plans);
+  }, [plans]);
 
   const dateError = fIsAfter(filters.state.startDate, filters.state.endDate);
 
@@ -146,8 +151,8 @@ export function PlanListView({ plans }) {
               ]}
               action={
                 <Button
-                  // component={RouterLink}
-                  href={paths.dashboard.product.new}
+                  component={RouterLink}
+                  href={paths.dashboard.plan.new}
                   variant="contained"
                   startIcon={<Iconify icon="mingcute:add-line" />}
                 >

@@ -237,3 +237,21 @@ export function fSub({
 
   return result;
 }
+
+export function monthName(month) {
+  const mon = parseInt(month);
+  return [
+    'January',
+    'February',
+    'March',
+    'April',
+    'May',
+    'June',
+    'July',
+    'August',
+    'September',
+    'October',
+    'November',
+    'December',
+  ][mon - 1];
+}

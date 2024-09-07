@@ -17,7 +17,7 @@ import { fDateTime } from 'src/utils/format-time';
 import { Label } from 'src/components/label';
 import { fCurrency } from 'src/utils/format-number';
 
-const OrderProductAddons = ({ payments }) => {
+const OrderProductAddons = ({ payments, dialog }) => {
   const renderTimeline = (
     <Box sx={{ pr: 4, pl: 4, pb: 4, pt: 2 }}>
       <Box sx={{ mb: 2 }}>
@@ -65,7 +65,9 @@ const OrderProductAddons = ({ payments }) => {
         })}
       </Timeline>
       <Stack justifyContent="flex-end" spacing={1.5} sx={{ marginTop: 2 }}>
-        <Button variant="contained">Add Payment</Button>
+        <Button variant="contained" onClick={() => dialog.onTrue()}>
+          Add Payment
+        </Button>
         <Button variant="outlined">Approve</Button>
         <Button>Print Invoice</Button>
       </Stack>

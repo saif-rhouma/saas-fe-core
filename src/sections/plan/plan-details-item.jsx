@@ -90,7 +90,7 @@ export function PlanDetailsItems({ plan, products }) {
             borderBottom: (theme) => `dashed 2px ${theme.vars.palette.background.neutral}`,
           }}
         >
-          <PlanProductTable product={plan?.product} quantity={plan?.quantity} />
+          <PlanProductTable products={plan?.product} quantity={plan?.quantity} />
         </Box>
       </Scrollbar>
     </Card>

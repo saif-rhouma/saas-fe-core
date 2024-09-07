@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 import { useTheme } from '@mui/material';
 import Box from '@mui/material/Box';
@@ -16,9 +16,8 @@ import { paths } from 'src/routes/paths';
 import { useBoolean } from 'src/hooks/use-boolean';
 import { useSetState } from 'src/hooks/use-set-state';
 
-import { fIsAfter, fIsBetween } from 'src/utils/format-time';
+import { fIsAfter, fIsBetween, monthName } from 'src/utils/format-time';
 
-import { ORDER_STATUS_OPTIONS } from 'src/_mock';
 import { DashboardContent } from 'src/layouts/dashboard';
 
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
@@ -28,6 +27,7 @@ import { Scrollbar } from 'src/components/scrollbar';
 import {
   emptyRows,
   getComparator,
+  rowInPage,
   TableEmptyRows,
   TableHeadCustom,
   TableNoData,
@@ -37,15 +37,15 @@ import {
 } from 'src/components/table';
 
 import { AppWidgetSummary } from 'src/sections/overview/app/app-widget-summary';
+import { toast } from 'src/components/snackbar';
 
+import { RouterLink } from 'src/routes/components';
 import { OrderTableFiltersResult } from '../order-table-filters-result';
 import { OrderTableRow } from '../order-table-row';
 import { OrderTableToolbar } from '../order-table-toolbar';
-import { RouterLink } from 'src/routes/components';
-
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import axios, { endpoints } from 'src/utils/axios';
 // ----------------------------------------------------------------------
-
-const STATUS_OPTIONS = [{ value: 'all', label: 'All' }, ...ORDER_STATUS_OPTIONS];
 
 const TABLE_HEAD = [
   { id: 'orderNumber', label: 'Order', width: 88 },
@@ -64,7 +64,7 @@ const TABLE_HEAD = [
 
 // ----------------------------------------------------------------------
 
-export function OrderListView({ orders }) {
+export function OrderListView({ orders, analytics }) {
   const table = useTable({ defaultOrderBy: 'orderId' });
 
   const router = useRouter();
@@ -73,7 +73,10 @@ export function OrderListView({ orders }) {
 
   const confirm = useBoolean();
 
-  const [tableData, setTableData] = useState(orders);
+  const [tableData, setTableData] = useState(() => orders);
+  const [overviewData, setOverviewData] = useState([]);
+  const [inProcessData, setInProcessData] = useState([]);
+  const [deliveredData, setDeliveredData] = useState([]);
 
   const filters = useSetState({
     name: '',
@@ -81,6 +84,10 @@ export function OrderListView({ orders }) {
     startDate: null,
     endDate: null,
   });
+
+  useEffect(() => {
+    setTableData(orders);
+  }, [orders]);
 
   const dateError = fIsAfter(filters.state.startDate, filters.state.endDate);
 
@@ -91,7 +98,7 @@ export function OrderListView({ orders }) {
     dateError,
   });
 
-  // // const dataInPage = rowInPage(dataFiltered, table.page, table.rowsPerPage);
+  const dataInPage = rowInPage(dataFiltered, table.page, table.rowsPerPage);
 
   const canReset =
     !!filters.state.name ||
@@ -100,31 +107,32 @@ export function OrderListView({ orders }) {
 
   const notFound = (!dataFiltered.length && canReset) || !dataFiltered.length;
 
-  // const handleDeleteRow = useCallback(
-  //   (id) => {
-  //     const deleteRow = tableData.filter((row) => row.id !== id);
+  const queryClient = useQueryClient();
 
-  //     toast.success('Delete success!');
+  const { mutate: deleteOrder } = useMutation({
+    mutationFn: (id) => axios.delete(endpoints.order.delete + id),
+    onSuccess: async () => {
+      const deleteRow = tableData.filter((row) => row.id !== id);
 
-  //     setTableData(deleteRow);
+      toast.success('Delete success!');
 
-  //     table.onUpdatePageDeleteRow(dataInPage.length);
-  //   },
-  //   [dataInPage.length, table, tableData]
-  // );
+      setTableData(deleteRow);
 
-  // const handleDeleteRows = useCallback(() => {
-  //   const deleteRows = tableData.filter((row) => !table.selected.includes(row.id));
+      table.onUpdatePageDeleteRow(dataInPage.length);
+    },
+    onSettled: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['orders'] });
+      await queryClient.invalidateQueries({ queryKey: ['orders', 'analytics'] });
+    },
+    onError: () => {},
+  });
 
-  //   toast.success('Delete success!');
-
-  //   setTableData(deleteRows);
-
-  //   table.onUpdatePageDeleteRows({
-  //     totalRowsInPage: dataInPage.length,
-  //     totalRowsFiltered: dataFiltered.length,
-  //   });
-  // }, [dataFiltered.length, dataInPage.length, table, tableData]);
+  const handleDeleteRow = useCallback(
+    (id) => {
+      deleteOrder(id);
+    },
+    [dataInPage.length, table, tableData]
+  );
 
   const handleViewRow = useCallback(
     (id) => {
@@ -139,7 +147,6 @@ export function OrderListView({ orders }) {
         <Grid container spacing={3}>
           <Grid xs={12} md={12}>
             <CustomBreadcrumbs
-              // heading="List"
               links={[
                 { name: 'Dashboard', href: paths.dashboard.root },
                 { name: 'Order', href: paths.dashboard.order.root },
@@ -160,11 +167,10 @@ export function OrderListView({ orders }) {
           <Grid xs={12} md={4}>
             <AppWidgetSummary
               title="All Orders"
-              percent={2.6}
-              total={18765}
+              total={orders.length}
               chart={{
-                categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug'],
-                series: [15, 18, 12, 51, 68, 11, 39, 37],
+                categories: analytics.data.lastSixMonth.map((item) => monthName(item?.inMonth)),
+                series: analytics.data.lastSixMonth.map((item) => item?.ClaimsPerMonth),
               }}
             />
           </Grid>
@@ -172,12 +178,13 @@ export function OrderListView({ orders }) {
           <Grid xs={12} md={4}>
             <AppWidgetSummary
               title="Processing Order"
-              percent={0.2}
-              total={4876}
+              total={analytics.data.analytics.InProcess}
               chart={{
                 colors: [theme.vars.palette.info.main],
-                categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug'],
-                series: [20, 41, 63, 33, 28, 35, 50, 46],
+                categories: analytics.data.inProcessLastSixMonth.map((item) =>
+                  monthName(item?.inMonth)
+                ),
+                series: analytics.data.inProcessLastSixMonth.map((item) => item?.ClaimsPerMonth),
               }}
             />
           </Grid>
@@ -185,12 +192,13 @@ export function OrderListView({ orders }) {
           <Grid xs={12} md={4}>
             <AppWidgetSummary
               title="Delivered"
-              percent={-0.1}
-              total={678}
+              total={analytics.data.analytics.Delivered}
               chart={{
                 colors: [theme.vars.palette.error.main],
-                categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug'],
-                series: [18, 19, 31, 8, 16, 37, 12, 33],
+                categories: analytics.data.deliveredLastSixMonth.map((item) =>
+                  monthName(item?.inMonth)
+                ),
+                series: analytics.data.deliveredLastSixMonth.map((item) => item?.ClaimsPerMonth),
               }}
             />
           </Grid>
@@ -332,7 +340,7 @@ function applyFilter({ inputData, comparator, filters, dateError }) {
   if (name) {
     inputData = inputData.filter(
       (order) =>
-        order.orderNumber.toLowerCase().indexOf(name.toLowerCase()) !== -1 ||
+        order.id.toString().toLowerCase().indexOf(name.toLowerCase()) !== -1 ||
         order.customer.name.toLowerCase().indexOf(name.toLowerCase()) !== -1 ||
         order.customer.email.toLowerCase().indexOf(name.toLowerCase()) !== -1
     );
@@ -344,7 +352,7 @@ function applyFilter({ inputData, comparator, filters, dateError }) {
 
   if (!dateError) {
     if (startDate && endDate) {
-      inputData = inputData.filter((order) => fIsBetween(order.createdAt, startDate, endDate));
+      inputData = inputData.filter((order) => fIsBetween(order.createTime, startDate, endDate));
     }
   }
 

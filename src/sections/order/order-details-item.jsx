@@ -134,7 +134,7 @@ export function OrderDetailsItems({
             borderBottom: (theme) => `dashed 2px ${theme.vars.palette.background.neutral}`,
           }}
         >
-          <OrderProductTable products={order.productToOrder} />
+          <OrderProductTable products={order.productToOrder} isDetail={true} />
         </Box>
       </Scrollbar>
 

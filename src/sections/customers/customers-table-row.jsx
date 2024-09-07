@@ -11,10 +11,8 @@ import { ConfirmDialog } from 'src/components/custom-dialog';
 import { CustomPopover, usePopover } from 'src/components/custom-popover';
 import { Iconify } from 'src/components/iconify';
 
-const CustomersTableRow = ({ row, selected, onViewRow, onSelectRow, onDeleteRow }) => {
+const CustomersTableRow = ({ row, selected, onDeleteRow, onEditRow }) => {
   const confirm = useBoolean();
-
-  const collapse = useBoolean();
 
   const popover = usePopover();
 
@@ -22,7 +20,7 @@ const CustomersTableRow = ({ row, selected, onViewRow, onSelectRow, onDeleteRow 
     if (!address) {
       return ' - ';
     }
-    return `${address?.street}, ${address?.city}, ${address?.country}`;
+    return `${address?.street} ${address?.country}.`;
   };
 
   const renderPrimary = (
@@ -54,6 +52,15 @@ const CustomersTableRow = ({ row, selected, onViewRow, onSelectRow, onDeleteRow 
         <MenuList>
           <MenuItem
             onClick={() => {
+              onEditRow();
+              popover.onClose();
+            }}
+          >
+            <Iconify icon="solar:eye-bold" />
+            Edit
+          </MenuItem>
+          <MenuItem
+            onClick={() => {
               confirm.onTrue();
               popover.onClose();
             }}
@@ -61,26 +68,6 @@ const CustomersTableRow = ({ row, selected, onViewRow, onSelectRow, onDeleteRow 
           >
             <Iconify icon="solar:trash-bin-trash-bold" />
             Delete
-          </MenuItem>
-
-          <MenuItem
-            onClick={() => {
-              onViewRow();
-              popover.onClose();
-            }}
-          >
-            <Iconify icon="solar:eye-bold" />
-            View
-          </MenuItem>
-
-          <MenuItem
-            onClick={() => {
-              onViewRow();
-              popover.onClose();
-            }}
-          >
-            <Iconify icon="solar:eye-bold" />
-            Edit
           </MenuItem>
         </MenuList>
       </CustomPopover>

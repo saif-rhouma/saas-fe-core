@@ -18,8 +18,8 @@ export default function Page() {
   const response = useQuery({
     queryKey: ['order', id],
     queryFn: async () => {
-      const res = await axios.get(endpoints.order.details + id);
-      return res.data;
+      const { data } = await axios.get(endpoints.order.details + id);
+      return data;
     },
   });
 

@@ -202,8 +202,7 @@ const RemindersListView = () => {
           </Card>
         </Stack>
       </DashboardContent>
-      <ReminderCreateDialog open={() => true} />
-      {/* <PaymentEditDialog open={() => true} /> */}
+      {/* <ReminderCreateDialog open={() => true} /> */}
     </>
   );
 };

@@ -21,13 +21,13 @@ const PaymentsTableRow = ({ row, selected, onViewRow, onSelectRow, onDeleteRow }
 
   const renderPrimary = (
     <TableRow hover selected={selected}>
-      <TableCell>{row.orderNumber}</TableCell>
+      <TableCell>{row?.id}</TableCell>
 
-      <TableCell>{fDate(row.createdAt)}</TableCell>
-      <TableCell>{row.customer.name}</TableCell>
-      <TableCell>{row.orderNumber}</TableCell>
-      <TableCell>{row.totalAmount}</TableCell>
-      <TableCell>CASH</TableCell>
+      <TableCell>{fDate(row?.paymentDate)}</TableCell>
+      <TableCell>{row?.customer?.name}</TableCell>
+      <TableCell>ORD-{row?.order?.id}</TableCell>
+      <TableCell>{row?.amount}</TableCell>
+      <TableCell>{row?.paymentType}</TableCell>
       <TableCell align="right" sx={{ px: 1, whiteSpace: 'nowrap' }}>
         <IconButton color={popover.open ? 'inherit' : 'default'} onClick={popover.onOpen}>
           <Iconify icon="eva:more-vertical-fill" />

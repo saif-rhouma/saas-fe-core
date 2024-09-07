@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 
 import InputAdornment from '@mui/material/InputAdornment';
 import MenuItem from '@mui/material/MenuItem';
@@ -6,14 +6,12 @@ import Select from '@mui/material/Select';
 import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
 
-import { usePopover } from 'src/components/custom-popover';
 import { Iconify } from 'src/components/iconify';
 
 // ----------------------------------------------------------------------
 
-export function OrderTableToolbar({ filters, onResetPage, dateError }) {
-  const popover = usePopover();
-
+export function OrderTableToolbar({ filters, onResetPage }) {
+  const [selectedStatus, setSelectedStatus] = useState('all');
   const handleFilterName = useCallback(
     (event) => {
       onResetPage();
@@ -22,18 +20,11 @@ export function OrderTableToolbar({ filters, onResetPage, dateError }) {
     [filters, onResetPage]
   );
 
-  const handleFilterStartDate = useCallback(
+  const handleFilterStatus = useCallback(
     (newValue) => {
       onResetPage();
-      filters.setState({ startDate: newValue });
-    },
-    [filters, onResetPage]
-  );
-
-  const handleFilterEndDate = useCallback(
-    (newValue) => {
-      onResetPage();
-      filters.setState({ endDate: newValue });
+      filters.setState({ status: newValue.target.value });
+      setSelectedStatus(newValue.target.value);
     },
     [filters, onResetPage]
   );
@@ -59,17 +50,15 @@ export function OrderTableToolbar({ filters, onResetPage, dateError }) {
           ),
         }}
       />
-
       <Select
         sx={{ width: 420, textTransform: 'capitalize' }}
-        value="All Orders"
-        renderValue={(selected) => selected}
-        // onChange={handleChangeRowsPerPage}
+        value={selectedStatus}
+        onChange={handleFilterStatus}
       >
-        <MenuItem value={8}>All Orders</MenuItem>
-        <MenuItem value={12}>Processing</MenuItem>
-        <MenuItem value={24}>Waiting for Approval</MenuItem>
-        <MenuItem value={24}>Delivered</MenuItem>
+        <MenuItem value={'all'}>All Orders</MenuItem>
+        <MenuItem value={'InProcess'}>Processing</MenuItem>
+        <MenuItem value={'Ready'}>Ready To Deliver</MenuItem>
+        <MenuItem value={'Delivered'}>Delivered</MenuItem>
       </Select>
     </Stack>
   );

@@ -13,8 +13,8 @@ export default function Page() {
   const response = useQuery({
     queryKey: ['products'],
     queryFn: async () => {
-      const res = await axios.get(endpoints.products.list);
-      return res.data;
+      const { data } = await axios.get(endpoints.products.list);
+      return data;
     },
   });
 

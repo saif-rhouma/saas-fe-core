@@ -24,26 +24,6 @@ export function KanbanTaskItem({ task, disabled, columnId, sx }) {
 
   const mountedWhileDragging = isDragging && !mounted;
 
-  const handleDeleteTask = useCallback(async () => {
-    try {
-      deleteTask(columnId, task.id);
-      toast.success('Delete success!', { position: 'top-center' });
-    } catch (error) {
-      console.error(error);
-    }
-  }, [columnId, task.id]);
-
-  const handleUpdateTask = useCallback(
-    async (taskData) => {
-      try {
-        updateTask(columnId, taskData);
-      } catch (error) {
-        console.error(error);
-      }
-    },
-    [columnId]
-  );
-
   return (
     <>
       <ItemBase
@@ -61,13 +41,13 @@ export function KanbanTaskItem({ task, disabled, columnId, sx }) {
         sx={{ ...(openDetails.value && { [`& .${imageClasses.root}`]: { opacity: 0.8 } }), ...sx }}
       />
 
-      <KanbanDetails
+      {/* <KanbanDetails
         task={task}
         openDetails={openDetails.value}
         onCloseDetails={openDetails.onFalse}
         onUpdateTask={handleUpdateTask}
         onDeleteTask={handleDeleteTask}
-      />
+      /> */}
     </>
   );
 }

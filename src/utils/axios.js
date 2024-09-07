@@ -32,7 +32,7 @@ export const fetcher = async (args) => {
 
 export const endpoints = {
   chat: '/api/chat',
-  kanban: '/api/kanban',
+  kanban: '/api/oders',
   calendar: '/api/calendar',
   auth: {
     me: '/api/auth/me',
@@ -58,18 +58,42 @@ export const endpoints = {
   },
   order: {
     list: '/api/orders/',
+    create: '/api/orders/create',
+    delete: '/api/orders/',
     details: '/api/orders/',
+    analytics: '/api/orders/analytics',
   },
   plan: {
     list: '/api/plans/',
     details: '/api/plans/',
+    create: '/api/plans/create',
   },
   customers: {
     list: '/api/customers/',
-    details: '/api/plans/',
+    details: '/api/customers/',
+    create: '/api/customers/create',
+    delete: '/api/customers/',
+    edit: '/api/customers/',
   },
   products: {
     list: '/api/products/',
+    details: '/api/products/',
+    create: '/api/products/create',
+    delete: '/api/products/',
+    productsImages: '/api/files/products',
+  },
+  payments: {
+    list: '/api/payments/',
+    create: '/api/payments/create',
     details: '/api/plans/',
+  },
+  tickets: {
+    list: '/api/tickets/',
+    create: '/api/tickets/create',
+    details: '/api/tickets/',
+    analytics: '/api/tickets/analytics',
+  },
+  files: {
+    upload: '/api/files/upload',
   },
 };

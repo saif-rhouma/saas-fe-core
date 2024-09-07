@@ -52,7 +52,8 @@ const ReportsStockListPage = lazy(() => import('src/pages/dashboard/reports/stoc
 // const ReportsCustomListPage = lazy(() => import('src/pages/dashboard/reports/custom-list'));
 // Tools
 // const ToolsListPage = lazy(() => import('src/pages/dashboard/reminders/list'));
-
+// Order Status
+const OrderStatus = lazy(() => import('src/pages/dashboard/order/status'));
 // User
 const UserProfilePage = lazy(() => import('src/pages/dashboard/user/profile'));
 const UserCardsPage = lazy(() => import('src/pages/dashboard/user/cards'));
@@ -98,6 +99,7 @@ export const dashboardRoutes = [
           { path: 'account', element: <UserAccountPage /> },
         ],
       },
+      { path: 'order-status', element: <OrderStatus /> },
       {
         path: 'product',
         children: [

@@ -8,7 +8,7 @@ import { Label } from 'src/components/label';
 
 // ----------------------------------------------------------------------
 
-export function TicketDetailsItems({ row }) {
+export function TicketDetailsItems({ ticket }) {
   return (
     <Card>
       <CardHeader title="Details" />
@@ -31,11 +31,11 @@ export function TicketDetailsItems({ row }) {
             <Stack direction="row" sx={{ typography: 'subtitle2', marginBottom: 1 }}>
               <div>Ticket Details</div>
             </Stack>
-            <Box sx={{ color: 'text.secondary' }}>TICKET ID: #ORD-0004</Box>
-            <Box sx={{ color: 'text.secondary' }}>Members: Admin</Box>
+            <Box sx={{ color: 'text.secondary' }}>TICKET ID: {ticket?.id}</Box>
             <Box sx={{ color: 'text.secondary' }}>
-              Topic: Lorem ipsum dolor sit amet consectetur adipisicing elit.
+              Member: {`${ticket?.member.firstName} ${ticket?.member.lastName}`}
             </Box>
+            <Box sx={{ color: 'text.secondary' }}>Topic: {ticket?.topic}.</Box>
           </Box>
           <Box
             flexDirection="column"
@@ -61,13 +61,12 @@ export function TicketDetailsItems({ row }) {
               <Label
                 variant="soft"
                 color={
-                  (row.status === 'completed' && 'info') ||
-                  (row.status === 'pending' && 'warning') ||
-                  (row.status === 'cancelled' && 'error') ||
+                  (ticket.status === 'Open' && 'info') ||
+                  (ticket.status === 'Closed' && 'default') ||
                   'default'
                 }
               >
-                {row.status}
+                {ticket.status}
               </Label>
             </Box>
           </Box>
@@ -93,19 +92,23 @@ export function TicketDetailsItems({ row }) {
               <Label
                 variant="soft"
                 color={
-                  (row.status === 'completed' && 'success') ||
-                  (row.status === 'pending' && 'warning') ||
-                  (row.status === 'cancelled' && 'error') ||
+                  (ticket?.priority === 'Low' && 'success') ||
+                  (ticket?.priority === 'Medium' && 'warning') ||
+                  (ticket?.priority === 'Hight' && 'error') ||
                   'default'
                 }
               >
-                {row.status}
+                {ticket?.priority}
               </Label>
             </Box>
           </Box>
         </Stack>
         <Box sx={{ pt: 5 }}>
-          <Button variant="contained" startIcon={<Iconify icon="carbon:checkmark-filled" />}>
+          <Button
+            disabled={ticket.status === 'Closed'}
+            variant="contained"
+            startIcon={<Iconify icon="carbon:checkmark-filled" />}
+          >
             Mark as Closed
           </Button>
         </Box>

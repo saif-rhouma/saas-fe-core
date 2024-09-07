@@ -22,64 +22,42 @@ import { paths } from 'src/routes/paths';
 import { PRODUCT_CATEGORY_GROUP_OPTIONS } from 'src/_mock';
 
 import { Button, TextField } from '@mui/material';
-import { Form, schemaHelper } from 'src/components/hook-form';
+import { Form, Field, schemaHelper } from 'src/components/hook-form';
 import ProductItemButton from 'src/components/product/product-Item-button';
 import { toast } from 'src/components/snackbar';
-
+import { CONFIG } from 'src/config-global';
+import { useBoolean } from 'src/hooks/use-boolean';
+import ProductUploadImageDialog from './product-upload-image-dialog';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import axios, { endpoints } from 'src/utils/axios';
+import { LoadingButton } from '@mui/lab';
 // ----------------------------------------------------------------------
 
 export const NewProductSchema = zod.object({
   name: zod.string().min(1, { message: 'Name is required!' }),
-  description: schemaHelper.editor({ message: { required_error: 'Description is required!' } }),
-  images: schemaHelper.files({ message: { required_error: 'Images is required!' } }),
-  code: zod.string().min(1, { message: 'Product code is required!' }),
-  sku: zod.string().min(1, { message: 'Product sku is required!' }),
-  quantity: zod.number().min(1, { message: 'Quantity is required!' }),
-  colors: zod.string().array().nonempty({ message: 'Choose at least one option!' }),
-  sizes: zod.string().array().nonempty({ message: 'Choose at least one option!' }),
-  tags: zod.string().array().min(2, { message: 'Must have at least 2 items!' }),
-  gender: zod.string().array().nonempty({ message: 'Choose at least one option!' }),
   price: zod.number().min(1, { message: 'Price should not be $0.00' }),
-  // Not required
-  category: zod.string(),
-  priceSale: zod.number(),
-  subDescription: zod.string(),
-  taxes: zod.number(),
-  saleLabel: zod.object({ enabled: zod.boolean(), content: zod.string() }),
-  newLabel: zod.object({ enabled: zod.boolean(), content: zod.string() }),
+  isActive: zod.boolean(),
 });
 
 // ----------------------------------------------------------------------
 
-export function ProductNewEditForm({ currentProduct }) {
+export function ProductNewEditForm({ currentProduct, productsImages }) {
   const router = useRouter();
 
-  const [includeTaxes, setIncludeTaxes] = useState(false);
+  const dialog = useBoolean();
 
   const defaultValues = useMemo(
     () => ({
       name: currentProduct?.name || '',
-      description: currentProduct?.description || '',
-      subDescription: currentProduct?.subDescription || '',
-      images: currentProduct?.images || [],
-      //
-      code: currentProduct?.code || '',
-      sku: currentProduct?.sku || '',
       price: currentProduct?.price || 0,
-      quantity: currentProduct?.quantity || 0,
-      priceSale: currentProduct?.priceSale || 0,
-      tags: currentProduct?.tags || [],
-      taxes: currentProduct?.taxes || 0,
-      gender: currentProduct?.gender || [],
-      category: currentProduct?.category || PRODUCT_CATEGORY_GROUP_OPTIONS[0].classify[1],
-      colors: currentProduct?.colors || [],
-      sizes: currentProduct?.sizes || [],
-      newLabel: currentProduct?.newLabel || { enabled: false, content: '' },
-      saleLabel: currentProduct?.saleLabel || { enabled: false, content: '' },
+      images: currentProduct?.images || [],
+      isActive: currentProduct?.isActive || true,
     }),
     [currentProduct]
   );
 
+  const [selectedImage, setSelectedImage] = useState();
+  const [file, setFile] = useState();
   const methods = useForm({
     resolver: zodResolver(NewProductSchema),
     defaultValues,
@@ -99,94 +77,159 @@ export function ProductNewEditForm({ currentProduct }) {
     }
   }, [currentProduct, defaultValues, reset]);
 
-  useEffect(() => {
-    if (includeTaxes) {
-      setValue('taxes', 0);
-    } else {
-      setValue('taxes', currentProduct?.taxes || 0);
-    }
-  }, [currentProduct?.taxes, includeTaxes, setValue]);
-
-  const onSubmit = handleSubmit(async (data) => {
+  const onSubmit = handleSubmit(async (payload) => {
     try {
-      await new Promise((resolve) => setTimeout(resolve, 500));
-      reset();
-      toast.success(currentProduct ? 'Update success!' : 'Create success!');
-      router.push(paths.dashboard.product.root);
-      console.info('DATA', data);
+      // await new Promise((resolve) => setTimeout(resolve, 500));
+
+      if (selectedImage) {
+        payload.image = selectedImage;
+      }
+      await handleCreateProduct(payload);
     } catch (error) {
       console.error(error);
     }
   });
 
-  const handleOrderId = useCallback((event) => {}, []);
+  const handleUpload = () => {
+    const formData = new FormData();
+    formData.append('file', file);
+    handleUploadProductImage(formData);
+  };
+
+  const handleSelectedImage = useCallback(
+    (selected) => {
+      if (selectedImage === selected) {
+        setSelectedImage();
+      } else {
+        setSelectedImage(selected);
+      }
+    },
+    [selectedImage]
+  );
+
+  const handleDropSingleFile = useCallback((acceptedFiles) => {
+    const newFile = acceptedFiles[0];
+    setFile(newFile);
+  }, []);
+
+  const handleDelete = () => {
+    setFile(null);
+  };
+
+  const queryClient = useQueryClient();
+  const uploadConfig = {
+    headers: {
+      'content-type': 'multipart/form-data',
+    },
+  };
+
+  const { mutate: handleUploadProductImage } = useMutation({
+    mutationFn: (file) => axios.post(endpoints.files.upload, file, uploadConfig),
+    onSuccess: async () => {
+      toast.success('New Image Has Been Uploaded!');
+    },
+    onSettled: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['products-images'] });
+      dialog.onFalse();
+    },
+    onError: (err) => {
+      console.log(err);
+    },
+  });
+
+  const { mutate: handleCreateProduct } = useMutation({
+    mutationFn: (payload) => axios.post(endpoints.products.create, payload),
+    onSuccess: async () => {
+      toast.success('New Product Has Been Created!');
+      reset();
+      router.push(paths.dashboard.product.root);
+    },
+    onSettled: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['products'] });
+      dialog.onFalse();
+    },
+    onError: (err) => {
+      console.log(err);
+    },
+  });
 
   return (
-    <Form methods={methods} onSubmit={onSubmit}>
+    <>
       <Card>
-        <Stack spacing={4} sx={{ p: 3 }}>
-          <Box
-            columnGap={2}
-            rowGap={3}
-            display="grid"
-            gridTemplateColumns={{ xs: 'repeat(1, 1fr)', md: 'repeat(2, 1fr)' }}
-          >
-            <TextField label="Product Name" onChange={handleOrderId} />
-            <TextField label="Product Price" onChange={handleOrderId} />
-          </Box>
-          <Box
-            sx={{
-              borderRadius: 1,
-              overflow: 'hidden',
-              border: (theme) => `solid 1px ${theme.vars.palette.divider}`,
-            }}
-          >
-            <Accordion>
-              <AccordionSummary expandIcon={<Iconify icon="eva:arrow-ios-downward-fill" />}>
-                <Typography>Select Icon</Typography>
-              </AccordionSummary>
-              <Divider />
-              <AccordionDetails>
-                <Box
-                  spacing={2}
-                  gap={3}
-                  display="grid"
-                  gridTemplateColumns={{ xs: 'repeat(2, 1fr)', md: 'repeat(12, 1fr)' }}
-                >
-                  <ProductItemButton image="--->" />
-                  <ProductItemButton image="--->" />
-                  <ProductItemButton image="--->" />
-                  <ProductItemButton image="--->" />
-                  <ProductItemButton image="--->" />
-                  <ProductItemButton image="--->" />
-                  <ProductItemButton image="--->" />
-                  <ProductItemButton image="--->" />
-                  <ProductItemButton image="--->" />
-                  <ProductItemButton image="--->" />
-                  <ProductItemButton image="--->" />
-                  <ProductItemButton image="--->" />
-                  <ProductItemButton image="--->" />
-                  <ProductItemButton image="--->" />
-                  <ProductItemButton image="--->" />
-                  <ProductItemButton image="--->" />
-                  <ProductItemButton image="--->" />
-                  <ProductItemButton image="--->" />
-                </Box>
-              </AccordionDetails>
-            </Accordion>
-          </Box>
-          <FormControlLabel
-            control={<Switch name="isActive" defaultChecked />}
-            label="Is Active?"
-          />
-          <Box display="flex" flexDirection="column" alignItems="flex-end" justifyContent="center">
-            <Box display="flex" gap={2} height={50}>
-              <Button variant="contained">Submit</Button>
-              <Button variant="outlined">Cancel</Button>
+        <Form methods={methods} onSubmit={onSubmit}>
+          <Stack spacing={4} sx={{ p: 3 }}>
+            <Box
+              columnGap={2}
+              rowGap={3}
+              display="grid"
+              gridTemplateColumns={{ xs: 'repeat(1, 1fr)', md: 'repeat(2, 1fr)' }}
+            >
+              <Field.Text fullWidth label="Product Name" name="name" />
+              <Field.Text fullWidth type="number" label="Product Price" name="price" />
             </Box>
-          </Box>
-        </Stack>
+            <Box
+              sx={{
+                borderRadius: 1,
+                overflow: 'hidden',
+                border: (theme) => `solid 1px ${theme.vars.palette.divider}`,
+              }}
+            >
+              <Accordion>
+                <AccordionSummary expandIcon={<Iconify icon="eva:arrow-ios-downward-fill" />}>
+                  <Typography>Select Icon</Typography>
+                </AccordionSummary>
+                <Divider />
+                <AccordionDetails>
+                  <Box
+                    spacing={2}
+                    gap={3}
+                    display="grid"
+                    gridTemplateColumns={{ xs: 'repeat(2, 1fr)', md: 'repeat(12, 1fr)' }}
+                  >
+                    {productsImages.map((img) => {
+                      const storageHost = 'http://localhost:3000/api/files/show/';
+                      return (
+                        <ProductItemButton
+                          image={storageHost + img.name}
+                          handleClick={handleSelectedImage}
+                          payload={img.name}
+                          selected={img.name === selectedImage}
+                        />
+                      );
+                    })}
+                    <ProductItemButton
+                      image={`${CONFIG.site.basePath}/logo/logo-single.svg`}
+                      handleClick={() => dialog.onToggle()}
+                    />
+                  </Box>
+                </AccordionDetails>
+              </Accordion>
+            </Box>
+            <Field.Switch name="isActive" label="Is Active?" />
+            <Box
+              display="flex"
+              flexDirection="column"
+              alignItems="flex-end"
+              justifyContent="center"
+            >
+              <Box display="flex" gap={2} height={50}>
+                <LoadingButton type="submit" variant="contained">
+                  Save
+                </LoadingButton>
+                <Button variant="outlined">Cancel</Button>
+              </Box>
+            </Box>
+          </Stack>
+        </Form>
       </Card>
-    </Form>
+      <ProductUploadImageDialog
+        open={dialog.value}
+        onClose={dialog.onFalse}
+        file={file}
+        handleUpload={handleUpload}
+        handleDrop={handleDropSingleFile}
+        handleDelete={handleDelete}
+      />
+    </>
   );
 }

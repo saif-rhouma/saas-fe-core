@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 import { useTheme } from '@mui/material';
 import Button from '@mui/material/Button';
@@ -10,6 +10,7 @@ import { paths } from 'src/routes/paths';
 
 import { useBoolean } from 'src/hooks/use-boolean';
 import { useSetState } from 'src/hooks/use-set-state';
+import { RouterLink } from 'src/routes/components';
 
 import { fIsAfter, fIsBetween } from 'src/utils/format-time';
 
@@ -38,7 +39,8 @@ import {
 import { DashboardContent } from 'src/layouts/dashboard';
 import ProductTableRow from '../product-table-row';
 import { ProductTableToolbar } from '../product-table-toolbar';
-
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import axios, { endpoints } from 'src/utils/axios';
 // ----------------------------------------------------------------------
 
 const STATUS_OPTIONS = [{ value: 'all', label: 'All' }, ...ORDER_STATUS_OPTIONS];
@@ -77,6 +79,10 @@ export function ProductListView({ products }) {
     endDate: null,
   });
 
+  useEffect(() => {
+    setTableData(products);
+  }, [products]);
+
   const dateError = fIsAfter(filters.state.startDate, filters.state.endDate);
 
   const dataFiltered = applyFilter({
@@ -97,6 +103,26 @@ export function ProductListView({ products }) {
 
   const handleDeleteRow = useCallback(
     (id) => {
+      deleteProduct(id);
+    },
+    [dataInPage.length, table, tableData]
+  );
+
+  const handleDeleteRows = useCallback(() => {
+    // const deleteRows = tableData.filter((row) => !table.selected.includes(row.id));
+    // toast.success('Delete success!');
+    // setTableData(deleteRows);
+    // table.onUpdatePageDeleteRows({
+    //   totalRowsInPage: dataInPage.length,
+    //   totalRowsFiltered: dataFiltered.length,
+    // });
+  }, [dataFiltered.length, dataInPage.length, table, tableData]);
+
+  const queryClient = useQueryClient();
+
+  const { mutate: deleteProduct } = useMutation({
+    mutationFn: (id) => axios.delete(endpoints.products.delete + id),
+    onSuccess: async () => {
       const deleteRow = tableData.filter((row) => row.id !== id);
 
       toast.success('Delete success!');
@@ -105,28 +131,11 @@ export function ProductListView({ products }) {
 
       table.onUpdatePageDeleteRow(dataInPage.length);
     },
-    [dataInPage.length, table, tableData]
-  );
-
-  const handleDeleteRows = useCallback(() => {
-    const deleteRows = tableData.filter((row) => !table.selected.includes(row.id));
-
-    toast.success('Delete success!');
-
-    setTableData(deleteRows);
-
-    table.onUpdatePageDeleteRows({
-      totalRowsInPage: dataInPage.length,
-      totalRowsFiltered: dataFiltered.length,
-    });
-  }, [dataFiltered.length, dataInPage.length, table, tableData]);
-
-  const handleViewRow = useCallback(
-    (id) => {
-      router.push(paths.dashboard.order.details(id));
+    onSettled: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['products'] });
     },
-    [router]
-  );
+    onError: () => {},
+  });
 
   return (
     <>
@@ -141,7 +150,7 @@ export function ProductListView({ products }) {
               ]}
               action={
                 <Button
-                  // component={RouterLink}
+                  component={RouterLink}
                   href={paths.dashboard.product.new}
                   variant="contained"
                   startIcon={<Iconify icon="mingcute:add-line" />}
@@ -205,9 +214,8 @@ export function ProductListView({ products }) {
                             key={row.id}
                             row={row}
                             selected={table.selected.includes(row.id)}
-                            onSelectRow={() => table.onSelectRow(row.id)}
+                            // onSelectRow={() => table.onSelectRow(row.id)}
                             onDeleteRow={() => handleDeleteRow(row.id)}
-                            onViewRow={() => handleViewRow(row.id)}
                           />
                         ))}
 
@@ -275,15 +283,10 @@ function applyFilter({ inputData, comparator, filters, dateError }) {
 
   if (name) {
     inputData = inputData.filter(
-      (order) =>
-        order.orderNumber.toLowerCase().indexOf(name.toLowerCase()) !== -1 ||
-        order.customer.name.toLowerCase().indexOf(name.toLowerCase()) !== -1 ||
-        order.customer.email.toLowerCase().indexOf(name.toLowerCase()) !== -1
+      (product) =>
+        product.id.toString().toLowerCase().indexOf(name.toLowerCase()) !== -1 ||
+        product.name.toLowerCase().indexOf(name.toLowerCase()) !== -1
     );
-  }
-
-  if (status !== 'all') {
-    inputData = inputData.filter((order) => order.status === status);
   }
 
   if (!dateError) {

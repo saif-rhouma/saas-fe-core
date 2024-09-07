@@ -15,8 +15,16 @@ export default function Page() {
   const response = useQuery({
     queryKey: ['orders'],
     queryFn: async () => {
-      const res = await axios.get(endpoints.order.list);
-      return res.data;
+      const { data } = await axios.get(endpoints.order.list);
+      return data;
+    },
+  });
+
+  const responseAnalytics = useQuery({
+    queryKey: ['orders', 'analytics'],
+    queryFn: async () => {
+      const { data } = await axios.get(endpoints.order.analytics);
+      return data;
     },
   });
 
@@ -30,7 +38,7 @@ export default function Page() {
         <title> {metadata.title}</title>
       </Helmet>
 
-      <OrderListView orders={response.data} />
+      <OrderListView orders={response.data} analytics={responseAnalytics} />
     </>
   );
 }

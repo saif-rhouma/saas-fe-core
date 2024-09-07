@@ -69,8 +69,8 @@ export function OrderTableRow({ row, selected, onViewRow, onSelectRow, onDeleteR
 
       <TableCell>
         <ListItemText
-          primary={fDate(row.createTime)}
-          secondary={fTime(row.createTime)}
+          primary={fDate(row.orderDate)}
+          // secondary={fTime(row.createTime)}
           primaryTypographyProps={{ typography: 'body2', noWrap: true }}
           secondaryTypographyProps={{
             mt: 0.5,

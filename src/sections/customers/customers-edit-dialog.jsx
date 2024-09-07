@@ -1,6 +1,6 @@
 import OrderCustomerCreateDialog from '../order/order-customer-create-dialog';
 
-function CustomerCreateDialog({ customer, open, onClose, handler }) {
+function CustomerEditDialog({ customer, open, onClose, handler }) {
   return (
     <OrderCustomerCreateDialog
       customer={customer}
@@ -11,4 +11,4 @@ function CustomerCreateDialog({ customer, open, onClose, handler }) {
   );
 }
 
-export default CustomerCreateDialog;
+export default CustomerEditDialog;

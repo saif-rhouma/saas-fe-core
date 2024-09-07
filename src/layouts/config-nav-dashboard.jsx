@@ -58,9 +58,9 @@ export const navData = [
           { title: 'Product Stock', path: paths.dashboard.product.stock },
         ],
       },
-      { title: 'Orders Status', path: paths.dashboard.general.analytics, icon: ICONS.menuItem },
+      { title: 'Orders Status', path: paths.dashboard.order.status, icon: ICONS.menuItem },
       { title: 'Plans', path: paths.dashboard.plan.root, icon: ICONS.booking },
-      { title: 'Plans Status', path: paths.dashboard.general.banking, icon: ICONS.banking },
+      { title: 'Plans Status', path: paths.dashboard.plan.status, icon: ICONS.menuItem },
 
       { title: 'Customers', path: paths.dashboard.customers.root, icon: ICONS.course },
       { title: 'Payments', path: paths.dashboard.payments.root, icon: ICONS.invoice },
