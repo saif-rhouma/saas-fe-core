@@ -43,7 +43,9 @@ const RemindersListPage = lazy(() => import('src/pages/dashboard/reminders/list'
 const TicketsListPage = lazy(() => import('src/pages/dashboard/tickets/list'));
 const TicketsDetailsPage = lazy(() => import('src/pages/dashboard/tickets/details'));
 // Staff
-// const StaffListPage = lazy(() => import('src/pages/dashboard/reminders/list'));
+const StaffListPage = lazy(() => import('src/pages/dashboard/staff/list'));
+const StaffCreatePage = lazy(() => import('src/pages/dashboard/staff/new'));
+const StaffEditPage = lazy(() => import('src/pages/dashboard/staff/edit'));
 // Reports
 // const ReportsListPage = lazy(() => import('src/pages/dashboard/reminders/list'));
 // Tools
@@ -156,8 +158,10 @@ export const dashboardRoutes = [
       {
         path: 'staff',
         children: [
-          { element: <PaymentsListPage />, index: true },
-          { path: 'list', element: <PaymentsListPage /> },
+          { element: <StaffListPage />, index: true },
+          { path: 'list', element: <StaffListPage /> },
+          { path: 'new', element: <StaffCreatePage /> },
+          { path: ':id/edit', element: <StaffEditPage /> },
         ],
       },
       {
