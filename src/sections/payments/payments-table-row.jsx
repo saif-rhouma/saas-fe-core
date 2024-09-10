@@ -12,7 +12,7 @@ import { CustomPopover, usePopover } from 'src/components/custom-popover';
 import { Iconify } from 'src/components/iconify';
 import { fDate } from 'src/utils/format-time';
 
-const PaymentsTableRow = ({ row, selected, onViewRow, onSelectRow, onDeleteRow }) => {
+const PaymentsTableRow = ({ row, selected, onViewRow, onDeleteRow, onEditRow }) => {
   const confirm = useBoolean();
 
   const collapse = useBoolean();
@@ -48,17 +48,6 @@ const PaymentsTableRow = ({ row, selected, onViewRow, onSelectRow, onDeleteRow }
         <MenuList>
           <MenuItem
             onClick={() => {
-              confirm.onTrue();
-              popover.onClose();
-            }}
-            sx={{ color: 'error.main' }}
-          >
-            <Iconify icon="solar:trash-bin-trash-bold" />
-            Delete
-          </MenuItem>
-
-          <MenuItem
-            onClick={() => {
               onViewRow();
               popover.onClose();
             }}
@@ -69,12 +58,22 @@ const PaymentsTableRow = ({ row, selected, onViewRow, onSelectRow, onDeleteRow }
 
           <MenuItem
             onClick={() => {
-              onViewRow();
+              onEditRow();
               popover.onClose();
             }}
           >
-            <Iconify icon="solar:eye-bold" />
+            <Iconify icon="solar:pen-bold" />
             Edit
+          </MenuItem>
+          <MenuItem
+            onClick={() => {
+              confirm.onTrue();
+              popover.onClose();
+            }}
+            sx={{ color: 'error.main' }}
+          >
+            <Iconify icon="solar:trash-bin-trash-bold" />
+            Delete
           </MenuItem>
         </MenuList>
       </CustomPopover>

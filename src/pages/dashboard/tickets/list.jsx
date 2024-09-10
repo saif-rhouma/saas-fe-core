@@ -20,7 +20,7 @@ export default function Page() {
   });
 
   const responseAnalytics = useQuery({
-    queryKey: ['orders', 'analytics'],
+    queryKey: ['tickets', 'analytics'],
     queryFn: async () => {
       const { data } = await axios.get(endpoints.tickets.analytics);
       return data;

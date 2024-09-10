@@ -1,22 +1,15 @@
+import { zodResolver } from '@hookform/resolvers/zod';
 import { LoadingButton } from '@mui/lab';
-import {
-  Button,
-  DialogActions,
-  DialogTitle,
-  FormControlLabel,
-  Switch,
-  TextField,
-} from '@mui/material';
+import { Button, DialogActions, DialogTitle } from '@mui/material';
+import Alert from '@mui/material/Alert';
 import Dialog from '@mui/material/Dialog';
 import DialogContent from '@mui/material/DialogContent';
 import Stack from '@mui/material/Stack';
-import { useForm } from 'react-hook-form';
-import { Form, Field, schemaHelper } from 'src/components/hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z as zod } from 'zod';
 import { useEffect, useState } from 'react';
-import Alert from '@mui/material/Alert';
+import { useForm } from 'react-hook-form';
 import { isValidPhoneNumber } from 'react-phone-number-input/input';
+import { Field, Form, schemaHelper } from 'src/components/hook-form';
+import { z as zod } from 'zod';
 
 const CustomerCreationSchema = zod.object({
   name: zod.string().min(1, { message: 'Name is required!' }),

@@ -12,18 +12,16 @@ import { CustomPopover, usePopover } from 'src/components/custom-popover';
 import { Iconify } from 'src/components/iconify';
 import { fDate } from 'src/utils/format-time';
 
-const RemindersTableRow = ({ row, selected, onViewRow, onSelectRow, onDeleteRow }) => {
+const RemindersTableRow = ({ row, selected, onViewRow, onDeleteRow, onEditRow }) => {
   const confirm = useBoolean();
-
-  const collapse = useBoolean();
 
   const popover = usePopover();
 
   const renderPrimary = (
     <TableRow hover selected={selected}>
-      <TableCell>{row.orderNumber}</TableCell>
-      <TableCell>{fDate(row.createdAt)}</TableCell>
-      <TableCell>{row.customer.name}</TableCell>
+      <TableCell>{row.id}</TableCell>
+      <TableCell>{fDate(row.reminderDate)}</TableCell>
+      <TableCell>{row.title}</TableCell>
       <TableCell align="right" sx={{ px: 1, whiteSpace: 'nowrap' }}>
         <IconButton color={popover.open ? 'inherit' : 'default'} onClick={popover.onOpen}>
           <Iconify icon="eva:more-vertical-fill" />
@@ -42,6 +40,27 @@ const RemindersTableRow = ({ row, selected, onViewRow, onSelectRow, onDeleteRow 
         slotProps={{ arrow: { placement: 'right-top' } }}
       >
         <MenuList>
+          {row?.file && (
+            <MenuItem
+              onClick={() => {
+                onViewRow();
+                popover.onClose();
+              }}
+            >
+              <Iconify icon="solar:cloud-download-bold" />
+              Download
+            </MenuItem>
+          )}
+
+          <MenuItem
+            onClick={() => {
+              onEditRow();
+              popover.onClose();
+            }}
+          >
+            <Iconify icon="solar:pen-bold" />
+            Edit
+          </MenuItem>
           <MenuItem
             onClick={() => {
               confirm.onTrue();
@@ -51,26 +70,6 @@ const RemindersTableRow = ({ row, selected, onViewRow, onSelectRow, onDeleteRow 
           >
             <Iconify icon="solar:trash-bin-trash-bold" />
             Delete
-          </MenuItem>
-
-          <MenuItem
-            onClick={() => {
-              onViewRow();
-              popover.onClose();
-            }}
-          >
-            <Iconify icon="solar:eye-bold" />
-            View
-          </MenuItem>
-
-          <MenuItem
-            onClick={() => {
-              onViewRow();
-              popover.onClose();
-            }}
-          >
-            <Iconify icon="solar:eye-bold" />
-            Edit
           </MenuItem>
         </MenuList>
       </CustomPopover>

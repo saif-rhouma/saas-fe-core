@@ -69,17 +69,6 @@ const TicketsTableRow = ({ row, selected, onViewRow, onDeleteRow }) => {
         <MenuList>
           <MenuItem
             onClick={() => {
-              confirm.onTrue();
-              popover.onClose();
-            }}
-            sx={{ color: 'error.main' }}
-          >
-            <Iconify icon="solar:trash-bin-trash-bold" />
-            Delete
-          </MenuItem>
-
-          <MenuItem
-            onClick={() => {
               onViewRow();
               popover.onClose();
             }}
@@ -90,12 +79,13 @@ const TicketsTableRow = ({ row, selected, onViewRow, onDeleteRow }) => {
 
           <MenuItem
             onClick={() => {
-              onViewRow();
+              confirm.onTrue();
               popover.onClose();
             }}
+            sx={{ color: 'error.main' }}
           >
-            <Iconify icon="solar:eye-bold" />
-            Edit
+            <Iconify icon="solar:trash-bin-trash-bold" />
+            Delete
           </MenuItem>
         </MenuList>
       </CustomPopover>

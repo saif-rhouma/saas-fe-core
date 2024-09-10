@@ -1,90 +1,204 @@
+import { zodResolver } from '@hookform/resolvers/zod';
 import { LoadingButton } from '@mui/lab';
-import {
-  Button,
-  DialogActions,
-  DialogTitle,
-  FormControl,
-  InputLabel,
-  MenuItem,
-  Select,
-  TextField,
-} from '@mui/material';
+import { Button, DialogActions, DialogTitle, MenuItem, Select, TextField } from '@mui/material';
 import Box from '@mui/material/Box';
 import Dialog from '@mui/material/Dialog';
 import DialogContent from '@mui/material/DialogContent';
 import Divider from '@mui/material/Divider';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
-import { TimePicker } from '@mui/x-date-pickers';
-import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-import { useCallback } from 'react';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useCallback, useMemo, useRef, useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { Form, Field } from 'src/components/hook-form';
+import { LoadingScreen } from 'src/components/loading-screen';
+import { Scrollbar } from 'src/components/scrollbar';
+import { toast } from 'src/components/snackbar';
 import { Upload } from 'src/components/upload';
-const TicketsCreateDialog = ({ reminder, open, onClose }) => {
-  const handleDrop = useCallback(() => {}, []);
+import axios, { endpoints } from 'src/utils/axios';
+import { z as zod } from 'zod';
 
-  const handleUpload = () => {
-    onClose();
-    console.info('ON UPLOAD');
+export const NewTicketSchema = zod.object({
+  topic: zod.string().min(1, { message: 'Topic is required!' }),
+  description: zod.string().min(1, { message: 'Description is required!' }),
+  memberId: zod.number().min(1, { message: 'Member is required!' }),
+  priority: zod.string().min(1, { message: 'Priority is required!' }),
+});
+
+const TicketsCreateDialog = ({ currentTicket, open, onClose }) => {
+  //! Upload Logic START
+  const store = useRef();
+  const [members, setMembers] = useState([]);
+  const [file, setFile] = useState();
+
+  const handleDropSingleFile = useCallback((acceptedFiles) => {
+    const newFile = acceptedFiles[0];
+    setFile(() => newFile);
+  }, []);
+
+  const handleDelete = () => {
+    setFile(null);
   };
 
-  const handleRemoveFile = () => {};
+  const queryClient = useQueryClient();
+  const uploadConfig = {
+    headers: {
+      'content-type': 'multipart/form-data',
+    },
+  };
 
-  const handleRemoveAllFiles = () => {};
+  //! Upload Logic END
+
+  const { mutate: handleUploadTicketFile } = useMutation({
+    mutationFn: (file) => axios.post(endpoints.files.upload, file, uploadConfig),
+    onSuccess: async ({ data }) => {
+      const { name: filename } = data;
+      if (filename) {
+        const { current: payload } = store;
+        payload.file = filename;
+        await handleCreateTicket(payload);
+      }
+      return data;
+    },
+    onSettled: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['tickets-images'] });
+    },
+    onError: (err) => {
+      console.log(err);
+    },
+  });
+
+  const { mutate: handleCreateTicket } = useMutation({
+    mutationFn: (payload) => axios.post(endpoints.tickets.create, payload),
+    onSuccess: async () => {
+      toast.success('New Ticket Has Been Created!');
+
+      reset();
+    },
+    onSettled: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['tickets'] });
+      store.current = {};
+      setFile(null);
+      onClose();
+    },
+    onError: (err) => {
+      console.log(err);
+    },
+  });
+
+  const defaultValues = useMemo(
+    () => ({
+      topic: currentTicket?.topic || '',
+      description: currentTicket?.description || '',
+      memberId: currentTicket?.memberId || null,
+      priority: currentTicket?.priority || null,
+    }),
+    [currentTicket]
+  );
+
+  const methods = useForm({
+    resolver: zodResolver(NewTicketSchema),
+    defaultValues,
+  });
+
+  const {
+    reset,
+    watch,
+    setValue,
+    handleSubmit,
+    formState: { isSubmitting },
+  } = methods;
+
+  const onSubmit = handleSubmit(async (payload) => {
+    try {
+      if (file) {
+        store.current = { ...payload };
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('category', 'Ticket');
+        await handleUploadTicketFile(formData);
+      } else {
+        await handleCreateTicket(payload);
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  });
+
+  const response = useQuery({
+    queryKey: ['members'],
+    queryFn: async () => {
+      const { data } = await axios.get(endpoints.staff.list);
+      setMembers(data);
+      return data;
+    },
+  });
+
+  if (response.isPending || response.isLoading) {
+    return <LoadingScreen />;
+  }
+
   return (
     <Dialog fullWidth maxWidth="md" open={open} onClose={onClose}>
       <DialogTitle>Add New Ticket</DialogTitle>
-      <DialogContent>
-        <Divider />
-        <Stack spacing={2} sx={{ pt: 4, pb: 1 }}>
-          <Box
-            display="grid"
-            gap={2}
-            gridTemplateColumns={{
-              xs: 'repeat(1, 1fr)',
-              sm: 'repeat(1, 1fr)',
-              md: 'repeat(2, 1fr)',
-              lg: 'repeat(2, 1fr)',
-            }}
-          >
-            <TextField label="Enter Topic" sx={{ flexGrow: 1 }} />
-            <TextField label="Description" sx={{ flexGrow: 1 }} />
-            <Select
-              sx={{ width: 420, textTransform: 'capitalize' }}
-              value="Select a Priority"
-              renderValue={(selected) => selected}
-              // onChange={handleChangeRowsPerPage}
+      <Form methods={methods} onSubmit={onSubmit}>
+        <DialogContent>
+          <Divider />
+          <Stack spacing={2} sx={{ pt: 4, pb: 1 }}>
+            <Box
+              display="grid"
+              gap={2}
+              gridTemplateColumns={{
+                xs: 'repeat(1, 1fr)',
+                sm: 'repeat(1, 1fr)',
+                md: 'repeat(2, 1fr)',
+                lg: 'repeat(2, 1fr)',
+              }}
             >
-              <MenuItem value={8}>All Tickets</MenuItem>
-              <MenuItem value={12}>Open Tickets</MenuItem>
-              <MenuItem value={24}>Close Tickets</MenuItem>
-            </Select>
-            <Select
-              sx={{ width: 420, textTransform: 'capitalize' }}
-              value="Select a Members"
-              renderValue={(selected) => selected}
-              // onChange={handleChangeRowsPerPage}
-            >
-              <MenuItem value={8}>All Tickets</MenuItem>
-              <MenuItem value={12}>Open Tickets</MenuItem>
-              <MenuItem value={24}>Close Tickets</MenuItem>
-            </Select>
-          </Box>
-          <Box>
-            <Stack spacing={1.5}>
-              <Typography variant="subtitle2">Attachments</Typography>
-              <Upload multiple onDrop={handleDrop} onRemove={handleRemoveFile} />
-            </Stack>
-          </Box>
-        </Stack>
-      </DialogContent>
-      <DialogActions>
-        <LoadingButton type="submit" variant="contained">
-          Save
-        </LoadingButton>
-        <Button color="inherit" variant="outlined" onClick={onClose}>
-          Cancel
-        </Button>
-      </DialogActions>
+              <Field.Text fullWidth label="Enter Topic" name="topic" sx={{ flexGrow: 1 }} />
+              <Field.Text fullWidth label="Description" name="description" sx={{ flexGrow: 1 }} />
+
+              <Field.Select
+                name="priority"
+                label="Select a Priority"
+                sx={{ width: 420, textTransform: 'capitalize' }}
+              >
+                <MenuItem value={'Low'}>Low</MenuItem>
+                <MenuItem value={'Medium'}>Medium</MenuItem>
+                <MenuItem value={'Hight'}>Hight</MenuItem>
+              </Field.Select>
+
+              <Field.Select
+                name="memberId"
+                label="Select a Member"
+                sx={{ width: 420, textTransform: 'capitalize' }}
+              >
+                {members.map((member) => (
+                  <MenuItem key={member.id} value={member.id}>
+                    {`${member?.firstName} ${member?.lastName}`}
+                  </MenuItem>
+                ))}
+              </Field.Select>
+            </Box>
+            <Box>
+              <Stack spacing={1.5}>
+                <Typography variant="subtitle2">Attachments</Typography>
+                <Scrollbar sx={{ maxHeight: 360, p: 2 }}>
+                  <Upload value={file} onDrop={handleDropSingleFile} onDelete={handleDelete} />
+                </Scrollbar>
+              </Stack>
+            </Box>
+          </Stack>
+        </DialogContent>
+        <DialogActions>
+          <LoadingButton type="submit" variant="contained">
+            Save
+          </LoadingButton>
+          <Button color="inherit" variant="outlined" onClick={onClose}>
+            Cancel
+          </Button>
+        </DialogActions>
+      </Form>
     </Dialog>
   );
 };

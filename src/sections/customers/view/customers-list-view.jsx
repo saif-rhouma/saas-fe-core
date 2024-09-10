@@ -67,7 +67,7 @@ const CustomersListView = ({ customers }) => {
 
   const [tableData, setTableData] = useState(customers);
 
-  const [setselectedCustomer, setSelectedCustomer] = useState();
+  const [selectedCustomer, setSelectedCustomer] = useState();
 
   const filters = useSetState({
     name: '',
@@ -265,7 +265,7 @@ const CustomersListView = ({ customers }) => {
         open={dialogEdit.value}
         onClose={dialogEdit.onFalse}
         handler={handleEditCustomer}
-        customer={setselectedCustomer}
+        customer={selectedCustomer}
       />
       <ConfirmDialog
         open={confirm.value}

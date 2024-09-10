@@ -7,7 +7,6 @@ import {
   DialogTitle,
   Divider,
   Stack,
-  Typography,
 } from '@mui/material';
 import { Upload } from 'src/components/upload';
 

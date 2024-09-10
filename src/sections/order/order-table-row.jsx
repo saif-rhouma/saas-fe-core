@@ -173,6 +173,15 @@ export function OrderTableRow({ row, selected, onViewRow, onSelectRow, onDeleteR
         <MenuList>
           <MenuItem
             onClick={() => {
+              onViewRow();
+              popover.onClose();
+            }}
+          >
+            <Iconify icon="solar:eye-bold" />
+            View
+          </MenuItem>
+          <MenuItem
+            onClick={() => {
               confirm.onTrue();
               popover.onClose();
             }}
@@ -180,16 +189,6 @@ export function OrderTableRow({ row, selected, onViewRow, onSelectRow, onDeleteR
           >
             <Iconify icon="solar:trash-bin-trash-bold" />
             Delete
-          </MenuItem>
-
-          <MenuItem
-            onClick={() => {
-              onViewRow();
-              popover.onClose();
-            }}
-          >
-            <Iconify icon="solar:eye-bold" />
-            View
           </MenuItem>
         </MenuList>
       </CustomPopover>

@@ -1,19 +1,17 @@
+import { zodResolver } from '@hookform/resolvers/zod';
 import { LoadingButton } from '@mui/lab';
-import { Button, DialogActions, DialogTitle, MenuItem, Select, TextField } from '@mui/material';
+import { Button, DialogActions, DialogTitle, MenuItem } from '@mui/material';
 import Box from '@mui/material/Box';
 import Dialog from '@mui/material/Dialog';
 import DialogContent from '@mui/material/DialogContent';
 import Divider from '@mui/material/Divider';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
-import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { useCallback } from 'react';
-import { Upload } from 'src/components/upload';
+import { useForm } from 'react-hook-form';
+import { Field, Form, schemaHelper } from 'src/components/hook-form';
 import { fCurrency } from 'src/utils/format-number';
 import { fDate, today } from 'src/utils/format-time';
-import { useForm } from 'react-hook-form';
-import { Form, Field, schemaHelper } from 'src/components/hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
 import { z as zod } from 'zod';
 
 const PaymentCreationSchema = zod.object({
@@ -179,23 +177,12 @@ const OrderPaymentDetailsDialog = ({ order, payment, open, onClose, handler }) =
               }}
             >
               <Box>
-                {/* <Select
-                  fullWidth
-                  sx={{ textTransform: 'capitalize' }}
-                  value="Payment Type"
-                  renderValue={(selected) => selected}
-                  // onChange={handleChangeRowsPerPage}
-                ></Select> */}
                 <Field.Select name="paymentType" label="Payment Type">
                   <MenuItem value={'Cash'}>Cash</MenuItem>
                   <MenuItem value={'Transfer'}>Transfer</MenuItem>
                   <MenuItem value={'Card'}>Card</MenuItem>
                 </Field.Select>
               </Box>
-              {/* <Stack spacing={1.5}>
-                <Typography variant="subtitle2">Attachments</Typography>
-                <Upload multiple onDrop={handleDrop} onRemove={handleRemoveFile} />
-              </Stack> */}
             </Box>
           </Stack>
         </DialogContent>

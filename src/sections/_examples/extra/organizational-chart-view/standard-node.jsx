@@ -64,14 +64,13 @@ export function StandardNode({ name, avatarUrl, role, sx }) {
         slotProps={{ arrow: { placement: 'left-center' } }}
       >
         <MenuList>
-          <MenuItem onClick={onDelete} sx={{ color: 'error.main' }}>
-            <Iconify icon="solar:trash-bin-trash-bold" />
-            Delete
-          </MenuItem>
-
           <MenuItem onClick={onEdit}>
             <Iconify icon="solar:pen-bold" />
             Edit
+          </MenuItem>
+          <MenuItem onClick={onDelete} sx={{ color: 'error.main' }}>
+            <Iconify icon="solar:trash-bin-trash-bold" />
+            Delete
           </MenuItem>
         </MenuList>
       </CustomPopover>

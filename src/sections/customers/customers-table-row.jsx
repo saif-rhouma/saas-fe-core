@@ -56,7 +56,7 @@ const CustomersTableRow = ({ row, selected, onDeleteRow, onEditRow }) => {
               popover.onClose();
             }}
           >
-            <Iconify icon="solar:eye-bold" />
+            <Iconify icon="solar:pen-bold" />
             Edit
           </MenuItem>
           <MenuItem

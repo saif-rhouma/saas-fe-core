@@ -65,17 +65,6 @@ const ProductAddonTableRow = ({ row, selected, onViewRow, onSelectRow, onDeleteR
         <MenuList>
           <MenuItem
             onClick={() => {
-              confirm.onTrue();
-              popover.onClose();
-            }}
-            sx={{ color: 'error.main' }}
-          >
-            <Iconify icon="solar:trash-bin-trash-bold" />
-            Delete
-          </MenuItem>
-
-          <MenuItem
-            onClick={() => {
               onViewRow();
               popover.onClose();
             }}
@@ -90,8 +79,18 @@ const ProductAddonTableRow = ({ row, selected, onViewRow, onSelectRow, onDeleteR
               popover.onClose();
             }}
           >
-            <Iconify icon="solar:eye-bold" />
+            <Iconify icon="solar:pen-bold" />
             Edit
+          </MenuItem>
+          <MenuItem
+            onClick={() => {
+              confirm.onTrue();
+              popover.onClose();
+            }}
+            sx={{ color: 'error.main' }}
+          >
+            <Iconify icon="solar:trash-bin-trash-bold" />
+            Delete
           </MenuItem>
         </MenuList>
       </CustomPopover>

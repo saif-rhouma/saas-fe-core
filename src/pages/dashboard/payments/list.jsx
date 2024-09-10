@@ -14,8 +14,8 @@ export default function Page() {
   const response = useQuery({
     queryKey: ['payments'],
     queryFn: async () => {
-      const res = await axios.get(endpoints.payments.list);
-      return res.data;
+      const { data } = await axios.get(endpoints.payments.list);
+      return data;
     },
   });
 

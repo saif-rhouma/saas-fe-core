@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 import { Stack, useTheme } from '@mui/material';
 import Box from '@mui/material/Box';
@@ -34,7 +34,9 @@ import {
 import PaymentEditDialog from '../payment-edit-dialog';
 import PaymentsTableRow from '../payments-table-row';
 import { PaymentsTableToolbar } from '../payments-table-toolbar';
-
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import axios, { endpoints } from 'src/utils/axios';
+import PaymentDetailsDialog from '../payments-details-dialog';
 // ----------------------------------------------------------------------
 
 const STATUS_OPTIONS = [{ value: 'all', label: 'All' }, ...ORDER_STATUS_OPTIONS];
@@ -54,9 +56,12 @@ const TABLE_HEAD = [
 const PaymentsListView = ({ payments }) => {
   const table = useTable({ defaultOrderBy: 'orderNumber' });
 
+  const [selectedPayment, setSelectedPayment] = useState();
+
   const router = useRouter();
 
-  const theme = useTheme();
+  const dialog = useBoolean();
+  const dialogEdit = useBoolean();
 
   const confirm = useBoolean();
 
@@ -68,6 +73,10 @@ const PaymentsListView = ({ payments }) => {
     startDate: null,
     endDate: null,
   });
+
+  useEffect(() => {
+    setTableData(payments);
+  }, [payments]);
 
   const dateError = fIsAfter(filters.state.startDate, filters.state.endDate);
 
@@ -89,35 +98,44 @@ const PaymentsListView = ({ payments }) => {
 
   const handleDeleteRow = useCallback(
     (id) => {
+      deletePayment(id);
       const deleteRow = tableData.filter((row) => row.id !== id);
-
-      toast.success('Delete success!');
-
       setTableData(deleteRow);
-
       table.onUpdatePageDeleteRow(dataInPage.length);
     },
     [dataInPage.length, table, tableData]
   );
 
-  const handleDeleteRows = useCallback(() => {
-    const deleteRows = tableData.filter((row) => !table.selected.includes(row.id));
-
-    toast.success('Delete success!');
-
-    setTableData(deleteRows);
-
-    table.onUpdatePageDeleteRows({
-      totalRowsInPage: dataInPage.length,
-      totalRowsFiltered: dataFiltered.length,
-    });
-  }, [dataFiltered.length, dataInPage.length, table, tableData]);
+  const queryClient = useQueryClient();
+  const { mutate: deletePayment } = useMutation({
+    mutationFn: (id) => axios.delete(endpoints.payments.delete + id),
+    onSuccess: () => {
+      toast.success('Delete success!');
+      confirm.onFalse();
+    },
+    onSettled: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['payments'] });
+      confirm.onFalse();
+    },
+    onError: (err) => {
+      console.log(err);
+    },
+  });
 
   const handleViewRow = useCallback(
-    (id) => {
-      router.push(paths.dashboard.order.details(id));
+    (row) => {
+      setSelectedPayment(row);
+      dialog.onToggle();
     },
     [router]
+  );
+
+  const handleEditRow = useCallback(
+    (row) => {
+      setSelectedPayment(row);
+      dialogEdit.onToggle();
+    },
+    [dataInPage.length, table, tableData]
   );
 
   return (
@@ -164,9 +182,9 @@ const PaymentsListView = ({ payments }) => {
                           key={row.id}
                           row={row}
                           selected={table.selected.includes(row.id)}
-                          onSelectRow={() => table.onSelectRow(row.id)}
+                          onEditRow={() => handleEditRow(row)}
                           onDeleteRow={() => handleDeleteRow(row.id)}
-                          onViewRow={() => handleViewRow(row.id)}
+                          onViewRow={() => handleViewRow(row)}
                         />
                       ))}
 
@@ -193,8 +211,16 @@ const PaymentsListView = ({ payments }) => {
           </Card>
         </Stack>
       </DashboardContent>
-      {/* <PaymentDetailsDialog open={() => true} /> */}
-      {/* <PaymentEditDialog open={() => true} /> */}
+      <PaymentDetailsDialog
+        payment={selectedPayment}
+        open={dialog.value}
+        onClose={dialog.onFalse}
+      />
+      {/* <PaymentEditDialog
+        payment={selectedPayment}
+        open={dialogEdit.value}
+        onClose={dialogEdit.onFalse}
+      /> */}
     </>
   );
 };

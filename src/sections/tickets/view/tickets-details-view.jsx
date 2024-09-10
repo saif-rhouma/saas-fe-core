@@ -31,15 +31,7 @@ export function TicketDetailsView({ ticket }) {
         </Grid>
 
         <Grid xs={12} md={3}>
-          <TicketsPreviousMessage
-            // customer={ticket?.customer}
-            // delivery={ticket?.delivery}
-            // payment={ticket?.payment}
-            // shippingAddress={ticket?.shippingAddress}
-            // history={ticket?.history}
-
-            messages={ticket?.messages}
-          />
+          <TicketsPreviousMessage ticket={ticket} messages={ticket?.messages} />
         </Grid>
       </Grid>
     </DashboardContent>

@@ -4,7 +4,7 @@ import Dialog from '@mui/material/Dialog';
 import DialogContent from '@mui/material/DialogContent';
 import Stack from '@mui/material/Stack';
 
-const TicketsCloseDialog = ({ open, onClose }) => {
+const TicketsCloseDialog = ({ open, onClose, handler }) => {
   return (
     <Dialog open={open} onClose={onClose}>
       <DialogContent>
@@ -15,9 +15,11 @@ const TicketsCloseDialog = ({ open, onClose }) => {
         </Stack>
       </DialogContent>
       <DialogActions>
-        <Button variant="contained">Confirm</Button>
+        <Button variant="contained" onClick={handler}>
+          Confirm
+        </Button>
         <Button color="inherit" variant="outlined" onClick={onClose}>
-          Close
+          Cancel
         </Button>
       </DialogActions>
     </Dialog>

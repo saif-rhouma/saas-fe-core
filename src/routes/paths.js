@@ -178,9 +178,9 @@ export const paths = {
     },
     reminders: {
       root: `${ROOTS.DASHBOARD}/reminders`,
+      // edit: (id) => `${ROOTS.DASHBOARD}/reminders/${id}/edit`,
       // new: `${ROOTS.DASHBOARD}/plan/new`,
       // details: (id) => `${ROOTS.DASHBOARD}/plan/${id}`,
-      // edit: (id) => `${ROOTS.DASHBOARD}/plan/${id}/edit`,
       // demo: {
       //   details: `${ROOTS.DASHBOARD}/plan/${MOCK_ID}`,
       //   edit: `${ROOTS.DASHBOARD}/plan/${MOCK_ID}/edit`,

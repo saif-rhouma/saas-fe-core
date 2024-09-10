@@ -85,13 +85,29 @@ export const endpoints = {
   payments: {
     list: '/api/payments/',
     create: '/api/payments/create',
-    details: '/api/plans/',
+    delete: '/api/payments/',
+    // details: '/api/payments/',
   },
   tickets: {
     list: '/api/tickets/',
     create: '/api/tickets/create',
     details: '/api/tickets/',
+    delete: '/api/tickets/',
+    close: '/api/tickets/',
+    createMessage: '/api/ticket-messages/create',
     analytics: '/api/tickets/analytics',
+  },
+  reminders: {
+    list: '/api/reminders/',
+    create: '/api/reminders/create',
+    edit: '/api/reminders/',
+    delete: '/api/reminders/',
+  },
+  staff: {
+    list: '/api/users/staff',
+    create: '/api/staff/create',
+    // details: '/api/staff/',
+    // analytics: '/api/tickets/analytics',
   },
   files: {
     upload: '/api/files/upload',

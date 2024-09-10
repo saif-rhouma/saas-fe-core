@@ -6,9 +6,7 @@ import { z as zod } from 'zod';
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import Divider from '@mui/material/Divider';
-import FormControlLabel from '@mui/material/FormControlLabel';
 import Stack from '@mui/material/Stack';
-import Switch from '@mui/material/Switch';
 import Typography from '@mui/material/Typography';
 
 import Accordion from '@mui/material/Accordion';
@@ -19,18 +17,16 @@ import { Iconify } from 'src/components/iconify';
 import { useRouter } from 'src/routes/hooks';
 import { paths } from 'src/routes/paths';
 
-import { PRODUCT_CATEGORY_GROUP_OPTIONS } from 'src/_mock';
-
-import { Button, TextField } from '@mui/material';
-import { Form, Field, schemaHelper } from 'src/components/hook-form';
+import { LoadingButton } from '@mui/lab';
+import { Button } from '@mui/material';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { Field, Form } from 'src/components/hook-form';
 import ProductItemButton from 'src/components/product/product-Item-button';
 import { toast } from 'src/components/snackbar';
 import { CONFIG } from 'src/config-global';
 import { useBoolean } from 'src/hooks/use-boolean';
-import ProductUploadImageDialog from './product-upload-image-dialog';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
 import axios, { endpoints } from 'src/utils/axios';
-import { LoadingButton } from '@mui/lab';
+import ProductUploadImageDialog from './product-upload-image-dialog';
 // ----------------------------------------------------------------------
 
 export const NewProductSchema = zod.object({
@@ -79,8 +75,6 @@ export function ProductNewEditForm({ currentProduct, productsImages }) {
 
   const onSubmit = handleSubmit(async (payload) => {
     try {
-      // await new Promise((resolve) => setTimeout(resolve, 500));
-
       if (selectedImage) {
         payload.image = selectedImage;
       }

@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
 
-import { useTheme } from '@mui/material';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Card from '@mui/material/Card';
@@ -16,7 +15,6 @@ import { useSetState } from 'src/hooks/use-set-state';
 
 import { fIsAfter, fIsBetween } from 'src/utils/format-time';
 
-import { _orders, ORDER_STATUS_OPTIONS } from 'src/_mock';
 import { DashboardContent } from 'src/layouts/dashboard';
 
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
@@ -37,14 +35,11 @@ import {
 import { AppWidgetSummary } from 'src/sections/overview/app/app-widget-summary';
 import TicketsTableRow from '../tickets-table-row';
 import { TicketsTableToolbar } from '../tickets-table-toolbar';
-import TicketsDetailsDialog from '../tickets-details-dialog';
-import TicketsCloseDialog from '../tickets-close-dialog';
 import TicketsCreateDialog from '../tickets-create-dialog';
 import { OrderTableFiltersResult } from 'src/sections/order/order-table-filters-result';
-
+import axios, { endpoints } from 'src/utils/axios';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 // ----------------------------------------------------------------------
-
-const STATUS_OPTIONS = [{ value: 'all', label: 'All' }, ...ORDER_STATUS_OPTIONS];
 
 const TABLE_HEAD = [
   { id: 'ticketId', label: '#', width: 140 },
@@ -63,7 +58,7 @@ const TicketsListView = ({ tickets, analytics }) => {
 
   const router = useRouter();
 
-  // const confirm = useBoolean();
+  const dialogCreate = useBoolean();
 
   const [tableData, setTableData] = useState(tickets);
 
@@ -98,6 +93,23 @@ const TicketsListView = ({ tickets, analytics }) => {
 
   const handleDeleteRow = useCallback(
     (id) => {
+      deleteTicket(id);
+    },
+    [dataInPage.length, table, tableData]
+  );
+
+  const handleViewRow = useCallback(
+    (id) => {
+      router.push(paths.dashboard.tickets.details(id));
+    },
+    [router]
+  );
+
+  const queryClient = useQueryClient();
+
+  const { mutate: deleteTicket } = useMutation({
+    mutationFn: (id) => axios.delete(endpoints.tickets.delete + id),
+    onSuccess: async () => {
       const deleteRow = tableData.filter((row) => row.id !== id);
 
       toast.success('Delete success!');
@@ -106,28 +118,44 @@ const TicketsListView = ({ tickets, analytics }) => {
 
       table.onUpdatePageDeleteRow(dataInPage.length);
     },
-    [dataInPage.length, table, tableData]
-  );
-
-  const handleDeleteRows = useCallback(() => {
-    const deleteRows = tableData.filter((row) => !table.selected.includes(row.id));
-
-    toast.success('Delete success!');
-
-    setTableData(deleteRows);
-
-    table.onUpdatePageDeleteRows({
-      totalRowsInPage: dataInPage.length,
-      totalRowsFiltered: dataFiltered.length,
-    });
-  }, [dataFiltered.length, dataInPage.length, table, tableData]);
-
-  const handleViewRow = useCallback(
-    (id) => {
-      router.push(paths.dashboard.tickets.details(id));
+    onSettled: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['tickets'] });
+      await queryClient.invalidateQueries({ queryKey: ['tickets', 'analytics'] });
     },
-    [router]
-  );
+    onError: (err) => {},
+  });
+
+  const getAnalytics = () => {
+    if (analytics.isPending || analytics.isLoading) {
+      return (
+        <Grid xs={12} md={12}>
+          <LoadingScreen />
+        </Grid>
+      );
+    } else {
+      return (
+        <>
+          <Grid xs={12} md={4}>
+            <AppWidgetSummary title="All Tickets" total={tickets.length} chart={{}} />
+          </Grid>
+          <Grid xs={12} md={4}>
+            <AppWidgetSummary
+              title="Open Tickets"
+              total={analytics.data.analytics.Open}
+              chart={{}}
+            />
+          </Grid>
+          <Grid xs={12} md={4}>
+            <AppWidgetSummary
+              title="Close Tickets"
+              total={analytics.data.analytics.Closed}
+              chart={{}}
+            />
+          </Grid>
+        </>
+      );
+    }
+  };
 
   return (
     <>
@@ -141,8 +169,7 @@ const TicketsListView = ({ tickets, analytics }) => {
               ]}
               action={
                 <Button
-                  // component={RouterLink}
-                  href={paths.dashboard.tickets.root}
+                  onClick={() => dialogCreate.onToggle()}
                   variant="contained"
                   startIcon={<Iconify icon="mingcute:add-line" />}
                 >
@@ -151,25 +178,7 @@ const TicketsListView = ({ tickets, analytics }) => {
               }
             />
           </Grid>
-          <Grid xs={12} md={4}>
-            <AppWidgetSummary title="All Tickets" total={tickets.length} chart={{}} />
-          </Grid>
-
-          <Grid xs={12} md={4}>
-            <AppWidgetSummary
-              title="Open Tickets"
-              total={analytics.data.analytics.Open}
-              chart={{}}
-            />
-          </Grid>
-
-          <Grid xs={12} md={4}>
-            <AppWidgetSummary
-              title="Close Tickets"
-              total={analytics.data.analytics.Closed}
-              chart={{}}
-            />
-          </Grid>
+          {getAnalytics()}
           <Grid xs={12} md={12}>
             <Card>
               <TicketsTableToolbar
@@ -245,8 +254,7 @@ const TicketsListView = ({ tickets, analytics }) => {
         </Grid>
       </DashboardContent>
       {/* <TicketsDetailsDialog open={() => true} ticket={dataFiltered[0]} /> */}
-      {/* <TicketsCloseDialog open={() => true} /> */}
-      {/* <TicketsCreateDialog open={() => true} /> */}
+      <TicketsCreateDialog open={dialogCreate.value} onClose={dialogCreate.onFalse} />
     </>
   );
 };
