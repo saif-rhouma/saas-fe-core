@@ -1,24 +1,21 @@
 import { Helmet } from 'react-helmet-async';
 
 import { CONFIG } from 'src/config-global';
-import { useGetPosts } from 'src/actions/blog';
 
-import { PostListHomeView } from 'src/sections/blog/view';
+import ReportsStockListView from 'src/sections/reports/view/reports-stock-list-view';
 
 // ----------------------------------------------------------------------
 
-const metadata = { title: `Post list - ${CONFIG.site.name}` };
+const metadata = { title: `Reports list | Dashboard - ${CONFIG.site.name}` };
 
 export default function Page() {
-  const { posts, postsLoading } = useGetPosts();
-
   return (
     <>
       <Helmet>
         <title> {metadata.title}</title>
       </Helmet>
 
-      <PostListHomeView posts={posts} loading={postsLoading} />
+      <ReportsStockListView />
     </>
   );
 }

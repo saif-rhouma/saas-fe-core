@@ -129,14 +129,13 @@ function FriendCard({ item }) {
         slotProps={{ arrow: { placement: 'right-top' } }}
       >
         <MenuList>
-          <MenuItem onClick={handleDelete} sx={{ color: 'error.main' }}>
-            <Iconify icon="solar:trash-bin-trash-bold" />
-            Delete
-          </MenuItem>
-
           <MenuItem onClick={handleEdit}>
             <Iconify icon="solar:pen-bold" />
             Edit
+          </MenuItem>
+          <MenuItem onClick={handleDelete} sx={{ color: 'error.main' }}>
+            <Iconify icon="solar:trash-bin-trash-bold" />
+            Delete
           </MenuItem>
         </MenuList>
       </CustomPopover>

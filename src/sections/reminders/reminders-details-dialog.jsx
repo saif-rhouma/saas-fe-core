@@ -1,13 +1,12 @@
-import { Button, DialogActions, DialogTitle } from '@mui/material';
 import Box from '@mui/material/Box';
-import Dialog from '@mui/material/Dialog';
-import DialogContent from '@mui/material/DialogContent';
-import Divider from '@mui/material/Divider';
 import Stack from '@mui/material/Stack';
+import Dialog from '@mui/material/Dialog';
+import Divider from '@mui/material/Divider';
 import Typography from '@mui/material/Typography';
+import DialogContent from '@mui/material/DialogContent';
+import { Button, DialogTitle, DialogActions } from '@mui/material';
 
-const PaymentDetailsDialog = ({ payment, open, onClose }) => {
-  return (
+const PaymentDetailsDialog = ({ payment, open, onClose }) => (
     <Dialog fullWidth maxWidth="lg" open={open} onClose={onClose}>
       <DialogTitle>Payment Details</DialogTitle>
       <DialogContent>
@@ -109,5 +108,4 @@ const PaymentDetailsDialog = ({ payment, open, onClose }) => {
       </DialogActions>
     </Dialog>
   );
-};
 export default PaymentDetailsDialog;

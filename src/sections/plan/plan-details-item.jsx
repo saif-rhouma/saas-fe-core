@@ -1,17 +1,18 @@
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
-import CardHeader from '@mui/material/CardHeader';
 import Stack from '@mui/material/Stack';
+import CardHeader from '@mui/material/CardHeader';
 
-import { fCurrency } from 'src/utils/format-number';
+import { fDate } from 'src/utils/format-time';
 
-import { Scrollbar } from 'src/components/scrollbar';
 import { Label } from 'src/components/label';
+import { Scrollbar } from 'src/components/scrollbar';
+
 import PlanProductTable from './plan-product-table';
 
 // ----------------------------------------------------------------------
 
-export function PlanDetailsItems({ taxes, shipping, discount, subtotal, items = [], totalAmount }) {
+export function PlanDetailsItems({ plan, products }) {
   return (
     <Card>
       <CardHeader title="Details" />
@@ -34,8 +35,8 @@ export function PlanDetailsItems({ taxes, shipping, discount, subtotal, items = 
           <Stack direction="row" sx={{ typography: 'subtitle2', marginBottom: 1 }}>
             <div>Plan Details</div>
           </Stack>
-          <Box sx={{ color: 'text.secondary' }}>Plan ID: #PLN-0004</Box>
-          <Box sx={{ color: 'text.secondary' }}>Plan Date: 20/06/2024</Box>
+          <Box sx={{ color: 'text.secondary' }}>Plan ID: #PLN-{plan?.id}</Box>
+          <Box sx={{ color: 'text.secondary' }}>Plan Date: {fDate(plan?.planDate)}</Box>
         </Box>
         <Box
           flexDirection="column"
@@ -56,8 +57,8 @@ export function PlanDetailsItems({ taxes, shipping, discount, subtotal, items = 
           >
             <div>Laundry Saas POS</div>
           </Stack>
-          <Box sx={{ color: 'text.secondary' }}>122125541</Box>
-          <Box sx={{ color: 'text.secondary' }}>12212-5458</Box>
+          <Box sx={{ color: 'text.secondary' }}>Quantity : {plan?.quantity}</Box>
+          {/* <Box sx={{ color: 'text.secondary' }}>{plan?.id}</Box> */}
         </Box>
         <Box
           flexDirection="column"
@@ -76,8 +77,8 @@ export function PlanDetailsItems({ taxes, shipping, discount, subtotal, items = 
           >
             <div>Plan Status</div>
           </Stack>
-          <Label variant="soft" color={'warning'}>
-            Processing-A
+          <Label variant="soft" color="warning">
+            {plan?.status}
           </Label>
         </Box>
       </Stack>
@@ -91,7 +92,7 @@ export function PlanDetailsItems({ taxes, shipping, discount, subtotal, items = 
             borderBottom: (theme) => `dashed 2px ${theme.vars.palette.background.neutral}`,
           }}
         >
-          <PlanProductTable />
+          <PlanProductTable products={plan?.product} quantity={plan?.quantity} />
         </Box>
       </Scrollbar>
     </Card>

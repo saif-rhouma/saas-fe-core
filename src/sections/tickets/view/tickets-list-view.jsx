@@ -1,14 +1,12 @@
-import { useState, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import Table from '@mui/material/Table';
-import { Stack, useTheme } from '@mui/material';
 import Button from '@mui/material/Button';
-import Tooltip from '@mui/material/Tooltip';
 import TableBody from '@mui/material/TableBody';
 import Grid from '@mui/material/Unstable_Grid2';
-import IconButton from '@mui/material/IconButton';
 
 import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hooks';
@@ -16,15 +14,14 @@ import { useRouter } from 'src/routes/hooks';
 import { useBoolean } from 'src/hooks/use-boolean';
 import { useSetState } from 'src/hooks/use-set-state';
 
+import axios, { endpoints } from 'src/utils/axios';
 import { fIsAfter, fIsBetween } from 'src/utils/format-time';
 
 import { DashboardContent } from 'src/layouts/dashboard';
-import { _orders, ORDER_STATUS_OPTIONS } from 'src/_mock';
 
 import { toast } from 'src/components/snackbar';
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
-import { ConfirmDialog } from 'src/components/custom-dialog';
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 import {
   useTable,
@@ -37,18 +34,14 @@ import {
   TableSelectedAction,
   TablePaginationCustom,
 } from 'src/components/table';
+
 import { AppWidgetSummary } from 'src/sections/overview/app/app-widget-summary';
-import { TicketsTableToolbar } from '../tickets-table-toolbar';
+import { OrderTableFiltersResult } from 'src/sections/order/order-table-filters-result';
+
 import TicketsTableRow from '../tickets-table-row';
-// import { RemindersTableToolbar } from '../reminders-table-toolbar';
-// import RemindersTableRow from '../reminders-table-row';
-// import PaymentDetailsDialog from '../reminders-details-dialog';
-// import PaymentEditDialog from '../reminder-create-dialog';
-// import ReminderCreateDialog from '../reminder-create-dialog';
-
+import TicketsCreateDialog from '../tickets-create-dialog';
+import { TicketsTableToolbar } from '../tickets-table-toolbar';
 // ----------------------------------------------------------------------
-
-const STATUS_OPTIONS = [{ value: 'all', label: 'All' }, ...ORDER_STATUS_OPTIONS];
 
 const TABLE_HEAD = [
   { id: 'ticketId', label: '#', width: 140 },
@@ -62,16 +55,14 @@ const TABLE_HEAD = [
 
 // ----------------------------------------------------------------------
 
-const TicketsListView = () => {
+const TicketsListView = ({ tickets, analytics }) => {
   const table = useTable({ defaultOrderBy: 'orderNumber' });
 
   const router = useRouter();
 
-  const theme = useTheme();
+  const dialogCreate = useBoolean();
 
-  const confirm = useBoolean();
-
-  const [tableData, setTableData] = useState(_orders);
+  const [tableData, setTableData] = useState(tickets);
 
   const filters = useSetState({
     name: '',
@@ -79,6 +70,10 @@ const TicketsListView = () => {
     startDate: null,
     endDate: null,
   });
+
+  useEffect(() => {
+    setTableData(tickets);
+  }, [tickets]);
 
   const dateError = fIsAfter(filters.state.startDate, filters.state.endDate);
 
@@ -100,6 +95,23 @@ const TicketsListView = () => {
 
   const handleDeleteRow = useCallback(
     (id) => {
+      deleteTicket(id);
+    },
+    [dataInPage.length, table, tableData]
+  );
+
+  const handleViewRow = useCallback(
+    (id) => {
+      router.push(paths.dashboard.tickets.details(id));
+    },
+    [router]
+  );
+
+  const queryClient = useQueryClient();
+
+  const { mutate: deleteTicket } = useMutation({
+    mutationFn: (id) => axios.delete(endpoints.tickets.delete + id),
+    onSuccess: async () => {
       const deleteRow = tableData.filter((row) => row.id !== id);
 
       toast.success('Delete success!');
@@ -108,28 +120,44 @@ const TicketsListView = () => {
 
       table.onUpdatePageDeleteRow(dataInPage.length);
     },
-    [dataInPage.length, table, tableData]
-  );
-
-  const handleDeleteRows = useCallback(() => {
-    const deleteRows = tableData.filter((row) => !table.selected.includes(row.id));
-
-    toast.success('Delete success!');
-
-    setTableData(deleteRows);
-
-    table.onUpdatePageDeleteRows({
-      totalRowsInPage: dataInPage.length,
-      totalRowsFiltered: dataFiltered.length,
-    });
-  }, [dataFiltered.length, dataInPage.length, table, tableData]);
-
-  const handleViewRow = useCallback(
-    (id) => {
-      router.push(paths.dashboard.order.details(id));
+    onSettled: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['tickets'] });
+      await queryClient.invalidateQueries({ queryKey: ['tickets', 'analytics'] });
     },
-    [router]
-  );
+    onError: (err) => {},
+  });
+
+  const getAnalytics = () => {
+    if (analytics.isPending || analytics.isLoading) {
+      return (
+        <Grid xs={12} md={12}>
+          <LoadingScreen />
+        </Grid>
+      );
+    } 
+      return (
+        <>
+          <Grid xs={12} md={4}>
+            <AppWidgetSummary title="All Tickets" total={tickets.length} chart={{}} />
+          </Grid>
+          <Grid xs={12} md={4}>
+            <AppWidgetSummary
+              title="Open Tickets"
+              total={analytics.data.analytics.Open}
+              chart={{}}
+            />
+          </Grid>
+          <Grid xs={12} md={4}>
+            <AppWidgetSummary
+              title="Close Tickets"
+              total={analytics.data.analytics.Closed}
+              chart={{}}
+            />
+          </Grid>
+        </>
+      );
+    
+  };
 
   return (
     <>
@@ -143,8 +171,7 @@ const TicketsListView = () => {
               ]}
               action={
                 <Button
-                  // component={RouterLink}
-                  href={paths.dashboard.tickets.root}
+                  onClick={() => dialogCreate.onToggle()}
                   variant="contained"
                   startIcon={<Iconify icon="mingcute:add-line" />}
                 >
@@ -153,43 +180,7 @@ const TicketsListView = () => {
               }
             />
           </Grid>
-          <Grid xs={12} md={4}>
-            <AppWidgetSummary
-              title="All Tickets"
-              percent={2.6}
-              total={18765}
-              chart={{
-                categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug'],
-                series: [15, 18, 12, 51, 68, 11, 39, 37],
-              }}
-            />
-          </Grid>
-
-          <Grid xs={12} md={4}>
-            <AppWidgetSummary
-              title="Open Tickets"
-              percent={0.2}
-              total={4876}
-              chart={{
-                colors: [theme.vars.palette.info.main],
-                categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug'],
-                series: [20, 41, 63, 33, 28, 35, 50, 46],
-              }}
-            />
-          </Grid>
-
-          <Grid xs={12} md={4}>
-            <AppWidgetSummary
-              title="Close Tickets"
-              percent={-0.1}
-              total={678}
-              chart={{
-                colors: [theme.vars.palette.error.main],
-                categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug'],
-                series: [18, 19, 31, 8, 16, 37, 12, 33],
-              }}
-            />
-          </Grid>
+          {getAnalytics()}
           <Grid xs={12} md={12}>
             <Card>
               <TicketsTableToolbar
@@ -197,6 +188,15 @@ const TicketsListView = () => {
                 onResetPage={table.onResetPage}
                 dateError={dateError}
               />
+
+              {canReset && (
+                <OrderTableFiltersResult
+                  filters={filters}
+                  totalResults={dataFiltered.length}
+                  onResetPage={table.onResetPage}
+                  sx={{ p: 2.5, pt: 0 }}
+                />
+              )}
 
               <Box sx={{ position: 'relative' }}>
                 <TableSelectedAction
@@ -255,8 +255,8 @@ const TicketsListView = () => {
           </Grid>
         </Grid>
       </DashboardContent>
-      {/* <ReminderCreateDialog open={() => true} /> */}
-      {/* <PaymentEditDialog open={() => true} /> */}
+      {/* <TicketsDetailsDialog open={() => true} ticket={dataFiltered[0]} /> */}
+      <TicketsCreateDialog open={dialogCreate.value} onClose={dialogCreate.onFalse} />
     </>
   );
 };
@@ -278,9 +278,9 @@ function applyFilter({ inputData, comparator, filters, dateError }) {
   if (name) {
     inputData = inputData.filter(
       (order) =>
-        order.orderNumber.toLowerCase().indexOf(name.toLowerCase()) !== -1 ||
-        order.customer.name.toLowerCase().indexOf(name.toLowerCase()) !== -1 ||
-        order.customer.email.toLowerCase().indexOf(name.toLowerCase()) !== -1
+        order.id.toString().indexOf(name.toLowerCase()) !== -1 ||
+        order.topic.toLowerCase().indexOf(name.toLowerCase()) !== -1 ||
+        order.priority.toLowerCase().indexOf(name.toLowerCase()) !== -1
     );
   }
 

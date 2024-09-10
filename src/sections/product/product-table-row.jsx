@@ -1,17 +1,12 @@
-import Box from '@mui/material/Box';
 import Link from '@mui/material/Link';
-import Paper from '@mui/material/Paper';
-import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
-import Avatar from '@mui/material/Avatar';
-import MenuList from '@mui/material/MenuList';
-import Collapse from '@mui/material/Collapse';
-import MenuItem from '@mui/material/MenuItem';
-import TableRow from '@mui/material/TableRow';
 import Checkbox from '@mui/material/Checkbox';
+import MenuItem from '@mui/material/MenuItem';
+import MenuList from '@mui/material/MenuList';
+import TableRow from '@mui/material/TableRow';
 import TableCell from '@mui/material/TableCell';
 import IconButton from '@mui/material/IconButton';
-import ListItemText from '@mui/material/ListItemText';
+import { Box, Stack, Avatar } from '@mui/material';
 
 import { useBoolean } from 'src/hooks/use-boolean';
 
@@ -25,41 +20,43 @@ import { usePopover, CustomPopover } from 'src/components/custom-popover';
 const ProductTableRow = ({ row, selected, onViewRow, onSelectRow, onDeleteRow }) => {
   const confirm = useBoolean();
 
-  const collapse = useBoolean();
-
   const popover = usePopover();
-
+  const storageHost = 'http://localhost:3000/api/files/show/';
   const renderPrimary = (
     <TableRow hover selected={selected}>
       <TableCell padding="checkbox">
         <Checkbox
           checked={selected}
           onClick={onSelectRow}
-          inputProps={{ id: `row-checkbox-${row.id}`, 'aria-label': `Row checkbox` }}
+          inputProps={{ id: `row-checkbox-${row?.id}`, 'aria-label': `Row checkbox` }}
         />
       </TableCell>
 
       <TableCell>
         <Link color="inherit" onClick={onViewRow} underline="always" sx={{ cursor: 'pointer' }}>
-          {row.orderNumber}
+          {row?.id}
         </Link>
       </TableCell>
 
-      <TableCell>{row.customer.name}</TableCell>
-      <TableCell>{row.totalQuantity}</TableCell>
+      {/* <TableCell>{row?.name}</TableCell> */}
+      <TableCell>
+        <Stack spacing={2} direction="row" alignItems="center">
+          <Avatar alt={row?.name} src={storageHost + row?.image} />
+          <Box component="span">{row?.name}</Box>
+        </Stack>
+      </TableCell>
 
-      <TableCell align="center"> {row.totalQuantity} </TableCell>
+      <TableCell>{fCurrency(row?.price)}</TableCell>
+
+      <TableCell align="center"> - </TableCell>
       <TableCell>
         <Label
           variant="soft"
           color={
-            (row.status === 'completed' && 'success') ||
-            (row.status === 'pending' && 'warning') ||
-            (row.status === 'cancelled' && 'error') ||
-            'default'
+            (row.isActive === true && 'success') || (row.isActive === false && 'error') || 'default'
           }
         >
-          {row.status}
+          {row?.isActive ? 'ACTIVE' : 'INACTIVE'}
         </Label>
       </TableCell>
 
@@ -83,6 +80,15 @@ const ProductTableRow = ({ row, selected, onViewRow, onSelectRow, onDeleteRow })
         <MenuList>
           <MenuItem
             onClick={() => {
+              onViewRow();
+              popover.onClose();
+            }}
+          >
+            <Iconify icon="solar:pen-bold" />
+            Edit
+          </MenuItem>
+          <MenuItem
+            onClick={() => {
               confirm.onTrue();
               popover.onClose();
             }}
@@ -90,26 +96,6 @@ const ProductTableRow = ({ row, selected, onViewRow, onSelectRow, onDeleteRow })
           >
             <Iconify icon="solar:trash-bin-trash-bold" />
             Delete
-          </MenuItem>
-
-          <MenuItem
-            onClick={() => {
-              onViewRow();
-              popover.onClose();
-            }}
-          >
-            <Iconify icon="solar:eye-bold" />
-            View
-          </MenuItem>
-
-          <MenuItem
-            onClick={() => {
-              onViewRow();
-              popover.onClose();
-            }}
-          >
-            <Iconify icon="solar:eye-bold" />
-            Edit
           </MenuItem>
         </MenuList>
       </CustomPopover>

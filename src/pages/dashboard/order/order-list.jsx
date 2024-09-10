@@ -1,13 +1,12 @@
 import { Helmet } from 'react-helmet-async';
 
 import { CONFIG } from 'src/config-global';
-import { OrderListView } from 'src/sections/order/view';
 
-import { ProductListView } from 'src/sections/product/view';
+import { OrderListView } from 'src/sections/order/view';
 
 // ----------------------------------------------------------------------
 
-const metadata = { title: `Product list | Dashboard - ${CONFIG.site.name}` };
+const metadata = { title: `Order list | Dashboard - ${CONFIG.site.name}` };
 
 export default function Page() {
   return (

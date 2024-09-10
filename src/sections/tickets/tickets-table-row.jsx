@@ -1,29 +1,20 @@
-import Box from '@mui/material/Box';
-import Link from '@mui/material/Link';
-import Paper from '@mui/material/Paper';
-import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
-import Avatar from '@mui/material/Avatar';
-import MenuList from '@mui/material/MenuList';
-import Collapse from '@mui/material/Collapse';
 import MenuItem from '@mui/material/MenuItem';
+import MenuList from '@mui/material/MenuList';
 import TableRow from '@mui/material/TableRow';
-import Checkbox from '@mui/material/Checkbox';
 import TableCell from '@mui/material/TableCell';
 import IconButton from '@mui/material/IconButton';
-import ListItemText from '@mui/material/ListItemText';
 
 import { useBoolean } from 'src/hooks/use-boolean';
 
-import { fCurrency } from 'src/utils/format-number';
+import { fDate } from 'src/utils/format-time';
 
 import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
 import { ConfirmDialog } from 'src/components/custom-dialog';
 import { usePopover, CustomPopover } from 'src/components/custom-popover';
-import { fDate } from 'src/utils/format-time';
 
-const TicketsTableRow = ({ row, selected, onViewRow, onSelectRow, onDeleteRow }) => {
+const TicketsTableRow = ({ row, selected, onViewRow, onDeleteRow }) => {
   const confirm = useBoolean();
 
   const collapse = useBoolean();
@@ -32,31 +23,28 @@ const TicketsTableRow = ({ row, selected, onViewRow, onSelectRow, onDeleteRow })
 
   const renderPrimary = (
     <TableRow hover selected={selected}>
-      <TableCell>{row.orderNumber}</TableCell>
-      <TableCell>{fDate(row.createdAt)}</TableCell>
-      <TableCell>{row.customer.name}</TableCell>
+      <TableCell>{row.id}</TableCell>
+      <TableCell>{fDate(row.createTime)}</TableCell>
+      <TableCell>{row.topic}</TableCell>
       <TableCell>
         <Label
           variant="soft"
           color={
-            (row.status === 'completed' && 'success') ||
-            (row.status === 'pending' && 'warning') ||
-            (row.status === 'cancelled' && 'error') ||
+            (row.priority === 'Low' && 'success') ||
+            (row.priority === 'Medium' && 'warning') ||
+            (row.priority === 'Hight' && 'error') ||
             'default'
           }
         >
-          {row.status}
+          {row.priority}
         </Label>
       </TableCell>
-      <TableCell>{fDate(row.createdAt)}</TableCell>
+      <TableCell>{fDate(row.updateTime)}</TableCell>
       <TableCell>
         <Label
           variant="soft"
           color={
-            (row.status === 'completed' && 'success') ||
-            (row.status === 'pending' && 'warning') ||
-            (row.status === 'cancelled' && 'error') ||
-            'default'
+            (row.status === 'Open' && 'info') || (row.status === 'Closed' && 'default') || 'default'
           }
         >
           {row.status}
@@ -82,17 +70,6 @@ const TicketsTableRow = ({ row, selected, onViewRow, onSelectRow, onDeleteRow })
         <MenuList>
           <MenuItem
             onClick={() => {
-              confirm.onTrue();
-              popover.onClose();
-            }}
-            sx={{ color: 'error.main' }}
-          >
-            <Iconify icon="solar:trash-bin-trash-bold" />
-            Delete
-          </MenuItem>
-
-          <MenuItem
-            onClick={() => {
               onViewRow();
               popover.onClose();
             }}
@@ -103,12 +80,13 @@ const TicketsTableRow = ({ row, selected, onViewRow, onSelectRow, onDeleteRow })
 
           <MenuItem
             onClick={() => {
-              onViewRow();
+              confirm.onTrue();
               popover.onClose();
             }}
+            sx={{ color: 'error.main' }}
           >
-            <Iconify icon="solar:eye-bold" />
-            Edit
+            <Iconify icon="solar:trash-bin-trash-bold" />
+            Delete
           </MenuItem>
         </MenuList>
       </CustomPopover>

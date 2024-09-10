@@ -143,14 +143,13 @@ export function GroupNode({ sx, name, role, depth, group, avatarUrl, totalChildr
         slotProps={{ arrow: { placement: 'left-center' } }}
       >
         <MenuList>
-          <MenuItem onClick={onDelete} sx={{ color: 'error.main' }}>
-            <Iconify icon="solar:trash-bin-trash-bold" />
-            Delete
-          </MenuItem>
-
           <MenuItem onClick={onEdit}>
             <Iconify icon="solar:pen-bold" />
             Edit
+          </MenuItem>
+          <MenuItem onClick={onDelete} sx={{ color: 'error.main' }}>
+            <Iconify icon="solar:trash-bin-trash-bold" />
+            Delete
           </MenuItem>
         </MenuList>
       </CustomPopover>

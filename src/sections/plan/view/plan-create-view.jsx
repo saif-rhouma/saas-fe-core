@@ -6,7 +6,7 @@ import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 
 import { PlanNewEditForm } from '../plan-new-edit-form';
 
-export function PlanCreateView() {
+export function PlanCreateView({ products }) {
   return (
     <DashboardContent>
       <CustomBreadcrumbs
@@ -19,7 +19,7 @@ export function PlanCreateView() {
         sx={{ mb: { xs: 3, md: 5 } }}
       />
 
-      <PlanNewEditForm />
+      <PlanNewEditForm products={products} />
     </DashboardContent>
   );
 }

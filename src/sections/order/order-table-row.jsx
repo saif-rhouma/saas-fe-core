@@ -2,21 +2,21 @@ import Box from '@mui/material/Box';
 import Link from '@mui/material/Link';
 import Paper from '@mui/material/Paper';
 import Stack from '@mui/material/Stack';
-import Button from '@mui/material/Button';
 import Avatar from '@mui/material/Avatar';
-import MenuList from '@mui/material/MenuList';
+import Button from '@mui/material/Button';
+import Checkbox from '@mui/material/Checkbox';
 import Collapse from '@mui/material/Collapse';
 import MenuItem from '@mui/material/MenuItem';
+import MenuList from '@mui/material/MenuList';
 import TableRow from '@mui/material/TableRow';
-import Checkbox from '@mui/material/Checkbox';
 import TableCell from '@mui/material/TableCell';
 import IconButton from '@mui/material/IconButton';
 import ListItemText from '@mui/material/ListItemText';
 
 import { useBoolean } from 'src/hooks/use-boolean';
 
+import { fDate } from 'src/utils/format-time';
 import { fCurrency } from 'src/utils/format-number';
-import { fDate, fTime } from 'src/utils/format-time';
 
 import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
@@ -44,13 +44,13 @@ export function OrderTableRow({ row, selected, onViewRow, onSelectRow, onDeleteR
 
       <TableCell>
         <Link color="inherit" onClick={onViewRow} underline="always" sx={{ cursor: 'pointer' }}>
-          {row.orderNumber}
+          {row.id}
         </Link>
       </TableCell>
 
       <TableCell>
         <Stack spacing={2} direction="row" alignItems="center">
-          <Avatar alt={row.customer.name} src={row.customer.avatarUrl} />
+          <Avatar alt={row.customer.name} src={row.customer.avatar} />
 
           <Stack
             sx={{
@@ -69,8 +69,8 @@ export function OrderTableRow({ row, selected, onViewRow, onSelectRow, onDeleteR
 
       <TableCell>
         <ListItemText
-          primary={fDate(row.createdAt)}
-          secondary={fTime(row.createdAt)}
+          primary={fDate(row.orderDate)}
+          // secondary={fTime(row.createTime)}
           primaryTypographyProps={{ typography: 'body2', noWrap: true }}
           secondaryTypographyProps={{
             mt: 0.5,
@@ -80,16 +80,16 @@ export function OrderTableRow({ row, selected, onViewRow, onSelectRow, onDeleteR
         />
       </TableCell>
 
-      <TableCell align="center"> {row.totalQuantity} </TableCell>
+      <TableCell align="center"> {row.totalOrderAmount} </TableCell>
 
-      <TableCell> {fCurrency(row.subtotal)} </TableCell>
+      <TableCell> {fCurrency(row.totalOrderAmount)} </TableCell>
 
       <TableCell>
         <Label
           variant="soft"
           color={
             (row.status === 'completed' && 'success') ||
-            (row.status === 'pending' && 'warning') ||
+            (row.status === 'InProcess' && 'warning') ||
             (row.status === 'cancelled' && 'error') ||
             'default'
           }
@@ -124,7 +124,7 @@ export function OrderTableRow({ row, selected, onViewRow, onSelectRow, onDeleteR
           sx={{ bgcolor: 'background.neutral' }}
         >
           <Paper sx={{ m: 1.5 }}>
-            {row.items.map((item) => (
+            {row.productToOrder.map((item) => (
               <Stack
                 key={item.id}
                 direction="row"
@@ -136,14 +136,8 @@ export function OrderTableRow({ row, selected, onViewRow, onSelectRow, onDeleteR
                   },
                 }}
               >
-                <Avatar
-                  src={item.coverUrl}
-                  variant="rounded"
-                  sx={{ width: 48, height: 48, mr: 2 }}
-                />
-
                 <ListItemText
-                  primary={item.name}
+                  primary={item.product.name}
                   secondary={item.sku}
                   primaryTypographyProps={{ typography: 'body2' }}
                   secondaryTypographyProps={{
@@ -155,7 +149,7 @@ export function OrderTableRow({ row, selected, onViewRow, onSelectRow, onDeleteR
 
                 <div>x{item.quantity} </div>
 
-                <Box sx={{ width: 110, textAlign: 'right' }}>{fCurrency(item.price)}</Box>
+                <Box sx={{ width: 110, textAlign: 'right' }}>{fCurrency(item.product.price)}</Box>
               </Stack>
             ))}
           </Paper>
@@ -179,6 +173,15 @@ export function OrderTableRow({ row, selected, onViewRow, onSelectRow, onDeleteR
         <MenuList>
           <MenuItem
             onClick={() => {
+              onViewRow();
+              popover.onClose();
+            }}
+          >
+            <Iconify icon="solar:eye-bold" />
+            View
+          </MenuItem>
+          <MenuItem
+            onClick={() => {
               confirm.onTrue();
               popover.onClose();
             }}
@@ -186,16 +189,6 @@ export function OrderTableRow({ row, selected, onViewRow, onSelectRow, onDeleteR
           >
             <Iconify icon="solar:trash-bin-trash-bold" />
             Delete
-          </MenuItem>
-
-          <MenuItem
-            onClick={() => {
-              onViewRow();
-              popover.onClose();
-            }}
-          >
-            <Iconify icon="solar:eye-bold" />
-            View
           </MenuItem>
         </MenuList>
       </CustomPopover>

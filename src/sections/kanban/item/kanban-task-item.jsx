@@ -1,15 +1,11 @@
+import { useState, useEffect } from 'react';
 import { useSortable } from '@dnd-kit/sortable';
-import { useState, useEffect, useCallback } from 'react';
 
 import { useBoolean } from 'src/hooks/use-boolean';
 
-import { deleteTask, updateTask } from 'src/actions/kanban';
-
-import { toast } from 'src/components/snackbar';
 import { imageClasses } from 'src/components/image';
 
 import ItemBase from './item-base';
-import { KanbanDetails } from '../details/kanban-details';
 
 // ----------------------------------------------------------------------
 
@@ -23,26 +19,6 @@ export function KanbanTaskItem({ task, disabled, columnId, sx }) {
   const mounted = useMountStatus();
 
   const mountedWhileDragging = isDragging && !mounted;
-
-  const handleDeleteTask = useCallback(async () => {
-    try {
-      deleteTask(columnId, task.id);
-      toast.success('Delete success!', { position: 'top-center' });
-    } catch (error) {
-      console.error(error);
-    }
-  }, [columnId, task.id]);
-
-  const handleUpdateTask = useCallback(
-    async (taskData) => {
-      try {
-        updateTask(columnId, taskData);
-      } catch (error) {
-        console.error(error);
-      }
-    },
-    [columnId]
-  );
 
   return (
     <>
@@ -61,13 +37,13 @@ export function KanbanTaskItem({ task, disabled, columnId, sx }) {
         sx={{ ...(openDetails.value && { [`& .${imageClasses.root}`]: { opacity: 0.8 } }), ...sx }}
       />
 
-      <KanbanDetails
+      {/* <KanbanDetails
         task={task}
         openDetails={openDetails.value}
         onCloseDetails={openDetails.onFalse}
         onUpdateTask={handleUpdateTask}
         onDeleteTask={handleDeleteTask}
-      />
+      /> */}
     </>
   );
 }

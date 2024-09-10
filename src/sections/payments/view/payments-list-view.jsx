@@ -1,14 +1,11 @@
-import { useState, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
+import { Stack } from '@mui/material';
 import Table from '@mui/material/Table';
-import { Stack, useTheme } from '@mui/material';
-import Button from '@mui/material/Button';
-import Tooltip from '@mui/material/Tooltip';
 import TableBody from '@mui/material/TableBody';
-import Grid from '@mui/material/Unstable_Grid2';
-import IconButton from '@mui/material/IconButton';
 
 import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hooks';
@@ -16,15 +13,14 @@ import { useRouter } from 'src/routes/hooks';
 import { useBoolean } from 'src/hooks/use-boolean';
 import { useSetState } from 'src/hooks/use-set-state';
 
+import axios, { endpoints } from 'src/utils/axios';
 import { fIsAfter, fIsBetween } from 'src/utils/format-time';
 
+import { ORDER_STATUS_OPTIONS } from 'src/_mock';
 import { DashboardContent } from 'src/layouts/dashboard';
-import { _orders, ORDER_STATUS_OPTIONS } from 'src/_mock';
 
 import { toast } from 'src/components/snackbar';
-import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
-import { ConfirmDialog } from 'src/components/custom-dialog';
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 import {
   useTable,
@@ -37,11 +33,11 @@ import {
   TableSelectedAction,
   TablePaginationCustom,
 } from 'src/components/table';
-import { PaymentsTableToolbar } from '../payments-table-toolbar';
-import PaymentsTableRow from '../payments-table-row';
-import PaymentDetailsDialog from '../payments-details-dialog';
-import PaymentEditDialog from '../payment-edit-dialog';
 
+import PaymentsTableRow from '../payments-table-row';
+import PaymentEditDialog from '../payment-edit-dialog';
+import PaymentDetailsDialog from '../payments-details-dialog';
+import { PaymentsTableToolbar } from '../payments-table-toolbar';
 // ----------------------------------------------------------------------
 
 const STATUS_OPTIONS = [{ value: 'all', label: 'All' }, ...ORDER_STATUS_OPTIONS];
@@ -58,16 +54,19 @@ const TABLE_HEAD = [
 
 // ----------------------------------------------------------------------
 
-const PaymentsListView = () => {
+const PaymentsListView = ({ payments }) => {
   const table = useTable({ defaultOrderBy: 'orderNumber' });
+
+  const [selectedPayment, setSelectedPayment] = useState();
 
   const router = useRouter();
 
-  const theme = useTheme();
+  const dialog = useBoolean();
+  const dialogEdit = useBoolean();
 
   const confirm = useBoolean();
 
-  const [tableData, setTableData] = useState(_orders);
+  const [tableData, setTableData] = useState(payments);
 
   const filters = useSetState({
     name: '',
@@ -75,6 +74,10 @@ const PaymentsListView = () => {
     startDate: null,
     endDate: null,
   });
+
+  useEffect(() => {
+    setTableData(payments);
+  }, [payments]);
 
   const dateError = fIsAfter(filters.state.startDate, filters.state.endDate);
 
@@ -96,36 +99,62 @@ const PaymentsListView = () => {
 
   const handleDeleteRow = useCallback(
     (id) => {
+      deletePayment(id);
       const deleteRow = tableData.filter((row) => row.id !== id);
-
-      toast.success('Delete success!');
-
       setTableData(deleteRow);
-
       table.onUpdatePageDeleteRow(dataInPage.length);
     },
     [dataInPage.length, table, tableData]
   );
 
-  const handleDeleteRows = useCallback(() => {
-    const deleteRows = tableData.filter((row) => !table.selected.includes(row.id));
-
-    toast.success('Delete success!');
-
-    setTableData(deleteRows);
-
-    table.onUpdatePageDeleteRows({
-      totalRowsInPage: dataInPage.length,
-      totalRowsFiltered: dataFiltered.length,
-    });
-  }, [dataFiltered.length, dataInPage.length, table, tableData]);
+  const queryClient = useQueryClient();
+  const { mutate: deletePayment } = useMutation({
+    mutationFn: (id) => {
+      axios.delete(endpoints.payments.delete + id);
+    },
+    onSuccess: () => {
+      toast.success('Delete success!');
+      confirm.onFalse();
+    },
+    onSettled: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['payments'] });
+      confirm.onFalse();
+    },
+    onError: (err) => {
+      console.log(err);
+    },
+  });
 
   const handleViewRow = useCallback(
-    (id) => {
-      router.push(paths.dashboard.order.details(id));
+    (row) => {
+      setSelectedPayment(row);
+      dialog.onToggle();
     },
     [router]
   );
+
+  const handleEditRow = useCallback(
+    (row) => {
+      setSelectedPayment(row);
+      dialogEdit.onToggle();
+    },
+    [dataInPage.length, table, tableData]
+  );
+
+  const { mutate: handleEditPayment } = useMutation({
+    mutationFn: ({ id, payload }) => axios.patch(endpoints.payments.edit + id, payload),
+    onSuccess: async () => {
+      toast.success('New Payment Has Been Modified!');
+    },
+    onSettled: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['payments'] });
+      await queryClient.invalidateQueries({ queryKey: ['orders'] });
+      dialogEdit.onFalse();
+    },
+    onError: (err) => {
+      console.log(err);
+    },
+  });
 
   return (
     <>
@@ -171,9 +200,9 @@ const PaymentsListView = () => {
                           key={row.id}
                           row={row}
                           selected={table.selected.includes(row.id)}
-                          onSelectRow={() => table.onSelectRow(row.id)}
+                          onEditRow={() => handleEditRow(row)}
                           onDeleteRow={() => handleDeleteRow(row.id)}
-                          onViewRow={() => handleViewRow(row.id)}
+                          onViewRow={() => handleViewRow(row)}
                         />
                       ))}
 
@@ -200,8 +229,17 @@ const PaymentsListView = () => {
           </Card>
         </Stack>
       </DashboardContent>
-      {/* <PaymentDetailsDialog open={() => true} /> */}
-      <PaymentEditDialog open={() => true} />
+      <PaymentDetailsDialog
+        payment={selectedPayment}
+        open={dialog.value}
+        onClose={dialog.onFalse}
+      />
+      <PaymentEditDialog
+        payment={selectedPayment}
+        open={dialogEdit.value}
+        onClose={dialogEdit.onFalse}
+        handler={handleEditPayment}
+      />
     </>
   );
 };

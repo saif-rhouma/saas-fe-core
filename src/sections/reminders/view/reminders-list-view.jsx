@@ -1,30 +1,26 @@
-import { useState, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import Box from '@mui/material/Box';
+import { Stack } from '@mui/material';
 import Card from '@mui/material/Card';
 import Table from '@mui/material/Table';
-import { Stack, useTheme } from '@mui/material';
 import Button from '@mui/material/Button';
-import Tooltip from '@mui/material/Tooltip';
 import TableBody from '@mui/material/TableBody';
-import Grid from '@mui/material/Unstable_Grid2';
-import IconButton from '@mui/material/IconButton';
 
 import { paths } from 'src/routes/paths';
-import { useRouter } from 'src/routes/hooks';
 
 import { useBoolean } from 'src/hooks/use-boolean';
 import { useSetState } from 'src/hooks/use-set-state';
 
+import axios, { endpoints } from 'src/utils/axios';
 import { fIsAfter, fIsBetween } from 'src/utils/format-time';
 
 import { DashboardContent } from 'src/layouts/dashboard';
-import { _orders, ORDER_STATUS_OPTIONS } from 'src/_mock';
 
 import { toast } from 'src/components/snackbar';
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
-import { ConfirmDialog } from 'src/components/custom-dialog';
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 import {
   useTable,
@@ -37,15 +33,12 @@ import {
   TableSelectedAction,
   TablePaginationCustom,
 } from 'src/components/table';
-import { RemindersTableToolbar } from '../reminders-table-toolbar';
+
 import RemindersTableRow from '../reminders-table-row';
-import PaymentDetailsDialog from '../reminders-details-dialog';
-import PaymentEditDialog from '../reminder-create-dialog';
+import ReminderEditDialog from '../reminder-edit-dialog';
 import ReminderCreateDialog from '../reminder-create-dialog';
-
+import { RemindersTableToolbar } from '../reminders-table-toolbar';
 // ----------------------------------------------------------------------
-
-const STATUS_OPTIONS = [{ value: 'all', label: 'All' }, ...ORDER_STATUS_OPTIONS];
 
 const TABLE_HEAD = [
   { id: 'reminderId', label: '#', width: 140 },
@@ -56,16 +49,15 @@ const TABLE_HEAD = [
 
 // ----------------------------------------------------------------------
 
-const RemindersListView = () => {
+const RemindersListView = ({ reminders }) => {
   const table = useTable({ defaultOrderBy: 'orderNumber' });
 
-  const router = useRouter();
-
-  const theme = useTheme();
+  const dialog = useBoolean();
+  const dialogEdit = useBoolean();
 
   const confirm = useBoolean();
 
-  const [tableData, setTableData] = useState(_orders);
+  const [tableData, setTableData] = useState(reminders);
 
   const filters = useSetState({
     name: '',
@@ -75,6 +67,10 @@ const RemindersListView = () => {
   });
 
   const dateError = fIsAfter(filters.state.startDate, filters.state.endDate);
+
+  useEffect(() => {
+    setTableData(reminders);
+  }, [reminders]);
 
   const dataFiltered = applyFilter({
     inputData: tableData,
@@ -94,6 +90,26 @@ const RemindersListView = () => {
 
   const handleDeleteRow = useCallback(
     (id) => {
+      deleteReminder(id);
+    },
+    [dataInPage.length, table, tableData]
+  );
+
+  const [selectedReminder, setSelectedReminder] = useState();
+
+  const handleEditRow = useCallback(
+    (row) => {
+      setSelectedReminder(row);
+      dialogEdit.onToggle();
+    },
+    [dataInPage.length, table, tableData]
+  );
+
+  const queryClient = useQueryClient();
+
+  const { mutate: deleteReminder } = useMutation({
+    mutationFn: (id) => axios.delete(endpoints.reminders.delete + id),
+    onSuccess: async () => {
       const deleteRow = tableData.filter((row) => row.id !== id);
 
       toast.success('Delete success!');
@@ -101,29 +117,42 @@ const RemindersListView = () => {
       setTableData(deleteRow);
 
       table.onUpdatePageDeleteRow(dataInPage.length);
+      confirm.onFalse();
     },
-    [dataInPage.length, table, tableData]
-  );
-
-  const handleDeleteRows = useCallback(() => {
-    const deleteRows = tableData.filter((row) => !table.selected.includes(row.id));
-
-    toast.success('Delete success!');
-
-    setTableData(deleteRows);
-
-    table.onUpdatePageDeleteRows({
-      totalRowsInPage: dataInPage.length,
-      totalRowsFiltered: dataFiltered.length,
-    });
-  }, [dataFiltered.length, dataInPage.length, table, tableData]);
-
-  const handleViewRow = useCallback(
-    (id) => {
-      router.push(paths.dashboard.order.details(id));
+    onSettled: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['reminders'] });
+      confirm.onFalse();
     },
-    [router]
-  );
+    onError: () => {},
+  });
+
+  const { mutate: handleCreateReminder } = useMutation({
+    mutationFn: (payload) => axios.post(endpoints.reminders.create, payload),
+    onSuccess: async () => {
+      toast.success('New Reminder Has Been Created!');
+    },
+    onSettled: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['reminders'] });
+      dialog.onClose();
+    },
+    onError: (err) => {
+      console.log(err);
+    },
+  });
+
+  const { mutate: handleEditReminder } = useMutation({
+    mutationFn: ({ id, payload }) => axios.patch(endpoints.reminders.edit + id, payload),
+    onSuccess: async () => {
+      toast.success('New Reminder Has Been Modified!');
+    },
+    onSettled: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['reminders'] });
+      dialogEdit.onClose();
+    },
+    onError: (err) => {
+      console.log(err);
+    },
+  });
 
   return (
     <>
@@ -136,8 +165,7 @@ const RemindersListView = () => {
             ]}
             action={
               <Button
-                // component={RouterLink}
-                href={paths.dashboard.product.new}
+                onClick={() => dialog.onToggle()}
                 variant="contained"
                 startIcon={<Iconify icon="mingcute:add-line" />}
               >
@@ -179,7 +207,7 @@ const RemindersListView = () => {
                           key={row.id}
                           row={row}
                           selected={table.selected.includes(row.id)}
-                          onSelectRow={() => table.onSelectRow(row.id)}
+                          onEditRow={() => handleEditRow(row)}
                           onDeleteRow={() => handleDeleteRow(row.id)}
                           onViewRow={() => handleViewRow(row.id)}
                         />
@@ -208,8 +236,17 @@ const RemindersListView = () => {
           </Card>
         </Stack>
       </DashboardContent>
-      <ReminderCreateDialog open={() => true} />
-      {/* <PaymentEditDialog open={() => true} /> */}
+      <ReminderCreateDialog
+        open={dialog.value}
+        onClose={dialog.onFalse}
+        handler={handleCreateReminder}
+      />
+      <ReminderEditDialog
+        reminder={selectedReminder}
+        open={dialogEdit.value}
+        onClose={dialogEdit.onFalse}
+        handler={handleEditReminder}
+      />
     </>
   );
 };
@@ -231,9 +268,9 @@ function applyFilter({ inputData, comparator, filters, dateError }) {
   if (name) {
     inputData = inputData.filter(
       (order) =>
-        order.orderNumber.toLowerCase().indexOf(name.toLowerCase()) !== -1 ||
-        order.customer.name.toLowerCase().indexOf(name.toLowerCase()) !== -1 ||
-        order.customer.email.toLowerCase().indexOf(name.toLowerCase()) !== -1
+        order.id.toString().toLowerCase().indexOf(name.toLowerCase()) !== -1 ||
+        order.title.toLowerCase().indexOf(name.toLowerCase()) !== -1 ||
+        order.description.toLowerCase().indexOf(name.toLowerCase()) !== -1
     );
   }
 

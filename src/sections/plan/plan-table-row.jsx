@@ -1,21 +1,14 @@
-import Box from '@mui/material/Box';
 import Link from '@mui/material/Link';
-import Paper from '@mui/material/Paper';
-import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
-import Avatar from '@mui/material/Avatar';
-import MenuList from '@mui/material/MenuList';
-import Collapse from '@mui/material/Collapse';
-import MenuItem from '@mui/material/MenuItem';
-import TableRow from '@mui/material/TableRow';
 import Checkbox from '@mui/material/Checkbox';
+import MenuItem from '@mui/material/MenuItem';
+import MenuList from '@mui/material/MenuList';
+import TableRow from '@mui/material/TableRow';
 import TableCell from '@mui/material/TableCell';
 import IconButton from '@mui/material/IconButton';
-import ListItemText from '@mui/material/ListItemText';
 
 import { useBoolean } from 'src/hooks/use-boolean';
 
-import { fCurrency } from 'src/utils/format-number';
 import { fDate } from 'src/utils/format-time';
 
 import { Label } from 'src/components/label';
@@ -25,7 +18,7 @@ import { usePopover, CustomPopover } from 'src/components/custom-popover';
 
 // ----------------------------------------------------------------------
 
-export function PlanTableRow({ row, selected, onViewRow, onSelectRow, onDeleteRow }) {
+export function PlanTableRow({ row, selected, onViewRow, onEditRow, onSelectRow, onDeleteRow }) {
   const confirm = useBoolean();
 
   const collapse = useBoolean();
@@ -44,21 +37,21 @@ export function PlanTableRow({ row, selected, onViewRow, onSelectRow, onDeleteRo
 
       <TableCell>
         <Link color="inherit" onClick={onViewRow} underline="always" sx={{ cursor: 'pointer' }}>
-          {row.orderNumber}
+          PLN-{row.id}
         </Link>
       </TableCell>
 
-      <TableCell>{fDate(row.createdAt)}</TableCell>
+      <TableCell>{fDate(row.planDate)}</TableCell>
 
-      <TableCell>{row.customer.name}</TableCell>
+      <TableCell>{row.product.name}</TableCell>
 
-      <TableCell align="center"> {row.totalQuantity} </TableCell>
+      <TableCell align="center"> {row.quantity} </TableCell>
       <TableCell>
         <Label
           variant="soft"
           color={
             (row.status === 'completed' && 'success') ||
-            (row.status === 'pending' && 'warning') ||
+            (row.status === 'Pending' && 'warning') ||
             (row.status === 'cancelled' && 'error') ||
             'default'
           }
@@ -67,7 +60,9 @@ export function PlanTableRow({ row, selected, onViewRow, onSelectRow, onDeleteRo
         </Label>
       </TableCell>
 
-      <TableCell> {row.customer.name} </TableCell>
+      <TableCell>
+        {row.createdBy?.firstName} {row.createdBy?.lastName}
+      </TableCell>
 
       <TableCell align="right" sx={{ px: 1, whiteSpace: 'nowrap' }}>
         <IconButton color={popover.open ? 'inherit' : 'default'} onClick={popover.onOpen}>
@@ -90,17 +85,6 @@ export function PlanTableRow({ row, selected, onViewRow, onSelectRow, onDeleteRo
         <MenuList>
           <MenuItem
             onClick={() => {
-              confirm.onTrue();
-              popover.onClose();
-            }}
-            sx={{ color: 'error.main' }}
-          >
-            <Iconify icon="solar:trash-bin-trash-bold" />
-            Delete
-          </MenuItem>
-
-          <MenuItem
-            onClick={() => {
               onViewRow();
               popover.onClose();
             }}
@@ -111,12 +95,22 @@ export function PlanTableRow({ row, selected, onViewRow, onSelectRow, onDeleteRo
 
           <MenuItem
             onClick={() => {
-              onViewRow();
+              onEditRow();
               popover.onClose();
             }}
           >
-            <Iconify icon="solar:eye-bold" />
+            <Iconify icon="solar:pen-bold" />
             Edit
+          </MenuItem>
+          <MenuItem
+            onClick={() => {
+              confirm.onTrue();
+              popover.onClose();
+            }}
+            sx={{ color: 'error.main' }}
+          >
+            <Iconify icon="solar:trash-bin-trash-bold" />
+            Delete
           </MenuItem>
         </MenuList>
       </CustomPopover>

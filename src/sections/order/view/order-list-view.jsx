@@ -1,4 +1,5 @@
-import { useState, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
@@ -12,14 +13,15 @@ import IconButton from '@mui/material/IconButton';
 
 import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hooks';
+import { RouterLink } from 'src/routes/components';
 
 import { useBoolean } from 'src/hooks/use-boolean';
 import { useSetState } from 'src/hooks/use-set-state';
 
-import { fIsAfter, fIsBetween } from 'src/utils/format-time';
+import axios, { endpoints } from 'src/utils/axios';
+import { fIsAfter, monthName, fIsBetween } from 'src/utils/format-time';
 
 import { DashboardContent } from 'src/layouts/dashboard';
-import { _orders, ORDER_STATUS_OPTIONS } from 'src/_mock';
 
 import { toast } from 'src/components/snackbar';
 import { Iconify } from 'src/components/iconify';
@@ -43,10 +45,7 @@ import { AppWidgetSummary } from 'src/sections/overview/app/app-widget-summary';
 import { OrderTableRow } from '../order-table-row';
 import { OrderTableToolbar } from '../order-table-toolbar';
 import { OrderTableFiltersResult } from '../order-table-filters-result';
-
 // ----------------------------------------------------------------------
-
-const STATUS_OPTIONS = [{ value: 'all', label: 'All' }, ...ORDER_STATUS_OPTIONS];
 
 const TABLE_HEAD = [
   { id: 'orderNumber', label: 'Order', width: 88 },
@@ -65,8 +64,8 @@ const TABLE_HEAD = [
 
 // ----------------------------------------------------------------------
 
-export function OrderListView() {
-  const table = useTable({ defaultOrderBy: 'orderNumber' });
+export function OrderListView({ orders, analytics }) {
+  const table = useTable({ defaultOrderBy: 'orderId' });
 
   const router = useRouter();
 
@@ -74,7 +73,10 @@ export function OrderListView() {
 
   const confirm = useBoolean();
 
-  const [tableData, setTableData] = useState(_orders);
+  const [tableData, setTableData] = useState(() => orders);
+  const [overviewData, setOverviewData] = useState([]);
+  const [inProcessData, setInProcessData] = useState([]);
+  const [deliveredData, setDeliveredData] = useState([]);
 
   const filters = useSetState({
     name: '',
@@ -82,6 +84,10 @@ export function OrderListView() {
     startDate: null,
     endDate: null,
   });
+
+  useEffect(() => {
+    setTableData(orders);
+  }, [orders]);
 
   const dateError = fIsAfter(filters.state.startDate, filters.state.endDate);
 
@@ -101,8 +107,11 @@ export function OrderListView() {
 
   const notFound = (!dataFiltered.length && canReset) || !dataFiltered.length;
 
-  const handleDeleteRow = useCallback(
-    (id) => {
+  const queryClient = useQueryClient();
+
+  const { mutate: deleteOrder } = useMutation({
+    mutationFn: (id) => axios.delete(endpoints.order.delete + id),
+    onSuccess: async () => {
       const deleteRow = tableData.filter((row) => row.id !== id);
 
       toast.success('Delete success!');
@@ -111,21 +120,19 @@ export function OrderListView() {
 
       table.onUpdatePageDeleteRow(dataInPage.length);
     },
+    onSettled: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['orders'] });
+      await queryClient.invalidateQueries({ queryKey: ['orders', 'analytics'] });
+    },
+    onError: () => {},
+  });
+
+  const handleDeleteRow = useCallback(
+    (id) => {
+      deleteOrder(id);
+    },
     [dataInPage.length, table, tableData]
   );
-
-  const handleDeleteRows = useCallback(() => {
-    const deleteRows = tableData.filter((row) => !table.selected.includes(row.id));
-
-    toast.success('Delete success!');
-
-    setTableData(deleteRows);
-
-    table.onUpdatePageDeleteRows({
-      totalRowsInPage: dataInPage.length,
-      totalRowsFiltered: dataFiltered.length,
-    });
-  }, [dataFiltered.length, dataInPage.length, table, tableData]);
 
   const handleViewRow = useCallback(
     (id) => {
@@ -140,7 +147,6 @@ export function OrderListView() {
         <Grid container spacing={3}>
           <Grid xs={12} md={12}>
             <CustomBreadcrumbs
-              // heading="List"
               links={[
                 { name: 'Dashboard', href: paths.dashboard.root },
                 { name: 'Order', href: paths.dashboard.order.root },
@@ -148,8 +154,8 @@ export function OrderListView() {
               ]}
               action={
                 <Button
-                  // component={RouterLink}
-                  href={paths.dashboard.product.new}
+                  component={RouterLink}
+                  href={paths.dashboard.order.new}
                   variant="contained"
                   startIcon={<Iconify icon="mingcute:add-line" />}
                 >
@@ -161,11 +167,10 @@ export function OrderListView() {
           <Grid xs={12} md={4}>
             <AppWidgetSummary
               title="All Orders"
-              percent={2.6}
-              total={18765}
+              total={orders.length}
               chart={{
-                categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug'],
-                series: [15, 18, 12, 51, 68, 11, 39, 37],
+                categories: analytics.data.lastSixMonth.map((item) => monthName(item?.inMonth)),
+                series: analytics.data.lastSixMonth.map((item) => item?.ClaimsPerMonth),
               }}
             />
           </Grid>
@@ -173,12 +178,13 @@ export function OrderListView() {
           <Grid xs={12} md={4}>
             <AppWidgetSummary
               title="Processing Order"
-              percent={0.2}
-              total={4876}
+              total={analytics.data.analytics.InProcess}
               chart={{
                 colors: [theme.vars.palette.info.main],
-                categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug'],
-                series: [20, 41, 63, 33, 28, 35, 50, 46],
+                categories: analytics.data.inProcessLastSixMonth.map((item) =>
+                  monthName(item?.inMonth)
+                ),
+                series: analytics.data.inProcessLastSixMonth.map((item) => item?.ClaimsPerMonth),
               }}
             />
           </Grid>
@@ -186,12 +192,13 @@ export function OrderListView() {
           <Grid xs={12} md={4}>
             <AppWidgetSummary
               title="Delivered"
-              percent={-0.1}
-              total={678}
+              total={analytics.data.analytics.Delivered}
               chart={{
                 colors: [theme.vars.palette.error.main],
-                categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug'],
-                series: [18, 19, 31, 8, 16, 37, 12, 33],
+                categories: analytics.data.deliveredLastSixMonth.map((item) =>
+                  monthName(item?.inMonth)
+                ),
+                series: analytics.data.deliveredLastSixMonth.map((item) => item?.ClaimsPerMonth),
               }}
             />
           </Grid>
@@ -320,20 +327,20 @@ export function OrderListView() {
 function applyFilter({ inputData, comparator, filters, dateError }) {
   const { status, name, startDate, endDate } = filters;
 
-  const stabilizedThis = inputData.map((el, index) => [el, index]);
+  const stabilizedThis = inputData?.map((el, index) => [el, index]);
 
-  stabilizedThis.sort((a, b) => {
+  stabilizedThis?.sort((a, b) => {
     const order = comparator(a[0], b[0]);
     if (order !== 0) return order;
     return a[1] - b[1];
   });
 
-  inputData = stabilizedThis.map((el) => el[0]);
+  inputData = stabilizedThis?.map((el) => el[0]);
 
   if (name) {
     inputData = inputData.filter(
       (order) =>
-        order.orderNumber.toLowerCase().indexOf(name.toLowerCase()) !== -1 ||
+        order.id.toString().toLowerCase().indexOf(name.toLowerCase()) !== -1 ||
         order.customer.name.toLowerCase().indexOf(name.toLowerCase()) !== -1 ||
         order.customer.email.toLowerCase().indexOf(name.toLowerCase()) !== -1
     );
@@ -345,7 +352,7 @@ function applyFilter({ inputData, comparator, filters, dateError }) {
 
   if (!dateError) {
     if (startDate && endDate) {
-      inputData = inputData.filter((order) => fIsBetween(order.createdAt, startDate, endDate));
+      inputData = inputData.filter((order) => fIsBetween(order.createTime, startDate, endDate));
     }
   }
 

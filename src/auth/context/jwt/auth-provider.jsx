@@ -24,8 +24,7 @@ export function AuthProvider({ children }) {
         setSession(accessToken);
 
         const res = await axios.get(endpoints.auth.me);
-
-        const { user } = res.data;
+        const user = res.data;
 
         setState({ user: { ...user, accessToken }, loading: false });
       } else {

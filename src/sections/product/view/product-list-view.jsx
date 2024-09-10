@@ -1,31 +1,34 @@
-import { useCallback, useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 
+import Box from '@mui/material/Box';
+import Card from '@mui/material/Card';
+import Table from '@mui/material/Table';
 import { useTheme } from '@mui/material';
 import Button from '@mui/material/Button';
+import Tooltip from '@mui/material/Tooltip';
 import Grid from '@mui/material/Unstable_Grid2';
-import Card from '@mui/material/Card';
+import TableBody from '@mui/material/TableBody';
+import IconButton from '@mui/material/IconButton';
 
-import { useRouter } from 'src/routes/hooks';
 import { paths } from 'src/routes/paths';
+import { useRouter } from 'src/routes/hooks';
+import { RouterLink } from 'src/routes/components';
 
 import { useBoolean } from 'src/hooks/use-boolean';
 import { useSetState } from 'src/hooks/use-set-state';
 
+import axios, { endpoints } from 'src/utils/axios';
 import { fIsAfter, fIsBetween } from 'src/utils/format-time';
 
-import { _orders, ORDER_STATUS_OPTIONS } from 'src/_mock';
+import { ORDER_STATUS_OPTIONS } from 'src/_mock';
 import { DashboardContent } from 'src/layouts/dashboard';
-import Tooltip from '@mui/material/Tooltip';
-import TableBody from '@mui/material/TableBody';
-import Table from '@mui/material/Table';
-import IconButton from '@mui/material/IconButton';
+
+import { toast } from 'src/components/snackbar';
+import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
 import { ConfirmDialog } from 'src/components/custom-dialog';
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
-import { Iconify } from 'src/components/iconify';
-import { toast } from 'src/components/snackbar';
-import { ProductTableToolbar } from '../product-table-toolbar';
-import Box from '@mui/material/Box';
 import {
   useTable,
   emptyRows,
@@ -37,8 +40,9 @@ import {
   TableSelectedAction,
   TablePaginationCustom,
 } from 'src/components/table';
-import ProductTableRow from '../product-table-row';
 
+import ProductTableRow from '../product-table-row';
+import { ProductTableToolbar } from '../product-table-toolbar';
 // ----------------------------------------------------------------------
 
 const STATUS_OPTIONS = [{ value: 'all', label: 'All' }, ...ORDER_STATUS_OPTIONS];
@@ -59,7 +63,7 @@ const TABLE_HEAD = [
 
 // ----------------------------------------------------------------------
 
-export function ProductListView() {
+export function ProductListView({ products }) {
   const table = useTable({ defaultOrderBy: 'planId' });
 
   const router = useRouter();
@@ -68,7 +72,7 @@ export function ProductListView() {
 
   const confirm = useBoolean();
 
-  const [tableData, setTableData] = useState(_orders);
+  const [tableData, setTableData] = useState(products);
 
   const filters = useSetState({
     name: '',
@@ -76,6 +80,10 @@ export function ProductListView() {
     startDate: null,
     endDate: null,
   });
+
+  useEffect(() => {
+    setTableData(products);
+  }, [products]);
 
   const dateError = fIsAfter(filters.state.startDate, filters.state.endDate);
 
@@ -97,6 +105,26 @@ export function ProductListView() {
 
   const handleDeleteRow = useCallback(
     (id) => {
+      deleteProduct(id);
+    },
+    [dataInPage.length, table, tableData]
+  );
+
+  const handleDeleteRows = useCallback(() => {
+    // const deleteRows = tableData.filter((row) => !table.selected.includes(row.id));
+    // toast.success('Delete success!');
+    // setTableData(deleteRows);
+    // table.onUpdatePageDeleteRows({
+    //   totalRowsInPage: dataInPage.length,
+    //   totalRowsFiltered: dataFiltered.length,
+    // });
+  }, [dataFiltered.length, dataInPage.length, table, tableData]);
+
+  const queryClient = useQueryClient();
+
+  const { mutate: deleteProduct } = useMutation({
+    mutationFn: (id) => axios.delete(endpoints.products.delete + id),
+    onSuccess: async () => {
       const deleteRow = tableData.filter((row) => row.id !== id);
 
       toast.success('Delete success!');
@@ -105,28 +133,11 @@ export function ProductListView() {
 
       table.onUpdatePageDeleteRow(dataInPage.length);
     },
-    [dataInPage.length, table, tableData]
-  );
-
-  const handleDeleteRows = useCallback(() => {
-    const deleteRows = tableData.filter((row) => !table.selected.includes(row.id));
-
-    toast.success('Delete success!');
-
-    setTableData(deleteRows);
-
-    table.onUpdatePageDeleteRows({
-      totalRowsInPage: dataInPage.length,
-      totalRowsFiltered: dataFiltered.length,
-    });
-  }, [dataFiltered.length, dataInPage.length, table, tableData]);
-
-  const handleViewRow = useCallback(
-    (id) => {
-      router.push(paths.dashboard.order.details(id));
+    onSettled: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['products'] });
     },
-    [router]
-  );
+    onError: () => {},
+  });
 
   return (
     <>
@@ -141,7 +152,7 @@ export function ProductListView() {
               ]}
               action={
                 <Button
-                  // component={RouterLink}
+                  component={RouterLink}
                   href={paths.dashboard.product.new}
                   variant="contained"
                   startIcon={<Iconify icon="mingcute:add-line" />}
@@ -205,9 +216,8 @@ export function ProductListView() {
                             key={row.id}
                             row={row}
                             selected={table.selected.includes(row.id)}
-                            onSelectRow={() => table.onSelectRow(row.id)}
+                            // onSelectRow={() => table.onSelectRow(row.id)}
                             onDeleteRow={() => handleDeleteRow(row.id)}
-                            onViewRow={() => handleViewRow(row.id)}
                           />
                         ))}
 
@@ -275,15 +285,10 @@ function applyFilter({ inputData, comparator, filters, dateError }) {
 
   if (name) {
     inputData = inputData.filter(
-      (order) =>
-        order.orderNumber.toLowerCase().indexOf(name.toLowerCase()) !== -1 ||
-        order.customer.name.toLowerCase().indexOf(name.toLowerCase()) !== -1 ||
-        order.customer.email.toLowerCase().indexOf(name.toLowerCase()) !== -1
+      (product) =>
+        product.id.toString().toLowerCase().indexOf(name.toLowerCase()) !== -1 ||
+        product.name.toLowerCase().indexOf(name.toLowerCase()) !== -1
     );
-  }
-
-  if (status !== 'all') {
-    inputData = inputData.filter((order) => order.status === status);
   }
 
   if (!dateError) {

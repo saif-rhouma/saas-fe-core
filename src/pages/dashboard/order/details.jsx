@@ -1,12 +1,15 @@
 import { Helmet } from 'react-helmet-async';
+import { useQuery } from '@tanstack/react-query';
 
 import { useParams } from 'src/routes/hooks';
 
-import { _orders } from 'src/_mock/_order';
+import axios, { endpoints } from 'src/utils/axios';
+
 import { CONFIG } from 'src/config-global';
 
-import { OrderDetailsView } from 'src/sections/order/view';
+import { LoadingScreen } from 'src/components/loading-screen';
 
+import { OrderDetailsView } from 'src/sections/order/view';
 // ----------------------------------------------------------------------
 
 const metadata = { title: `Order details | Dashboard - ${CONFIG.site.name}` };
@@ -14,7 +17,17 @@ const metadata = { title: `Order details | Dashboard - ${CONFIG.site.name}` };
 export default function Page() {
   const { id = '' } = useParams();
 
-  const currentOrder = _orders.find((order) => order.id === id);
+  const response = useQuery({
+    queryKey: ['order', id],
+    queryFn: async () => {
+      const { data } = await axios.get(endpoints.order.details + id);
+      return data;
+    },
+  });
+
+  if (response.isPending || response.isLoading) {
+    return <LoadingScreen />;
+  }
 
   return (
     <>
@@ -22,7 +35,7 @@ export default function Page() {
         <title> {metadata.title}</title>
       </Helmet>
 
-      <OrderDetailsView order={currentOrder} />
+      <OrderDetailsView order={response.data} />
     </>
   );
 }

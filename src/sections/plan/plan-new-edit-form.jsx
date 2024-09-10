@@ -1,57 +1,137 @@
-import { useState, useCallback } from 'react';
+import dayjs from 'dayjs';
+import { useState, useEffect, useCallback } from 'react';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import Card from '@mui/material/Card';
 import Stack from '@mui/material/Stack';
 import Grid from '@mui/material/Unstable_Grid2';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-import {
-  Box,
-  Table,
-  Button,
-  Select,
-  MenuItem,
-  TableRow,
-  TextField,
-  TableCell,
-  TableBody,
-  InputAdornment,
-} from '@mui/material';
+import { Box, Button, TextField, InputAdornment } from '@mui/material';
 
+import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hooks';
 
-import { varAlpha } from 'src/theme/styles';
+import axios, { endpoints } from 'src/utils/axios';
 
+import { toast } from 'src/components/snackbar';
 import { Iconify } from 'src/components/iconify';
-import { TableHeadCustom } from 'src/components/table';
 import ProductItemButton from 'src/components/product/product-Item-button';
 
-import { IncrementerButton } from '../product/components/incrementer-button';
 import PlanProductTable from './plan-product-table';
 
-export function PlanNewEditForm({ currentOrder }) {
+export function PlanNewEditForm({ products, plan }) {
   const router = useRouter();
-  const [orderId, setOrderId] = useState();
+  const [planId, setPlanId] = useState();
+  const [selectedDate, setSelectedDate] = useState(dayjs(new Date()));
+  const [selectedProducts, setSelectedProducts] = useState([]);
+  const [filterProducts, setfilterProducts] = useState(products);
 
-  const handleOrderId = useCallback((event) => {
-    setOrderId(event.target.value);
+  const queryClient = useQueryClient();
+
+  const storageHost = 'http://localhost:3000/api/files/show/';
+
+  useEffect(() => {
+    if (plan) {
+      plan.product.quantity = plan.quantity;
+      setSelectedProducts([plan.product]);
+      setPlanId(plan.id);
+      setSelectedDate(dayjs(plan.planDate));
+    }
+  }, [plan]);
+
+  const { mutate: createPlan } = useMutation({
+    mutationFn: (payload) => axios.post(endpoints.plan.create, payload),
+    onSuccess: async () => {
+      toast.success('New Plan Has Been Created!');
+    },
+    onSettled: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['plans'] });
+      router.push(paths.dashboard.plan.root);
+    },
+    onError: () => {},
+  });
+
+  const { mutate: editPlan } = useMutation({
+    mutationFn: ({ id, payload }) => axios.patch(endpoints.plan.edit + id, payload),
+    onSuccess: async () => {
+      toast.success('Plan Has Been Modified!');
+    },
+    onSettled: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['plans'] });
+      router.push(paths.dashboard.plan.root);
+    },
+    onError: (err) => {
+      console.log(err);
+    },
+  });
+
+  const handlePlanId = useCallback((event) => {
+    setPlanId(event.target.value);
   }, []);
 
-  const TABLE_HEAD = [
-    { id: 'orderNumber', label: '#', width: 40, align: 'center' },
-    { id: 'name', label: 'Product Name', width: 160 },
-    { id: 'color', label: 'Color', width: 80 },
-    {
-      id: 'rate',
-      label: 'Rate',
-      width: 80,
-    },
-    { id: 'totalAmount', label: 'Qty', width: 100 },
-    { id: 'status', label: 'Total', width: 140 },
-  ];
+  const handleFilterProducts = useCallback((event) => {
+    const name = event.target.value;
+    if (name) {
+      setfilterProducts(
+        products.filter((product) => product.name.toLowerCase().indexOf(name) !== -1)
+      );
+    }
+    if (name === undefined || name === null || name === '') {
+      setfilterProducts(products);
+    }
+  }, []);
 
-  const onDelete = () => {};
-  const onDecrease = () => {};
-  const onIncrease = () => {};
+  const handleAddProducts = useCallback(
+    (payload) => {
+      setSelectedProducts((prev) => {
+        const isFoundIndx = prev.findIndex((prod) => prod.id === payload.id);
+        if (isFoundIndx >= 0) {
+          prev[isFoundIndx].quantity += 1;
+        } else if (prev.length === 0) {
+          payload.quantity = 1;
+          prev.push(payload);
+        }
+        const products = [...prev];
+        return products;
+      });
+    },
+    [selectedProducts]
+  );
+
+  const handleOnDecrease = useCallback(
+    (idx) => {
+      setSelectedProducts((prev) => {
+        prev[idx].quantity -= 1;
+        if (prev[idx].quantity === 0) {
+          prev.splice(idx, 1);
+        }
+        const products = [...prev];
+        return products;
+      });
+    },
+    [selectedProducts]
+  );
+  const handleOnIncrease = useCallback(
+    (idx) => {
+      setSelectedProducts((prev) => {
+        prev[idx].quantity += 1;
+        const products = [...prev];
+        return products;
+      });
+    },
+    [selectedProducts]
+  );
+
+  const handleDeleteRow = useCallback(
+    (idx) => {
+      setSelectedProducts((prev) => {
+        prev.splice(idx, 1);
+        const products = [...prev];
+        return products;
+      });
+    },
+    [selectedProducts]
+  );
 
   const renderOrderList = (
     <Card>
@@ -67,6 +147,7 @@ export function PlanNewEditForm({ currentOrder }) {
               </InputAdornment>
             ),
           }}
+          onChange={handleFilterProducts}
         />
         <Box
           spacing={2}
@@ -79,11 +160,15 @@ export function PlanNewEditForm({ currentOrder }) {
             lg: 'repeat(2, 1fr)',
           }}
         >
-          <ProductItemButton image="--->" productName="Product 1" />
-          <ProductItemButton image="--->" productName="Product 1" />
-          <ProductItemButton image="--->" productName="Product 1" />
-          <ProductItemButton image="--->" productName="Product 1" />
-          <ProductItemButton image="--->" productName="Product 1" />
+          {filterProducts.map((product) => (
+            <ProductItemButton
+              payload={product}
+              handleClick={handleAddProducts}
+              key={product?.id}
+              productName={product?.name}
+              image={storageHost + product?.image}
+            />
+          ))}
         </Box>
       </Stack>
     </Card>
@@ -102,14 +187,47 @@ export function PlanNewEditForm({ currentOrder }) {
             lg: 'repeat(2, 1fr)',
           }}
         >
-          <TextField label="Plan ID" value={orderId} onChange={handleOrderId} sx={{ mt: 2 }} />
-          <DatePicker label="Date" sx={{ mt: 2 }} />
+          <TextField label="Plan ID" value={planId} onChange={handlePlanId} sx={{ mt: 2 }} />
+          <DatePicker
+            label="Date"
+            // views={['year', 'month', 'day']}
+            sx={{ mt: 2 }}
+            value={selectedDate}
+            onChange={(newValue) => {
+              setSelectedDate(newValue);
+            }}
+          />
         </Box>
-        <PlanProductTable />
+        <PlanProductTable
+          products={selectedProducts}
+          onDecrease={handleOnDecrease}
+          onIncrease={handleOnIncrease}
+          removeItem={handleDeleteRow}
+        />
         <Box display="flex" flexDirection="column" alignItems="flex-end" justifyContent="center">
           <Box display="flex" gap={2} height={50}>
-            <Button variant="contained">Save</Button>
-            <Button variant="outlined">Clear All</Button>
+            <Button
+              variant="contained"
+              onClick={() => {
+                if (selectedProducts.length) {
+                  const payload = {
+                    planDate: selectedDate.format('YYYY-MM-DD'),
+                    productId: selectedProducts[0].id,
+                    quantity: selectedProducts[0].quantity,
+                  };
+                  if (plan) {
+                    editPlan({ id: plan.id, payload });
+                  } else {
+                    createPlan(payload);
+                  }
+                }
+              }}
+            >
+              {plan ? 'Save Changes' : 'Save'}
+            </Button>
+            <Button variant="outlined" onClick={() => setSelectedProducts([])}>
+              Clear All
+            </Button>
           </Box>
         </Box>
       </Stack>

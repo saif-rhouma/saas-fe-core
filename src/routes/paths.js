@@ -124,6 +124,7 @@ export const paths = {
     },
     order: {
       root: `${ROOTS.DASHBOARD}/order`,
+      status: `${ROOTS.DASHBOARD}/order-status`,
       new: `${ROOTS.DASHBOARD}/order/new`,
       details: (id) => `${ROOTS.DASHBOARD}/order/${id}`,
       edit: (id) => `${ROOTS.DASHBOARD}/order/${id}/edit`,
@@ -134,13 +135,10 @@ export const paths = {
     },
     plan: {
       root: `${ROOTS.DASHBOARD}/plan`,
+      status: `${ROOTS.DASHBOARD}/plan-status`,
       new: `${ROOTS.DASHBOARD}/plan/new`,
       details: (id) => `${ROOTS.DASHBOARD}/plan/${id}`,
       edit: (id) => `${ROOTS.DASHBOARD}/plan/${id}/edit`,
-      demo: {
-        details: `${ROOTS.DASHBOARD}/plan/${MOCK_ID}`,
-        edit: `${ROOTS.DASHBOARD}/plan/${MOCK_ID}/edit`,
-      },
     },
     product: {
       root: `${ROOTS.DASHBOARD}/product`,
@@ -176,9 +174,9 @@ export const paths = {
     },
     reminders: {
       root: `${ROOTS.DASHBOARD}/reminders`,
+      // edit: (id) => `${ROOTS.DASHBOARD}/reminders/${id}/edit`,
       // new: `${ROOTS.DASHBOARD}/plan/new`,
       // details: (id) => `${ROOTS.DASHBOARD}/plan/${id}`,
-      // edit: (id) => `${ROOTS.DASHBOARD}/plan/${id}/edit`,
       // demo: {
       //   details: `${ROOTS.DASHBOARD}/plan/${MOCK_ID}`,
       //   edit: `${ROOTS.DASHBOARD}/plan/${MOCK_ID}/edit`,
@@ -187,7 +185,7 @@ export const paths = {
     tickets: {
       root: `${ROOTS.DASHBOARD}/tickets`,
       // new: `${ROOTS.DASHBOARD}/plan/new`,
-      // details: (id) => `${ROOTS.DASHBOARD}/plan/${id}`,
+      details: (id) => `${ROOTS.DASHBOARD}/tickets/${id}`,
       // edit: (id) => `${ROOTS.DASHBOARD}/plan/${id}/edit`,
       // demo: {
       //   details: `${ROOTS.DASHBOARD}/plan/${MOCK_ID}`,
@@ -206,13 +204,11 @@ export const paths = {
     },
     reports: {
       root: `${ROOTS.DASHBOARD}/reports`,
-      // new: `${ROOTS.DASHBOARD}/plan/new`,
-      // details: (id) => `${ROOTS.DASHBOARD}/plan/${id}`,
-      // edit: (id) => `${ROOTS.DASHBOARD}/plan/${id}/edit`,
-      // demo: {
-      //   details: `${ROOTS.DASHBOARD}/plan/${MOCK_ID}`,
-      //   edit: `${ROOTS.DASHBOARD}/plan/${MOCK_ID}/edit`,
-      // },
+      daily: `${ROOTS.DASHBOARD}/reports/daily`,
+      order: `${ROOTS.DASHBOARD}/reports/order`,
+      plan: `${ROOTS.DASHBOARD}/reports/plan`,
+      stock: `${ROOTS.DASHBOARD}/reports/stock`,
+      custom: `${ROOTS.DASHBOARD}/reports/custom`,
     },
     tools: {
       root: `${ROOTS.DASHBOARD}/tools`,

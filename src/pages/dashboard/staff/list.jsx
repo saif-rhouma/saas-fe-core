@@ -3,7 +3,7 @@ import { Helmet } from 'react-helmet-async';
 import { CONFIG } from 'src/config-global';
 
 import { OrderListView } from 'src/sections/order/view';
-import  StaffListView  from 'src/sections/staff/view/staff-list-view';
+import StaffListView from 'src/sections/staff/view/staff-list-view';
 
 // ----------------------------------------------------------------------
 

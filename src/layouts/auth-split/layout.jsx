@@ -1,7 +1,5 @@
 import Alert from '@mui/material/Alert';
 
-import { paths } from 'src/routes/paths';
-
 import { useBoolean } from 'src/hooks/use-boolean';
 
 import { CONFIG } from 'src/config-global';

@@ -1,4 +1,3 @@
-import Alert from '@mui/material/Alert';
 import { useTheme } from '@mui/material/styles';
 
 import { usePathname } from 'src/routes/hooks';
@@ -7,7 +6,6 @@ import { useBoolean } from 'src/hooks/use-boolean';
 
 import { Main } from './main';
 import { NavMobile } from './nav/mobile';
-import { NavDesktop } from './nav/desktop';
 import { Footer, HomeFooter } from './footer';
 import { HeaderBase } from '../core/header-base';
 import { LayoutSection } from '../core/layout-section';
@@ -48,25 +46,6 @@ export function MainLayout({ sx, data, children }) {
               workspaces: false,
               localization: false,
               notifications: false,
-            }}
-            slots={{
-              topArea: (
-                <Alert severity="info" sx={{ display: 'none', borderRadius: 0 }}>
-                  This is an info Alert.
-                </Alert>
-              ),
-              rightAreaStart: (
-                <NavDesktop
-                  data={navData}
-                  sx={{
-                    display: 'none',
-                    [theme.breakpoints.up(layoutQuery)]: {
-                      mr: 2.5,
-                      display: 'flex',
-                    },
-                  }}
-                />
-              ),
             }}
           />
         }

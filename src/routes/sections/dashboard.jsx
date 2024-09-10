@@ -26,6 +26,7 @@ const OrderCreatePage = lazy(() => import('src/pages/dashboard/order/new'));
 const PlanListPage = lazy(() => import('src/pages/dashboard/plan/list'));
 const PlanDetailsPage = lazy(() => import('src/pages/dashboard/plan/details'));
 const PlanCreatePage = lazy(() => import('src/pages/dashboard/plan/new'));
+const PlanEditPage = lazy(() => import('src/pages/dashboard/plan/edit'));
 // Product
 const ProductDetailsPage = lazy(() => import('src/pages/dashboard/product/details'));
 const ProductListPage = lazy(() => import('src/pages/dashboard/product/list'));
@@ -48,9 +49,17 @@ const StaffCreatePage = lazy(() => import('src/pages/dashboard/staff/new'));
 const StaffEditPage = lazy(() => import('src/pages/dashboard/staff/edit'));
 // Reports
 // const ReportsListPage = lazy(() => import('src/pages/dashboard/reminders/list'));
+// const StaffListPage = lazy(() => import('src/pages/dashboard/reminders/list'));
+// Reports;
+const ReportsDailyListPage = lazy(() => import('src/pages/dashboard/reports/daily-list'));
+const ReportsOrderListPage = lazy(() => import('src/pages/dashboard/reports/order-list'));
+const ReportsPlanListPage = lazy(() => import('src/pages/dashboard/reports/plan-list'));
+const ReportsStockListPage = lazy(() => import('src/pages/dashboard/reports/stock-list'));
+// const ReportsCustomListPage = lazy(() => import('src/pages/dashboard/reports/custom-list'));
 // Tools
 // const ToolsListPage = lazy(() => import('src/pages/dashboard/reminders/list'));
-
+// Order Status
+const OrderStatus = lazy(() => import('src/pages/dashboard/order/status'));
 // User
 const UserProfilePage = lazy(() => import('src/pages/dashboard/user/profile'));
 const UserCardsPage = lazy(() => import('src/pages/dashboard/user/cards'));
@@ -96,6 +105,7 @@ export const dashboardRoutes = [
           { path: 'account', element: <UserAccountPage /> },
         ],
       },
+      { path: 'order-status', element: <OrderStatus /> },
       {
         path: 'product',
         children: [
@@ -124,6 +134,7 @@ export const dashboardRoutes = [
           { path: 'list', element: <PlanListPage /> },
           { path: ':id', element: <PlanDetailsPage /> },
           { path: 'new', element: <PlanCreatePage /> },
+          { path: ':id/edit', element: <PlanEditPage /> },
         ],
       },
       {
@@ -167,15 +178,21 @@ export const dashboardRoutes = [
       {
         path: 'reports',
         children: [
-          { element: <PaymentsListPage />, index: true },
-          { path: 'list', element: <PaymentsListPage /> },
+          { element: <ReportsDailyListPage />, index: true },
+          { path: 'daily', element: <ReportsDailyListPage /> },
+          { path: 'order', element: <ReportsOrderListPage /> },
+          { path: 'plan', element: <ReportsPlanListPage /> },
+          { path: 'stock', element: <ReportsStockListPage /> },
+          { path: 'custom', element: <ReportsDailyListPage /> },
         ],
       },
       {
         path: 'tools',
         children: [
           { element: <PaymentsListPage />, index: true },
-          { path: 'list', element: <PaymentsListPage /> },
+          { path: 'account-setting', element: <PaymentsListPage /> },
+          { path: 'financial-year', element: <PaymentsListPage /> },
+          { path: 'master-setting', element: <PaymentsListPage /> },
         ],
       },
       { path: 'kanban', element: <KanbanPage /> },

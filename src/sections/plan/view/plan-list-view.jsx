@@ -1,9 +1,8 @@
-import { useState, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import Table from '@mui/material/Table';
-import { useTheme } from '@mui/material';
 import Button from '@mui/material/Button';
 import Tooltip from '@mui/material/Tooltip';
 import TableBody from '@mui/material/TableBody';
@@ -12,6 +11,7 @@ import IconButton from '@mui/material/IconButton';
 
 import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hooks';
+import { RouterLink } from 'src/routes/components';
 
 import { useBoolean } from 'src/hooks/use-boolean';
 import { useSetState } from 'src/hooks/use-set-state';
@@ -19,9 +19,7 @@ import { useSetState } from 'src/hooks/use-set-state';
 import { fIsAfter, fIsBetween } from 'src/utils/format-time';
 
 import { DashboardContent } from 'src/layouts/dashboard';
-import { _orders, ORDER_STATUS_OPTIONS } from 'src/_mock';
 
-import { toast } from 'src/components/snackbar';
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
 import { ConfirmDialog } from 'src/components/custom-dialog';
@@ -38,15 +36,11 @@ import {
   TablePaginationCustom,
 } from 'src/components/table';
 
-import { AppWidgetSummary } from 'src/sections/overview/app/app-widget-summary';
-
 import { PlanTableRow } from '../plan-table-row';
 import { PlanTableToolbar } from '../plan-table-toolbar';
 import { PlanTableFiltersResult } from '../plan-table-filters-result';
 
 // ----------------------------------------------------------------------
-
-const STATUS_OPTIONS = [{ value: 'all', label: 'All' }, ...ORDER_STATUS_OPTIONS];
 
 const TABLE_HEAD = [
   { id: 'planId', label: 'Plan ID', width: 60 },
@@ -65,16 +59,14 @@ const TABLE_HEAD = [
 
 // ----------------------------------------------------------------------
 
-export function PlanListView() {
+export function PlanListView({ plans }) {
   const table = useTable({ defaultOrderBy: 'planId' });
 
   const router = useRouter();
 
-  const theme = useTheme();
-
   const confirm = useBoolean();
 
-  const [tableData, setTableData] = useState(_orders);
+  const [tableData, setTableData] = useState(plans);
 
   const filters = useSetState({
     name: '',
@@ -82,6 +74,10 @@ export function PlanListView() {
     startDate: null,
     endDate: null,
   });
+
+  useEffect(() => {
+    setTableData(plans);
+  }, [plans]);
 
   const dateError = fIsAfter(filters.state.startDate, filters.state.endDate);
 
@@ -101,35 +97,42 @@ export function PlanListView() {
 
   const notFound = (!dataFiltered.length && canReset) || !dataFiltered.length;
 
-  const handleDeleteRow = useCallback(
-    (id) => {
-      const deleteRow = tableData.filter((row) => row.id !== id);
+  // const handleDeleteRow = useCallback(
+  //   (id) => {
+  //     const deleteRow = tableData.filter((row) => row.id !== id);
 
-      toast.success('Delete success!');
+  //     toast.success('Delete success!');
 
-      setTableData(deleteRow);
+  //     setTableData(deleteRow);
 
-      table.onUpdatePageDeleteRow(dataInPage.length);
-    },
-    [dataInPage.length, table, tableData]
-  );
+  //     table.onUpdatePageDeleteRow(dataInPage.length);
+  //   },
+  //   [dataInPage.length, table, tableData]
+  // );
 
-  const handleDeleteRows = useCallback(() => {
-    const deleteRows = tableData.filter((row) => !table.selected.includes(row.id));
+  // const handleDeleteRows = useCallback(() => {
+  //   const deleteRows = tableData.filter((row) => !table.selected.includes(row.id));
 
-    toast.success('Delete success!');
+  //   toast.success('Delete success!');
 
-    setTableData(deleteRows);
+  //   setTableData(deleteRows);
 
-    table.onUpdatePageDeleteRows({
-      totalRowsInPage: dataInPage.length,
-      totalRowsFiltered: dataFiltered.length,
-    });
-  }, [dataFiltered.length, dataInPage.length, table, tableData]);
+  //   table.onUpdatePageDeleteRows({
+  //     totalRowsInPage: dataInPage.length,
+  //     totalRowsFiltered: dataFiltered.length,
+  //   });
+  // }, [dataFiltered.length, dataInPage.length, table, tableData]);
 
   const handleViewRow = useCallback(
     (id) => {
-      router.push(paths.dashboard.order.details(id));
+      router.push(paths.dashboard.plan.details(id));
+    },
+    [router]
+  );
+
+  const handleEditRow = useCallback(
+    (id) => {
+      router.push(paths.dashboard.plan.edit(id));
     },
     [router]
   );
@@ -148,8 +151,8 @@ export function PlanListView() {
               ]}
               action={
                 <Button
-                  // component={RouterLink}
-                  href={paths.dashboard.product.new}
+                  component={RouterLink}
+                  href={paths.dashboard.plan.new}
                   variant="contained"
                   startIcon={<Iconify icon="mingcute:add-line" />}
                 >
@@ -226,6 +229,7 @@ export function PlanListView() {
                             onSelectRow={() => table.onSelectRow(row.id)}
                             onDeleteRow={() => handleDeleteRow(row.id)}
                             onViewRow={() => handleViewRow(row.id)}
+                            onEditRow={() => handleEditRow(row.id)}
                           />
                         ))}
 
@@ -296,9 +300,10 @@ function applyFilter({ inputData, comparator, filters, dateError }) {
   if (name) {
     inputData = inputData.filter(
       (order) =>
-        order.orderNumber.toLowerCase().indexOf(name.toLowerCase()) !== -1 ||
-        order.customer.name.toLowerCase().indexOf(name.toLowerCase()) !== -1 ||
-        order.customer.email.toLowerCase().indexOf(name.toLowerCase()) !== -1
+        order.id.toString().toLowerCase().indexOf(name.toLowerCase()) !== -1 ||
+        order.product.name.toLowerCase().indexOf(name.toLowerCase()) !== -1 ||
+        order.createdBy.firstName.toLowerCase().indexOf(name.toLowerCase()) !== -1 ||
+        order.createdBy.lastName.toLowerCase().indexOf(name.toLowerCase()) !== -1
     );
   }
 
