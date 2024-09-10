@@ -23,27 +23,36 @@ import { Iconify } from 'src/components/iconify';
 import { ConfirmDialog } from 'src/components/custom-dialog';
 import { usePopover, CustomPopover } from 'src/components/custom-popover';
 import { fDate } from 'src/utils/format-time';
+import { useEffect, useState } from 'react';
 
-const StaffTableRow = ({ row, selected, onViewRow, onSelectRow, onDeleteRow }) => {
+const StaffTableRow = ({ row, selected, onViewRow,  onDeleteRow,handler }) => {
   const confirm = useBoolean();
 
-  const collapse = useBoolean();
-
   const popover = usePopover();
+  const [isChecked, setIsChecked] = useState(row?.isActive)
+
+  useEffect(() => {
+    setIsChecked(row?.isActive);
+  },[row])
+
+  const handleStatusChange = (id) => () => {
+    setIsChecked(!isChecked);
+    handler({id, isActive: !isChecked});
+  }
 
 
   const renderPrimary = (
     <TableRow hover selected={selected}>
-      <TableCell>{row.reminderId}</TableCell>
-      <TableCell>{row.staffName}</TableCell>
-      <TableCell>{row.phoneNumber}</TableCell>
-      <TableCell>{row.emailAddress}</TableCell>
+      <TableCell>{row?.id}</TableCell>
+      <TableCell>{`${row?.firstName} ${row?.lastName}` }</TableCell>
+      <TableCell>{row?.phoneNumber}</TableCell>
+      <TableCell>{row?.email}</TableCell>
       {/* <TableCell>{row.status}</TableCell> */}
 
       <TableCell>
               <Switch
-                checked={row.status}
-                // onChange={handleStatusChange(row.id)}
+                checked={isChecked}
+                onChange={handleStatusChange(row.id)}
                 color="primary"
               />
             </TableCell>
