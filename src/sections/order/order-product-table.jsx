@@ -1,13 +1,15 @@
-import { Box, Stack, Table, TableBody, TableCell, TableRow } from '@mui/material';
+import { Box, Stack, Table, Button, TableRow, TableBody, TableCell } from '@mui/material';
+
+import { fCurrency } from 'src/utils/format-number';
 
 import { varAlpha } from 'src/theme/styles';
 
+import { Iconify } from 'src/components/iconify';
 import { TableHeadCustom } from 'src/components/table';
 
 import { IncrementerButton } from '../product/components/incrementer-button';
-import { fCurrency } from 'src/utils/format-number';
 
-const OrderProductTable = ({ products, isDetail, onDecrease, onIncrease }) => {
+const OrderProductTable = ({ products, isDetail, onDecrease, onIncrease, removeItem }) => {
   const TABLE_HEAD = [
     { id: 'orderNumber', label: '#', width: 40, align: 'center' },
     { id: 'name', label: 'Product Name', width: 160 },
@@ -20,6 +22,10 @@ const OrderProductTable = ({ products, isDetail, onDecrease, onIncrease }) => {
     { id: 'totalAmount', label: 'Qty', width: 100 },
     { id: 'status', label: 'Total', width: 140 },
   ];
+
+  if (!isDetail) {
+    TABLE_HEAD.push({ id: 'action', width: 10 });
+  }
 
   return (
     <Box
@@ -41,6 +47,12 @@ const OrderProductTable = ({ products, isDetail, onDecrease, onIncrease }) => {
             <TableRow key={isDetail ? `${product.productId}` : `${product.id}`}>
               <TableCell align="center"> {product.productId} </TableCell>
               <TableCell> {isDetail ? `${product.product.name}` : product.name} </TableCell>
+              {/* <TableCell>
+                <Stack spacing={2} direction="row" alignItems="center">
+                  <Avatar alt={row?.name} src={storageHost + row?.image} />
+                  <Box component="span">{row?.name}</Box>
+                </Stack>
+              </TableCell> */}
               <TableCell> x </TableCell>
               <TableCell align={isDetail ? 'inherit' : 'center'}>
                 {isDetail ? (
@@ -74,11 +86,17 @@ const OrderProductTable = ({ products, isDetail, onDecrease, onIncrease }) => {
                 )}
               </TableCell>
               <TableCell>
-                {' '}
                 {isDetail
                   ? `${fCurrency(product.product.price * product.quantity)}`
                   : fCurrency(product.price * product.quantity)}
               </TableCell>
+              {!isDetail && (
+                <TableCell>
+                  <Button sx={{ color: 'error.main' }} onClick={removeItem}>
+                    <Iconify icon="solar:trash-bin-trash-bold" />
+                  </Button>
+                </TableCell>
+              )}
             </TableRow>
           ))}
         </TableBody>

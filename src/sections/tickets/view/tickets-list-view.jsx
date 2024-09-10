@@ -1,44 +1,46 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import Box from '@mui/material/Box';
-import Button from '@mui/material/Button';
 import Card from '@mui/material/Card';
 import Table from '@mui/material/Table';
+import Button from '@mui/material/Button';
 import TableBody from '@mui/material/TableBody';
 import Grid from '@mui/material/Unstable_Grid2';
 
-import { useRouter } from 'src/routes/hooks';
 import { paths } from 'src/routes/paths';
+import { useRouter } from 'src/routes/hooks';
 
 import { useBoolean } from 'src/hooks/use-boolean';
 import { useSetState } from 'src/hooks/use-set-state';
 
+import axios, { endpoints } from 'src/utils/axios';
 import { fIsAfter, fIsBetween } from 'src/utils/format-time';
 
 import { DashboardContent } from 'src/layouts/dashboard';
 
-import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
+import { toast } from 'src/components/snackbar';
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
-import { toast } from 'src/components/snackbar';
+import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 import {
+  useTable,
   emptyRows,
-  getComparator,
   rowInPage,
+  TableNoData,
+  getComparator,
   TableEmptyRows,
   TableHeadCustom,
-  TableNoData,
-  TablePaginationCustom,
   TableSelectedAction,
-  useTable,
+  TablePaginationCustom,
 } from 'src/components/table';
+
 import { AppWidgetSummary } from 'src/sections/overview/app/app-widget-summary';
-import TicketsTableRow from '../tickets-table-row';
-import { TicketsTableToolbar } from '../tickets-table-toolbar';
-import TicketsCreateDialog from '../tickets-create-dialog';
 import { OrderTableFiltersResult } from 'src/sections/order/order-table-filters-result';
-import axios, { endpoints } from 'src/utils/axios';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+
+import TicketsTableRow from '../tickets-table-row';
+import TicketsCreateDialog from '../tickets-create-dialog';
+import { TicketsTableToolbar } from '../tickets-table-toolbar';
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
@@ -132,7 +134,7 @@ const TicketsListView = ({ tickets, analytics }) => {
           <LoadingScreen />
         </Grid>
       );
-    } else {
+    } 
       return (
         <>
           <Grid xs={12} md={4}>
@@ -154,7 +156,7 @@ const TicketsListView = ({ tickets, analytics }) => {
           </Grid>
         </>
       );
-    }
+    
   };
 
   return (

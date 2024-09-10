@@ -1,5 +1,5 @@
-import { defaultAnimateLayoutChanges, useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
+import { useSortable, defaultAnimateLayoutChanges } from '@dnd-kit/sortable';
 
 import ColumnBase from './column-base';
 import { KanbanColumnToolBar } from './kanban-column-toolbar';

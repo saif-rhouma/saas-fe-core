@@ -1,18 +1,15 @@
 import Box from '@mui/material/Box';
-import Button from '@mui/material/Button';
 import { styled, useTheme } from '@mui/material/styles';
-
-import { paths } from 'src/routes/paths';
 
 import { useGlobalContext } from 'src/context/context';
 
-import { AccountDrawer } from '../components/account-drawer';
-import { LanguagePopover } from '../components/language-popover';
-import { MenuButton } from '../components/menu-button';
-import { NotificationsDrawer } from '../components/notifications-drawer';
-import { SettingsButton } from '../components/settings-button';
-import { SignInButton } from '../components/sign-in-button';
 import { HeaderSection } from './header-section';
+import { MenuButton } from '../components/menu-button';
+import { SignInButton } from '../components/sign-in-button';
+import { AccountDrawer } from '../components/account-drawer';
+import { SettingsButton } from '../components/settings-button';
+import { LanguagePopover } from '../components/language-popover';
+import { NotificationsDrawer } from '../components/notifications-drawer';
 
 // ----------------------------------------------------------------------
 

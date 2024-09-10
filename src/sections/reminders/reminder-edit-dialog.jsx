@@ -1,7 +1,6 @@
 import ReminderCreateDialog from './reminder-create-dialog';
 
-const ReminderEditDialog = ({ reminder, open, onClose, handler }) => {
-  return (
+const ReminderEditDialog = ({ reminder, open, onClose, handler }) => (
     <ReminderCreateDialog
       currentReminder={reminder}
       open={open}
@@ -9,5 +8,4 @@ const ReminderEditDialog = ({ reminder, open, onClose, handler }) => {
       handler={handler}
     />
   );
-};
 export default ReminderEditDialog;

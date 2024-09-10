@@ -1,21 +1,21 @@
-import Timeline from '@mui/lab/Timeline';
-import TimelineConnector from '@mui/lab/TimelineConnector';
-import TimelineContent from '@mui/lab/TimelineContent';
-import TimelineDot from '@mui/lab/TimelineDot';
-import TimelineItem, { timelineItemClasses } from '@mui/lab/TimelineItem';
-import TimelineSeparator from '@mui/lab/TimelineSeparator';
 import Box from '@mui/material/Box';
-import Button from '@mui/material/Button';
 import Card from '@mui/material/Card';
-import CardHeader from '@mui/material/CardHeader';
 import Stack from '@mui/material/Stack';
+import Timeline from '@mui/lab/Timeline';
+import Button from '@mui/material/Button';
+import TimelineDot from '@mui/lab/TimelineDot';
 import TextField from '@mui/material/TextField';
+import CardHeader from '@mui/material/CardHeader';
 import Typography from '@mui/material/Typography';
+import TimelineContent from '@mui/lab/TimelineContent';
+import TimelineConnector from '@mui/lab/TimelineConnector';
+import TimelineSeparator from '@mui/lab/TimelineSeparator';
+import TimelineItem, { timelineItemClasses } from '@mui/lab/TimelineItem';
 
 import { fDateTime } from 'src/utils/format-time';
+import { fCurrency } from 'src/utils/format-number';
 
 import { Label } from 'src/components/label';
-import { fCurrency } from 'src/utils/format-number';
 
 const OrderProductAddons = ({ payments, dialog }) => {
   const renderTimeline = (

@@ -1,27 +1,28 @@
-import Timeline from '@mui/lab/Timeline';
-import TimelineConnector from '@mui/lab/TimelineConnector';
-import TimelineContent from '@mui/lab/TimelineContent';
-import TimelineDot from '@mui/lab/TimelineDot';
-import TimelineItem, { timelineItemClasses } from '@mui/lab/TimelineItem';
-import TimelineSeparator from '@mui/lab/TimelineSeparator';
-import Box from '@mui/material/Box';
-import Button from '@mui/material/Button';
-import Card from '@mui/material/Card';
-import CardHeader from '@mui/material/CardHeader';
-import Stack from '@mui/material/Stack';
-import Typography from '@mui/material/Typography';
-
-import { fDate } from 'src/utils/format-time';
-
+import { z as zod } from 'zod';
+import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { useForm } from 'react-hook-form';
-import { Field, Form } from 'src/components/hook-form';
-import { Iconify } from 'src/components/iconify';
-import { toast } from 'src/components/snackbar';
+
+import Box from '@mui/material/Box';
+import Card from '@mui/material/Card';
+import Stack from '@mui/material/Stack';
+import Timeline from '@mui/lab/Timeline';
+import Button from '@mui/material/Button';
+import TimelineDot from '@mui/lab/TimelineDot';
+import CardHeader from '@mui/material/CardHeader';
+import Typography from '@mui/material/Typography';
+import TimelineContent from '@mui/lab/TimelineContent';
+import TimelineConnector from '@mui/lab/TimelineConnector';
+import TimelineSeparator from '@mui/lab/TimelineSeparator';
+import TimelineItem, { timelineItemClasses } from '@mui/lab/TimelineItem';
+
+import { fDate } from 'src/utils/format-time';
 import axios, { endpoints } from 'src/utils/axios';
-import { z as zod } from 'zod';
+
+import { toast } from 'src/components/snackbar';
+import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
+import { Form, Field } from 'src/components/hook-form';
 
 const TicketMessageCreationSchema = zod.object({
   message: zod.string().min(1, { message: 'Name is required!' }),
@@ -52,7 +53,7 @@ const TicketsPreviousMessage = ({ ticket, messages }) => {
       reset();
     },
     onSettled: async () => {
-      const id = ticket.id;
+      const {id} = ticket;
       await queryClient.invalidateQueries({ queryKey: ['tickets'] });
       await queryClient.invalidateQueries({ queryKey: ['tickets', id] });
     },
@@ -84,7 +85,7 @@ const TicketsPreviousMessage = ({ ticket, messages }) => {
             return (
               <TimelineItem key={item.id}>
                 <TimelineSeparator>
-                  <TimelineDot color={'primary'} />
+                  <TimelineDot color="primary" />
                   {lastTimeline ? null : <TimelineConnector />}
                 </TimelineSeparator>
                 <TimelineContent>

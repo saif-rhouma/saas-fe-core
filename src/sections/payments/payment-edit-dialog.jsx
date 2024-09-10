@@ -1,32 +1,30 @@
+import dayjs from 'dayjs';
+import { z as zod } from 'zod';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useRef, useMemo, useState, useEffect, useCallback } from 'react';
+
+import Box from '@mui/material/Box';
+import Stack from '@mui/material/Stack';
 import { LoadingButton } from '@mui/lab';
+import Dialog from '@mui/material/Dialog';
+import Divider from '@mui/material/Divider';
+import Typography from '@mui/material/Typography';
+import DialogContent from '@mui/material/DialogContent';
 import {
   Button,
-  DialogActions,
-  DialogTitle,
-  FormControl,
-  InputLabel,
   MenuItem,
-  Select,
-  TextField,
+  DialogTitle,
+  DialogActions,
 } from '@mui/material';
-import Box from '@mui/material/Box';
-import Dialog from '@mui/material/Dialog';
-import DialogContent from '@mui/material/DialogContent';
-import Divider from '@mui/material/Divider';
-import Stack from '@mui/material/Stack';
-import Typography from '@mui/material/Typography';
-import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-import { useCallback, useRef, useState } from 'react';
-import { Upload } from 'src/components/upload';
 
+import { fDate } from 'src/utils/format-time';
 import axios, { endpoints } from 'src/utils/axios';
-import { z as zod } from 'zod';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { useForm } from 'react-hook-form';
-import { Field, Form, schemaHelper } from 'src/components/hook-form';
-import { fDate, today } from 'src/utils/format-time';
-import { zodResolver } from '@hookform/resolvers/zod';
 import { fCurrency } from 'src/utils/format-number';
+
+import { Upload } from 'src/components/upload';
+import { Form, Field, schemaHelper } from 'src/components/hook-form';
 
 const PaymentCreationSchema = zod.object({
   amount: zod.number().min(1, { message: 'Amount is required!' }),
@@ -35,7 +33,7 @@ const PaymentCreationSchema = zod.object({
   description: zod.string(),
 });
 
-const PaymentEditDialog = ({ payment, open, onClose }) => {
+const PaymentEditDialog = ({ payment, open, onClose, handler }) => {
   const store = useRef(payment);
   //! Upload Logic START
   const [file, setFile] = useState();
@@ -61,20 +59,15 @@ const PaymentEditDialog = ({ payment, open, onClose }) => {
       const { name: filename } = data;
       if (filename) {
         const { current: payload } = store;
-        payload.file = filename;
-        delete payload.time;
-        delete payload.date;
-        if (payment) {
-          await handler({ id: payment.id, payload });
-        } else {
-          await handler(payload);
-        }
+        payload.attachments = filename;
+        await handler({ id: payment.id, payload });
       }
       return data;
     },
     onSettled: async () => {
       setFile(null);
-      await queryClient.invalidateQueries({ queryKey: ['reminders-images'] });
+      store.current = {};
+      await queryClient.invalidateQueries({ queryKey: ['payments-images'] });
     },
     onError: (err) => {
       console.log(err);
@@ -83,11 +76,21 @@ const PaymentEditDialog = ({ payment, open, onClose }) => {
 
   //! Upload Logic END
 
-  const defaultValues = {
-    amount: 0,
-    paymentType: '',
-    paymentDate: today(),
-  };
+  useEffect(() => {
+    if (payment) {
+      reset(defaultValues);
+    }
+  }, [payment]);
+
+  const defaultValues = useMemo(
+    () => ({
+      amount: payment?.amount || 0,
+      paymentType: payment?.paymentType || '',
+      paymentDate: payment?.paymentDate || dayjs(),
+      description: payment?.description || '',
+    }),
+    [payment]
+  );
 
   const methods = useForm({
     resolver: zodResolver(PaymentCreationSchema),
@@ -100,11 +103,17 @@ const PaymentEditDialog = ({ payment, open, onClose }) => {
     formState: { isSubmitting },
   } = methods;
 
-  const onSubmit = handleSubmit(async (data) => {
+  const onSubmit = handleSubmit(async (payload) => {
     try {
-      const payload = { ...data, orderId: order.id, customerId: order.customer.id };
-      console.log('--------> Payload', payload);
-      // await handler(payload);
+      if (file) {
+        store.current = { ...payload };
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('category', 'Payment');
+        await handleUploadPaymentFile(formData);
+      } else {
+        await handler({ id: payment.id, payload });
+      }
       reset();
     } catch (error) {
       console.log(error);
@@ -229,18 +238,12 @@ const PaymentEditDialog = ({ payment, open, onClose }) => {
                 lg: 'repeat(3, 1fr)',
               }}
             >
-              <Field.Text
-                value={payment.amount}
-                type="number"
-                name="amount"
-                label="Paid Amount"
-                sx={{ flexGrow: 1 }}
-              />
+              <Field.Text type="number" name="amount" label="Paid Amount" sx={{ flexGrow: 1 }} />
 
               <Field.Select name="paymentType" label="Payment Type">
-                <MenuItem value={'Cash'}>Cash</MenuItem>
-                <MenuItem value={'Transfer'}>Transfer</MenuItem>
-                <MenuItem value={'Card'}>Card</MenuItem>
+                <MenuItem value="Cash">Cash</MenuItem>
+                <MenuItem value="Transfer">Transfer</MenuItem>
+                <MenuItem value="Card">Card</MenuItem>
               </Field.Select>
 
               <Field.DatePicker name="paymentDate" label="Date" sx={{ flexGrow: 1 }} />

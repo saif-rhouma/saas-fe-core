@@ -1,13 +1,15 @@
 import { Helmet } from 'react-helmet-async';
+import { useQuery } from '@tanstack/react-query';
 
 import { useParams } from 'src/routes/hooks';
 
-import { _orders } from 'src/_mock/_order';
-import { CONFIG } from 'src/config-global';
-import { TicketDetailsView } from 'src/sections/tickets/view/tickets-details-view';
-import { useQuery } from '@tanstack/react-query';
 import axios, { endpoints } from 'src/utils/axios';
+
+import { CONFIG } from 'src/config-global';
+
 import { LoadingScreen } from 'src/components/loading-screen';
+
+import { TicketDetailsView } from 'src/sections/tickets/view/tickets-details-view';
 
 // ----------------------------------------------------------------------
 

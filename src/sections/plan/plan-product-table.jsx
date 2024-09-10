@@ -1,16 +1,20 @@
-import { Box, Table, TableBody, TableCell, TableRow } from '@mui/material';
+import { Box, Table, Button, TableRow, TableBody, TableCell } from '@mui/material';
 
+import { Iconify } from 'src/components/iconify';
 import { TableHeadCustom } from 'src/components/table';
+
 import { IncrementerButton } from '../product/components/incrementer-button';
 
-const PlanProductTable = ({ products, quantity, onDecrease, onIncrease }) => {
-  console.log('--->> products', products);
-  console.log('--->> quantity', quantity);
+const PlanProductTable = ({ products, quantity, onDecrease, onIncrease, removeItem }) => {
   const TABLE_HEAD = [
     { id: 'planId', label: '#', width: 40, align: 'center' },
     { id: 'name', label: 'Product Name' },
     { id: 'quantity', label: 'Qty', width: 200 },
   ];
+
+  if (products.length) {
+    TABLE_HEAD.push({ id: 'action', width: 10 });
+  }
 
   return (
     <Box
@@ -30,7 +34,7 @@ const PlanProductTable = ({ products, quantity, onDecrease, onIncrease }) => {
         <TableBody>
           {products.length ? (
             products?.map((product, idx) => (
-              <TableRow>
+              <TableRow key={product?.id}>
                 <TableCell align="center"> {product?.id} </TableCell>
                 <TableCell> {product?.name} </TableCell>
                 <TableCell>
@@ -41,6 +45,11 @@ const PlanProductTable = ({ products, quantity, onDecrease, onIncrease }) => {
                       onIncrease={() => onIncrease(idx)}
                     />
                   </Box>
+                </TableCell>
+                <TableCell>
+                  <Button sx={{ color: 'error.main' }} onClick={removeItem}>
+                    <Iconify icon="solar:trash-bin-trash-bold" />
+                  </Button>
                 </TableCell>
               </TableRow>
             ))

@@ -1,20 +1,21 @@
+import Link from '@mui/material/Link';
 import Button from '@mui/material/Button';
 import Checkbox from '@mui/material/Checkbox';
-import IconButton from '@mui/material/IconButton';
-import Link from '@mui/material/Link';
 import MenuItem from '@mui/material/MenuItem';
 import MenuList from '@mui/material/MenuList';
-import TableCell from '@mui/material/TableCell';
 import TableRow from '@mui/material/TableRow';
+import TableCell from '@mui/material/TableCell';
+import IconButton from '@mui/material/IconButton';
+import { Box, Stack, Avatar } from '@mui/material';
 
 import { useBoolean } from 'src/hooks/use-boolean';
 
-import { ConfirmDialog } from 'src/components/custom-dialog';
-import { CustomPopover, usePopover } from 'src/components/custom-popover';
-import { Iconify } from 'src/components/iconify';
-import { Label } from 'src/components/label';
 import { fCurrency } from 'src/utils/format-number';
-import { Avatar, Box, Stack } from '@mui/material';
+
+import { Label } from 'src/components/label';
+import { Iconify } from 'src/components/iconify';
+import { ConfirmDialog } from 'src/components/custom-dialog';
+import { usePopover, CustomPopover } from 'src/components/custom-popover';
 
 const ProductTableRow = ({ row, selected, onViewRow, onSelectRow, onDeleteRow }) => {
   const confirm = useBoolean();

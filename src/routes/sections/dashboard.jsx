@@ -26,6 +26,7 @@ const OrderCreatePage = lazy(() => import('src/pages/dashboard/order/new'));
 const PlanListPage = lazy(() => import('src/pages/dashboard/plan/list'));
 const PlanDetailsPage = lazy(() => import('src/pages/dashboard/plan/details'));
 const PlanCreatePage = lazy(() => import('src/pages/dashboard/plan/new'));
+const PlanEditPage = lazy(() => import('src/pages/dashboard/plan/edit'));
 // Product
 const ProductDetailsPage = lazy(() => import('src/pages/dashboard/product/details'));
 const ProductListPage = lazy(() => import('src/pages/dashboard/product/list'));
@@ -128,6 +129,7 @@ export const dashboardRoutes = [
           { path: 'list', element: <PlanListPage /> },
           { path: ':id', element: <PlanDetailsPage /> },
           { path: 'new', element: <PlanCreatePage /> },
+          { path: ':id/edit', element: <PlanEditPage /> },
         ],
       },
       {

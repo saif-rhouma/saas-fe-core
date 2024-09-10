@@ -1,23 +1,26 @@
-import { useCallback, useState } from 'react';
+import dayjs from 'dayjs';
+import { useState, useCallback } from 'react';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 
-import { Box, Button, InputAdornment, MenuItem, Select, TextField } from '@mui/material';
 import Card from '@mui/material/Card';
 import Stack from '@mui/material/Stack';
 import Grid from '@mui/material/Unstable_Grid2';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import { Box, Button, Select, MenuItem, TextField, InputAdornment } from '@mui/material';
 
-import { Iconify } from 'src/components/iconify';
-import ProductItemButton from 'src/components/product/product-Item-button';
-import { toast } from 'src/components/snackbar';
-
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import dayjs from 'dayjs';
-import { useRouter } from 'src/routes/hooks';
 import { paths } from 'src/routes/paths';
+import { useRouter } from 'src/routes/hooks';
+
+import { useBoolean } from 'src/hooks/use-boolean';
+
 import axios, { endpoints } from 'src/utils/axios';
 import { fCurrency } from 'src/utils/format-number';
+
+import { toast } from 'src/components/snackbar';
+import { Iconify } from 'src/components/iconify';
+import ProductItemButton from 'src/components/product/product-Item-button';
+
 import OrderProductTable from './order-product-table';
-import { useBoolean } from 'src/hooks/use-boolean';
 import OrderCustomerCreateDialog from './order-customer-create-dialog';
 
 export function OrderNewEditForm({ products, customers }) {
@@ -104,11 +107,19 @@ export function OrderNewEditForm({ products, customers }) {
     },
     [selectedProducts]
   );
-  const getTotal = useCallback(() => {
-    return selectedProducts.reduce((total, product) => {
-      return total + product.price * product.quantity;
-    }, 0);
-  }, [selectedProducts]);
+
+  const handleDeleteRow = useCallback(
+    (idx) => {
+      setSelectedProducts((prev) => {
+        prev.splice(idx, 1);
+        const products = [...prev];
+        return products;
+      });
+    },
+    [selectedProducts]
+  );
+
+  const getTotal = useCallback(() => selectedProducts.reduce((total, product) => total + product.price * product.quantity, 0), [selectedProducts]);
 
   const renderOrderList = (
     <Card>
@@ -230,6 +241,7 @@ export function OrderNewEditForm({ products, customers }) {
           products={selectedProducts}
           onDecrease={handleOnDecrease}
           onIncrease={handleOnIncrease}
+          removeItem={handleDeleteRow}
         />
         <Box display="flex" flexDirection="column" alignItems="flex-end" justifyContent="center">
           {renderTotal}
@@ -240,9 +252,7 @@ export function OrderNewEditForm({ products, customers }) {
                 if (!isNaN(parseInt(selectedCustomer)) && selectedProducts.length) {
                   const payload = {
                     orderDate: selectedDate.format('YYYY-MM-DD'),
-                    products: selectedProducts.map((prod) => {
-                      return { id: prod.id, quantity: prod.quantity };
-                    }),
+                    products: selectedProducts.map((prod) => ({ id: prod.id, quantity: prod.quantity })),
                     customer: selectedCustomer,
                   };
                   createOrder(payload);

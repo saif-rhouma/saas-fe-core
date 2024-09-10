@@ -1,13 +1,14 @@
 import { LoadingButton } from '@mui/lab';
 import {
+  Stack,
   Button,
   Dialog,
+  Divider,
+  DialogTitle,
   DialogActions,
   DialogContent,
-  DialogTitle,
-  Divider,
-  Stack,
 } from '@mui/material';
+
 import { Upload } from 'src/components/upload';
 
 const ProductUploadImageDialog = ({
@@ -17,8 +18,7 @@ const ProductUploadImageDialog = ({
   handleUpload,
   handleDelete,
   file,
-}) => {
-  return (
+}) => (
     <Dialog open={open} onClose={onClose}>
       <DialogTitle>Upload Product Image</DialogTitle>
       <Divider />
@@ -37,5 +37,4 @@ const ProductUploadImageDialog = ({
       </DialogActions>
     </Dialog>
   );
-};
 export default ProductUploadImageDialog;

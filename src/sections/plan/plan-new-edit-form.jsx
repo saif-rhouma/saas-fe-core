@@ -1,23 +1,25 @@
-import { useCallback, useState } from 'react';
+import dayjs from 'dayjs';
+import { useState, useEffect, useCallback } from 'react';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 
-import { Box, Button, InputAdornment, TextField } from '@mui/material';
 import Card from '@mui/material/Card';
 import Stack from '@mui/material/Stack';
 import Grid from '@mui/material/Unstable_Grid2';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import { Box, Button, TextField, InputAdornment } from '@mui/material';
 
+import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hooks';
 
-import { Iconify } from 'src/components/iconify';
-import ProductItemButton from 'src/components/product/product-Item-button';
-import dayjs from 'dayjs';
-import PlanProductTable from './plan-product-table';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { toast } from 'src/components/snackbar';
-import { paths } from 'src/routes/paths';
 import axios, { endpoints } from 'src/utils/axios';
 
-export function PlanNewEditForm({ products }) {
+import { toast } from 'src/components/snackbar';
+import { Iconify } from 'src/components/iconify';
+import ProductItemButton from 'src/components/product/product-Item-button';
+
+import PlanProductTable from './plan-product-table';
+
+export function PlanNewEditForm({ products, plan }) {
   const router = useRouter();
   const [planId, setPlanId] = useState();
   const [selectedDate, setSelectedDate] = useState(dayjs(new Date()));
@@ -27,6 +29,15 @@ export function PlanNewEditForm({ products }) {
   const queryClient = useQueryClient();
 
   const storageHost = 'http://localhost:3000/api/files/show/';
+
+  useEffect(() => {
+    if (plan) {
+      plan.product.quantity = plan.quantity;
+      setSelectedProducts([plan.product]);
+      setPlanId(plan.id);
+      setSelectedDate(dayjs(plan.planDate));
+    }
+  }, [plan]);
 
   const { mutate: createPlan } = useMutation({
     mutationFn: (payload) => axios.post(endpoints.plan.create, payload),
@@ -38,6 +49,20 @@ export function PlanNewEditForm({ products }) {
       router.push(paths.dashboard.plan.root);
     },
     onError: () => {},
+  });
+
+  const { mutate: editPlan } = useMutation({
+    mutationFn: ({ id, payload }) => axios.patch(endpoints.plan.edit + id, payload),
+    onSuccess: async () => {
+      toast.success('Plan Has Been Modified!');
+    },
+    onSettled: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['plans'] });
+      router.push(paths.dashboard.plan.root);
+    },
+    onError: (err) => {
+      console.log(err);
+    },
   });
 
   const handlePlanId = useCallback((event) => {
@@ -90,6 +115,17 @@ export function PlanNewEditForm({ products }) {
     (idx) => {
       setSelectedProducts((prev) => {
         prev[idx].quantity += 1;
+        const products = [...prev];
+        return products;
+      });
+    },
+    [selectedProducts]
+  );
+
+  const handleDeleteRow = useCallback(
+    (idx) => {
+      setSelectedProducts((prev) => {
+        prev.splice(idx, 1);
         const products = [...prev];
         return products;
       });
@@ -166,6 +202,7 @@ export function PlanNewEditForm({ products }) {
           products={selectedProducts}
           onDecrease={handleOnDecrease}
           onIncrease={handleOnIncrease}
+          removeItem={handleDeleteRow}
         />
         <Box display="flex" flexDirection="column" alignItems="flex-end" justifyContent="center">
           <Box display="flex" gap={2} height={50}>
@@ -178,11 +215,15 @@ export function PlanNewEditForm({ products }) {
                     productId: selectedProducts[0].id,
                     quantity: selectedProducts[0].quantity,
                   };
-                  createPlan(payload);
+                  if (plan) {
+                    editPlan({ id: plan.id, payload });
+                  } else {
+                    createPlan(payload);
+                  }
                 }
               }}
             >
-              Save and Continue
+              {plan ? 'Save Changes' : 'Save'}
             </Button>
             <Button variant="outlined" onClick={() => setSelectedProducts([])}>
               Clear All

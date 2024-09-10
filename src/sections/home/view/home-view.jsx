@@ -7,7 +7,6 @@ import { HomeHero } from '../home-hero';
 import { HomeZoneUI } from '../home-zone-ui';
 import { HomeMinimal } from '../home-minimal';
 import { HomePricing } from '../home-pricing';
-
 import { HomeTestimonials } from '../home-testimonials';
 
 // ----------------------------------------------------------------------

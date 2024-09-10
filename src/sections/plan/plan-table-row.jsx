@@ -1,24 +1,24 @@
+import Link from '@mui/material/Link';
 import Button from '@mui/material/Button';
 import Checkbox from '@mui/material/Checkbox';
-import IconButton from '@mui/material/IconButton';
-import Link from '@mui/material/Link';
 import MenuItem from '@mui/material/MenuItem';
 import MenuList from '@mui/material/MenuList';
-import TableCell from '@mui/material/TableCell';
 import TableRow from '@mui/material/TableRow';
+import TableCell from '@mui/material/TableCell';
+import IconButton from '@mui/material/IconButton';
 
 import { useBoolean } from 'src/hooks/use-boolean';
 
 import { fDate } from 'src/utils/format-time';
 
-import { ConfirmDialog } from 'src/components/custom-dialog';
-import { CustomPopover, usePopover } from 'src/components/custom-popover';
-import { Iconify } from 'src/components/iconify';
 import { Label } from 'src/components/label';
+import { Iconify } from 'src/components/iconify';
+import { ConfirmDialog } from 'src/components/custom-dialog';
+import { usePopover, CustomPopover } from 'src/components/custom-popover';
 
 // ----------------------------------------------------------------------
 
-export function PlanTableRow({ row, selected, onViewRow, onSelectRow, onDeleteRow }) {
+export function PlanTableRow({ row, selected, onViewRow, onEditRow, onSelectRow, onDeleteRow }) {
   const confirm = useBoolean();
 
   const collapse = useBoolean();
@@ -95,7 +95,7 @@ export function PlanTableRow({ row, selected, onViewRow, onSelectRow, onDeleteRo
 
           <MenuItem
             onClick={() => {
-              onViewRow();
+              onEditRow();
               popover.onClose();
             }}
           >

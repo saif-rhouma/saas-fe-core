@@ -1,18 +1,24 @@
-import { zodResolver } from '@hookform/resolvers/zod';
-import { LoadingButton } from '@mui/lab';
-import { Button, DialogActions, DialogTitle, MenuItem } from '@mui/material';
-import Box from '@mui/material/Box';
-import Dialog from '@mui/material/Dialog';
-import DialogContent from '@mui/material/DialogContent';
-import Divider from '@mui/material/Divider';
-import Stack from '@mui/material/Stack';
-import Typography from '@mui/material/Typography';
-import { useCallback } from 'react';
+import { z as zod } from 'zod';
 import { useForm } from 'react-hook-form';
-import { Field, Form, schemaHelper } from 'src/components/hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useRef, useState, useCallback } from 'react';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+
+import Box from '@mui/material/Box';
+import Stack from '@mui/material/Stack';
+import { LoadingButton } from '@mui/lab';
+import Dialog from '@mui/material/Dialog';
+import Divider from '@mui/material/Divider';
+import Typography from '@mui/material/Typography';
+import DialogContent from '@mui/material/DialogContent';
+import { Button, MenuItem, DialogTitle, DialogActions } from '@mui/material';
+
+import axios, { endpoints } from 'src/utils/axios';
 import { fCurrency } from 'src/utils/format-number';
 import { fDate, today } from 'src/utils/format-time';
-import { z as zod } from 'zod';
+
+import { Upload } from 'src/components/upload';
+import { Form, Field, schemaHelper } from 'src/components/hook-form';
 
 const PaymentCreationSchema = zod.object({
   amount: zod.number().min(1, { message: 'Amount is required!' }),
@@ -21,16 +27,48 @@ const PaymentCreationSchema = zod.object({
 });
 
 const OrderPaymentDetailsDialog = ({ order, payment, open, onClose, handler }) => {
-  const handleDrop = useCallback(() => {}, []);
+  const store = useRef(payment);
 
-  const handleUpload = () => {
-    onClose();
-    console.info('ON UPLOAD');
+  // //! Upload Logic START
+  const [file, setFile] = useState();
+
+  const handleDropSingleFile = useCallback((acceptedFiles) => {
+    const newFile = acceptedFiles[0];
+    setFile(() => newFile);
+  }, []);
+
+  const handleDelete = () => {
+    setFile(null);
   };
 
-  const handleRemoveFile = () => {};
+  const queryClient = useQueryClient();
+  const uploadConfig = {
+    headers: {
+      'content-type': 'multipart/form-data',
+    },
+  };
+  const { mutate: handleUploadPaymentFile } = useMutation({
+    mutationFn: (file) => axios.post(endpoints.files.upload, file, uploadConfig),
+    onSuccess: async ({ data }) => {
+      const { name: filename } = data;
+      if (filename) {
+        const { current: payload } = store;
+        payload.attachments = filename;
+        await handler(payload);
+      }
+      return data;
+    },
+    onSettled: async () => {
+      setFile(null);
+      store.current = {};
+      await queryClient.invalidateQueries({ queryKey: ['payments-images'] });
+    },
+    onError: (err) => {
+      console.log(err);
+    },
+  });
+  // //! Upload Logic END
 
-  const handleRemoveAllFiles = () => {};
   const defaultValues = {
     amount: 0,
     paymentType: '',
@@ -50,7 +88,15 @@ const OrderPaymentDetailsDialog = ({ order, payment, open, onClose, handler }) =
   const onSubmit = handleSubmit(async (data) => {
     try {
       const payload = { ...data, orderId: order.id, customerId: order.customer.id };
-      await handler(payload);
+      if (file) {
+        store.current = { ...payload };
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('category', 'Payment');
+        await handleUploadPaymentFile(formData);
+      } else {
+        await handler(payload);
+      }
       reset();
     } catch (error) {
       console.log(error);
@@ -178,11 +224,15 @@ const OrderPaymentDetailsDialog = ({ order, payment, open, onClose, handler }) =
             >
               <Box>
                 <Field.Select name="paymentType" label="Payment Type">
-                  <MenuItem value={'Cash'}>Cash</MenuItem>
-                  <MenuItem value={'Transfer'}>Transfer</MenuItem>
-                  <MenuItem value={'Card'}>Card</MenuItem>
+                  <MenuItem value="Cash">Cash</MenuItem>
+                  <MenuItem value="Transfer">Transfer</MenuItem>
+                  <MenuItem value="Card">Card</MenuItem>
                 </Field.Select>
               </Box>
+              <Stack spacing={1.5}>
+                <Typography variant="subtitle2">Attachments</Typography>
+                <Upload value={file} onDrop={handleDropSingleFile} onDelete={handleDelete} />
+              </Stack>
             </Box>
           </Stack>
         </DialogContent>
@@ -190,7 +240,14 @@ const OrderPaymentDetailsDialog = ({ order, payment, open, onClose, handler }) =
           <LoadingButton type="submit" variant="contained">
             Save
           </LoadingButton>
-          <Button color="inherit" variant="outlined" onClick={onClose}>
+          <Button
+            color="inherit"
+            variant="outlined"
+            onClick={() => {
+              onClose();
+              setFile(null);
+            }}
+          >
             Cancel
           </Button>
         </DialogActions>

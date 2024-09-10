@@ -1,22 +1,24 @@
-import { zodResolver } from '@hookform/resolvers/zod';
-import { LoadingButton } from '@mui/lab';
-import { Button, DialogActions, DialogTitle } from '@mui/material';
-import Box from '@mui/material/Box';
-import Dialog from '@mui/material/Dialog';
-import DialogContent from '@mui/material/DialogContent';
-import Divider from '@mui/material/Divider';
-import Stack from '@mui/material/Stack';
-import Typography from '@mui/material/Typography';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
 import dayjs from 'dayjs';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { Field, Form, schemaHelper } from 'src/components/hook-form';
-import { Scrollbar } from 'src/components/scrollbar';
-import { Upload } from 'src/components/upload';
-import axios, { endpoints } from 'src/utils/axios';
 import { z as zod } from 'zod';
-import { toast } from 'src/components/snackbar';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useRef, useMemo, useState, useEffect, useCallback } from 'react';
+
+import Box from '@mui/material/Box';
+import Stack from '@mui/material/Stack';
+import { LoadingButton } from '@mui/lab';
+import Dialog from '@mui/material/Dialog';
+import Divider from '@mui/material/Divider';
+import Typography from '@mui/material/Typography';
+import DialogContent from '@mui/material/DialogContent';
+import { Button, DialogTitle, DialogActions } from '@mui/material';
+
+import axios, { endpoints } from 'src/utils/axios';
+
+import { Upload } from 'src/components/upload';
+import { Scrollbar } from 'src/components/scrollbar';
+import { Form, Field, schemaHelper } from 'src/components/hook-form';
 
 export const NewReminderSchema = zod.object({
   title: zod.string().min(1, { message: 'title is required!' }),
@@ -115,13 +117,11 @@ const ReminderCreateDialog = ({ currentReminder, open, onClose, handler }) => {
         formData.append('file', file);
         formData.append('category', 'Reminder');
         await handleUploadReminderFile(formData);
-      } else {
-        if (currentReminder) {
+      } else if (currentReminder) {
           await handler({ id: currentReminder.id, payload });
         } else {
           await handler(payload);
         }
-      }
       onClose();
       store.current = {};
       reset();

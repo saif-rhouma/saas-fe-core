@@ -1,41 +1,41 @@
-import {
-  closestCenter,
-  DndContext,
-  getFirstCollision,
-  KeyboardSensor,
-  MeasuringStrategy,
-  MouseSensor,
-  pointerWithin,
-  rectIntersection,
-  TouchSensor,
-  useSensor,
-  useSensors,
-} from '@dnd-kit/core';
+import { useRef, useState, useEffect, useCallback } from 'react';
 import {
   arrayMove,
-  horizontalListSortingStrategy,
   SortableContext,
   verticalListSortingStrategy,
+  horizontalListSortingStrategy,
 } from '@dnd-kit/sortable';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import {
+  useSensor,
+  DndContext,
+  useSensors,
+  MouseSensor,
+  TouchSensor,
+  closestCenter,
+  pointerWithin,
+  KeyboardSensor,
+  rectIntersection,
+  getFirstCollision,
+  MeasuringStrategy,
+} from '@dnd-kit/core';
 
-import FormControlLabel from '@mui/material/FormControlLabel';
 import Stack from '@mui/material/Stack';
 import Switch from '@mui/material/Switch';
 import Typography from '@mui/material/Typography';
+import FormControlLabel from '@mui/material/FormControlLabel';
 
-import { moveColumn, moveTask } from 'src/actions/kanban';
-import { DashboardContent } from 'src/layouts/dashboard';
 import { hideScrollY } from 'src/theme/styles';
+import { DashboardContent } from 'src/layouts/dashboard';
+import { moveTask, moveColumn } from 'src/actions/kanban';
 
 import { EmptyContent } from 'src/components/empty-content';
 
 import { kanbanClasses } from '../classes';
-import { KanbanColumn } from '../column/kanban-column';
-import { KanbanDragOverlay } from '../components/kanban-drag-overlay';
-import { KanbanColumnSkeleton } from '../components/kanban-skeleton';
-import { KanbanTaskItem } from '../item/kanban-task-item';
 import { coordinateGetter } from '../utils';
+import { KanbanColumn } from '../column/kanban-column';
+import { KanbanTaskItem } from '../item/kanban-task-item';
+import { KanbanColumnSkeleton } from '../components/kanban-skeleton';
+import { KanbanDragOverlay } from '../components/kanban-drag-overlay';
 
 // ----------------------------------------------------------------------
 

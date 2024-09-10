@@ -433,7 +433,7 @@ const datares = {
   },
 };
 
-/***************************** */
+/** *************************** */
 
 export function KanbanView() {
   const { board, boardLoading, boardEmpty } = useGetBoard();

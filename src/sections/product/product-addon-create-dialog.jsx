@@ -1,19 +1,18 @@
+import Stack from '@mui/material/Stack';
 import { LoadingButton } from '@mui/lab';
-import {
-  Button,
-  DialogActions,
-  DialogTitle,
-  Divider,
-  FormControlLabel,
-  Switch,
-  TextField,
-} from '@mui/material';
 import Dialog from '@mui/material/Dialog';
 import DialogContent from '@mui/material/DialogContent';
-import Stack from '@mui/material/Stack';
+import {
+  Button,
+  Switch,
+  Divider,
+  TextField,
+  DialogTitle,
+  DialogActions,
+  FormControlLabel,
+} from '@mui/material';
 
-const ProductAddonCreateDialog = ({ addon, open, onClose }) => {
-  return (
+const ProductAddonCreateDialog = ({ addon, open, onClose }) => (
     <Dialog fullWidth open={open} onClose={onClose}>
       <DialogTitle>Add Addon</DialogTitle>
       <Divider />
@@ -47,5 +46,4 @@ const ProductAddonCreateDialog = ({ addon, open, onClose }) => {
       </DialogActions>
     </Dialog>
   );
-};
 export default ProductAddonCreateDialog;

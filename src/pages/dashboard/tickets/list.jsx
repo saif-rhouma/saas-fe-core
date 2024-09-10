@@ -1,11 +1,13 @@
 import { Helmet } from 'react-helmet-async';
-
-import { CONFIG } from 'src/config-global';
-import TicketsListView from 'src/sections/tickets/view/tickets-list-view';
-import { LoadingScreen } from 'src/components/loading-screen';
+import { useQuery } from '@tanstack/react-query';
 
 import axios, { endpoints } from 'src/utils/axios';
-import { useQuery } from '@tanstack/react-query';
+
+import { CONFIG } from 'src/config-global';
+
+import { LoadingScreen } from 'src/components/loading-screen';
+
+import TicketsListView from 'src/sections/tickets/view/tickets-list-view';
 // ----------------------------------------------------------------------
 
 const metadata = { title: `Tickets list | Dashboard - ${CONFIG.site.name}` };

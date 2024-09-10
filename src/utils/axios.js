@@ -67,6 +67,7 @@ export const endpoints = {
     list: '/api/plans/',
     details: '/api/plans/',
     create: '/api/plans/create',
+    edit: '/api/plans/',
   },
   customers: {
     list: '/api/customers/',
@@ -86,7 +87,7 @@ export const endpoints = {
     list: '/api/payments/',
     create: '/api/payments/create',
     delete: '/api/payments/',
-    // details: '/api/payments/',
+    edit: '/api/payments/',
   },
   tickets: {
     list: '/api/tickets/',

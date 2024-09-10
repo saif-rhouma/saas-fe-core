@@ -1,15 +1,14 @@
-import { Button, DialogActions } from '@mui/material';
 import Box from '@mui/material/Box';
-import Dialog from '@mui/material/Dialog';
-import DialogContent from '@mui/material/DialogContent';
 import Stack from '@mui/material/Stack';
+import Dialog from '@mui/material/Dialog';
+import { Button, DialogActions } from '@mui/material';
+import DialogContent from '@mui/material/DialogContent';
 
-const TicketsCloseDialog = ({ open, onClose, handler }) => {
-  return (
+const TicketsCloseDialog = ({ open, onClose, handler }) => (
     <Dialog open={open} onClose={onClose}>
       <DialogContent>
-        <Stack spacing={1} alignItems={'center'}>
-          <Box></Box>
+        <Stack spacing={1} alignItems="center">
+          <Box />
           <strong>Are you sure?</strong>
           <p>Do you want to mark seleted ticket as closed.</p>
         </Stack>
@@ -24,5 +23,4 @@ const TicketsCloseDialog = ({ open, onClose, handler }) => {
       </DialogActions>
     </Dialog>
   );
-};
 export default TicketsCloseDialog;

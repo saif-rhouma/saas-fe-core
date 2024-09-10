@@ -1,11 +1,11 @@
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState, useEffect } from 'react';
 
 import Stack from '@mui/material/Stack';
 
 import { varAlpha } from 'src/theme/styles';
 
-import { usePopover } from 'src/components/custom-popover';
 import { Label } from 'src/components/label';
+import { usePopover } from 'src/components/custom-popover';
 
 import { KanbanInputName } from '../components/kanban-input-name';
 
@@ -27,8 +27,7 @@ export function KanbanColumnToolBar({ columnName, totalTasks }) {
   }, [popover.open]);
 
   return (
-    <>
-      <Stack direction="row" alignItems="center">
+    <Stack direction="row" alignItems="center">
         <Label
           sx={{
             borderRadius: '50%',
@@ -46,6 +45,5 @@ export function KanbanColumnToolBar({ columnName, totalTasks }) {
           sx={{ mx: 1 }}
         />
       </Stack>
-    </>
   );
 }

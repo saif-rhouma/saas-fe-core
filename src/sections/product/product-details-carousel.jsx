@@ -2,15 +2,15 @@ import { useEffect } from 'react';
 
 import Box from '@mui/material/Box';
 
-import {
-  Carousel,
-  CarouselArrowNumberButtons,
-  CarouselThumb,
-  CarouselThumbs,
-  useCarousel,
-} from 'src/components/carousel';
 import { Image } from 'src/components/image';
 import { Lightbox, useLightBox } from 'src/components/lightbox';
+import {
+  Carousel,
+  useCarousel,
+  CarouselThumb,
+  CarouselThumbs,
+  CarouselArrowNumberButtons,
+} from 'src/components/carousel';
 
 // ----------------------------------------------------------------------
 

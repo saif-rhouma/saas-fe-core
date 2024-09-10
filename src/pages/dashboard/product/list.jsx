@@ -1,10 +1,13 @@
 import { Helmet } from 'react-helmet-async';
+import { useQuery } from '@tanstack/react-query';
+
+import axios, { endpoints } from 'src/utils/axios';
 
 import { CONFIG } from 'src/config-global';
-import { ProductListView } from 'src/sections/product/view';
-import { useQuery } from '@tanstack/react-query';
-import axios, { endpoints } from 'src/utils/axios';
+
 import { LoadingScreen } from 'src/components/loading-screen';
+
+import { ProductListView } from 'src/sections/product/view';
 // ----------------------------------------------------------------------
 
 const metadata = { title: `Product list | Dashboard - ${CONFIG.site.name}` };

@@ -1,10 +1,10 @@
-import { useCallback, useState } from 'react';
+import { useState, useCallback } from 'react';
 
-import InputAdornment from '@mui/material/InputAdornment';
-import MenuItem from '@mui/material/MenuItem';
-import Select from '@mui/material/Select';
 import Stack from '@mui/material/Stack';
+import Select from '@mui/material/Select';
+import MenuItem from '@mui/material/MenuItem';
 import TextField from '@mui/material/TextField';
+import InputAdornment from '@mui/material/InputAdornment';
 
 import { Iconify } from 'src/components/iconify';
 
@@ -56,9 +56,9 @@ export function TicketsTableToolbar({ filters, onResetPage }) {
         value={selectedStatus}
         onChange={handleFilterStatus}
       >
-        <MenuItem value={'all'}>All Tickets</MenuItem>
-        <MenuItem value={'Open'}>Open Tickets</MenuItem>
-        <MenuItem value={'Closed'}>Close Tickets</MenuItem>
+        <MenuItem value="all">All Tickets</MenuItem>
+        <MenuItem value="Open">Open Tickets</MenuItem>
+        <MenuItem value="Closed">Close Tickets</MenuItem>
       </Select>
     </Stack>
   );

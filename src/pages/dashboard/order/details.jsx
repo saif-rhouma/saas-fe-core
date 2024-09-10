@@ -1,13 +1,15 @@
 import { Helmet } from 'react-helmet-async';
+import { useQuery } from '@tanstack/react-query';
 
 import { useParams } from 'src/routes/hooks';
 
+import axios, { endpoints } from 'src/utils/axios';
+
 import { CONFIG } from 'src/config-global';
 
-import { OrderDetailsView } from 'src/sections/order/view';
-import { useQuery } from '@tanstack/react-query';
-import axios, { endpoints } from 'src/utils/axios';
 import { LoadingScreen } from 'src/components/loading-screen';
+
+import { OrderDetailsView } from 'src/sections/order/view';
 // ----------------------------------------------------------------------
 
 const metadata = { title: `Order details | Dashboard - ${CONFIG.site.name}` };

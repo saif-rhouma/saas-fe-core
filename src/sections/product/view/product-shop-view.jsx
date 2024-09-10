@@ -1,7 +1,7 @@
-import { useCallback, useState } from 'react';
+import { useState, useCallback } from 'react';
 
-import Container from '@mui/material/Container';
 import Stack from '@mui/material/Stack';
+import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
 
 import { useBoolean } from 'src/hooks/use-boolean';
@@ -10,24 +10,24 @@ import { useSetState } from 'src/hooks/use-set-state';
 
 import { orderBy } from 'src/utils/helper';
 
+import { useSearchProducts } from 'src/actions/product';
 import {
-  PRODUCT_CATEGORY_OPTIONS,
+  PRODUCT_SORT_OPTIONS,
   PRODUCT_COLOR_OPTIONS,
   PRODUCT_GENDER_OPTIONS,
   PRODUCT_RATING_OPTIONS,
-  PRODUCT_SORT_OPTIONS,
+  PRODUCT_CATEGORY_OPTIONS,
 } from 'src/_mock';
-import { useSearchProducts } from 'src/actions/product';
 
 import { EmptyContent } from 'src/components/empty-content';
 
-import { useCheckoutContext } from '../../checkout/context';
+import { ProductList } from '../product-list';
+import { ProductSort } from '../product-sort';
+import { ProductSearch } from '../product-search';
 import { CartIcon } from '../components/cart-icon';
 import { ProductFilters } from '../product-filters';
+import { useCheckoutContext } from '../../checkout/context';
 import { ProductFiltersResult } from '../product-filters-result';
-import { ProductList } from '../product-list';
-import { ProductSearch } from '../product-search';
-import { ProductSort } from '../product-sort';
 
 // ----------------------------------------------------------------------
 

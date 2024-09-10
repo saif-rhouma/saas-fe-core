@@ -1,10 +1,10 @@
-import { useCallback, useState } from 'react';
+import { useState, useCallback } from 'react';
 
-import InputAdornment from '@mui/material/InputAdornment';
-import MenuItem from '@mui/material/MenuItem';
-import Select from '@mui/material/Select';
 import Stack from '@mui/material/Stack';
+import Select from '@mui/material/Select';
+import MenuItem from '@mui/material/MenuItem';
 import TextField from '@mui/material/TextField';
+import InputAdornment from '@mui/material/InputAdornment';
 
 import { Iconify } from 'src/components/iconify';
 
@@ -55,10 +55,10 @@ export function OrderTableToolbar({ filters, onResetPage }) {
         value={selectedStatus}
         onChange={handleFilterStatus}
       >
-        <MenuItem value={'all'}>All Orders</MenuItem>
-        <MenuItem value={'InProcess'}>Processing</MenuItem>
-        <MenuItem value={'Ready'}>Ready To Deliver</MenuItem>
-        <MenuItem value={'Delivered'}>Delivered</MenuItem>
+        <MenuItem value="all">All Orders</MenuItem>
+        <MenuItem value="InProcess">Processing</MenuItem>
+        <MenuItem value="Ready">Ready To Deliver</MenuItem>
+        <MenuItem value="Delivered">Delivered</MenuItem>
       </Select>
     </Stack>
   );

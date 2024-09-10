@@ -2,7 +2,8 @@ import { useCallback } from 'react';
 
 import Stack from '@mui/material/Stack';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-import { InputAdornment, MenuItem, Select, TextField } from '@mui/material';
+import { Select, MenuItem, TextField, InputAdornment } from '@mui/material';
+
 import { Iconify } from 'src/components/iconify';
 
 // ----------------------------------------------------------------------

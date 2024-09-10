@@ -1,11 +1,13 @@
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
-import CardHeader from '@mui/material/CardHeader';
 import Stack from '@mui/material/Stack';
+import CardHeader from '@mui/material/CardHeader';
+
+import { fDate } from 'src/utils/format-time';
 
 import { Label } from 'src/components/label';
 import { Scrollbar } from 'src/components/scrollbar';
-import { fDate } from 'src/utils/format-time';
+
 import PlanProductTable from './plan-product-table';
 
 // ----------------------------------------------------------------------
@@ -75,7 +77,7 @@ export function PlanDetailsItems({ plan, products }) {
           >
             <div>Plan Status</div>
           </Stack>
-          <Label variant="soft" color={'warning'}>
+          <Label variant="soft" color="warning">
             {plan?.status}
           </Label>
         </Box>

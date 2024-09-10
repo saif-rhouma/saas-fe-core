@@ -6,20 +6,20 @@ import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 
 import { PlanNewEditForm } from '../plan-new-edit-form';
 
-export function PlanCreateView({ products }) {
+export function PlanEditView({ products, plan }) {
   return (
     <DashboardContent>
       <CustomBreadcrumbs
-        heading="Create a new Plan"
+        heading="Edit Plan"
         links={[
           { name: 'Dashboard', href: paths.dashboard.root },
           { name: 'Plan', href: paths.dashboard.plan.root },
-          { name: 'Add Plan' },
+          { name: 'Edit Plan' },
         ]}
         sx={{ mb: { xs: 3, md: 5 } }}
       />
 
-      <PlanNewEditForm products={products} />
+      <PlanNewEditForm products={products} plan={plan} />
     </DashboardContent>
   );
 }

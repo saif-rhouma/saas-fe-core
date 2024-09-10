@@ -1,51 +1,46 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 
-import { useTheme } from '@mui/material';
 import Box from '@mui/material/Box';
-import Button from '@mui/material/Button';
 import Card from '@mui/material/Card';
-import IconButton from '@mui/material/IconButton';
 import Table from '@mui/material/Table';
-import TableBody from '@mui/material/TableBody';
+import Button from '@mui/material/Button';
 import Tooltip from '@mui/material/Tooltip';
+import TableBody from '@mui/material/TableBody';
 import Grid from '@mui/material/Unstable_Grid2';
+import IconButton from '@mui/material/IconButton';
 
-import { useRouter } from 'src/routes/hooks';
 import { paths } from 'src/routes/paths';
+import { useRouter } from 'src/routes/hooks';
+import { RouterLink } from 'src/routes/components';
 
 import { useBoolean } from 'src/hooks/use-boolean';
 import { useSetState } from 'src/hooks/use-set-state';
 
 import { fIsAfter, fIsBetween } from 'src/utils/format-time';
 
-import { _orders, ORDER_STATUS_OPTIONS } from 'src/_mock';
 import { DashboardContent } from 'src/layouts/dashboard';
 
-import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
-import { ConfirmDialog } from 'src/components/custom-dialog';
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
-import { toast } from 'src/components/snackbar';
+import { ConfirmDialog } from 'src/components/custom-dialog';
+import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 import {
+  useTable,
   emptyRows,
-  getComparator,
   rowInPage,
+  TableNoData,
+  getComparator,
   TableEmptyRows,
   TableHeadCustom,
-  TableNoData,
-  TablePaginationCustom,
   TableSelectedAction,
-  useTable,
+  TablePaginationCustom,
 } from 'src/components/table';
 
-import { PlanTableFiltersResult } from '../plan-table-filters-result';
 import { PlanTableRow } from '../plan-table-row';
 import { PlanTableToolbar } from '../plan-table-toolbar';
-import { RouterLink } from 'src/routes/components';
+import { PlanTableFiltersResult } from '../plan-table-filters-result';
 
 // ----------------------------------------------------------------------
-
-const STATUS_OPTIONS = [{ value: 'all', label: 'All' }, ...ORDER_STATUS_OPTIONS];
 
 const TABLE_HEAD = [
   { id: 'planId', label: 'Plan ID', width: 60 },
@@ -68,8 +63,6 @@ export function PlanListView({ plans }) {
   const table = useTable({ defaultOrderBy: 'planId' });
 
   const router = useRouter();
-
-  const theme = useTheme();
 
   const confirm = useBoolean();
 
@@ -95,7 +88,7 @@ export function PlanListView({ plans }) {
     dateError,
   });
 
-  // const dataInPage = rowInPage(dataFiltered, table.page, table.rowsPerPage);
+  const dataInPage = rowInPage(dataFiltered, table.page, table.rowsPerPage);
 
   const canReset =
     !!filters.state.name ||
@@ -133,6 +126,13 @@ export function PlanListView({ plans }) {
   const handleViewRow = useCallback(
     (id) => {
       router.push(paths.dashboard.plan.details(id));
+    },
+    [router]
+  );
+
+  const handleEditRow = useCallback(
+    (id) => {
+      router.push(paths.dashboard.plan.edit(id));
     },
     [router]
   );
@@ -229,6 +229,7 @@ export function PlanListView({ plans }) {
                             onSelectRow={() => table.onSelectRow(row.id)}
                             onDeleteRow={() => handleDeleteRow(row.id)}
                             onViewRow={() => handleViewRow(row.id)}
+                            onEditRow={() => handleEditRow(row.id)}
                           />
                         ))}
 
@@ -299,9 +300,10 @@ function applyFilter({ inputData, comparator, filters, dateError }) {
   if (name) {
     inputData = inputData.filter(
       (order) =>
-        order.orderNumber.toLowerCase().indexOf(name.toLowerCase()) !== -1 ||
-        order.customer.name.toLowerCase().indexOf(name.toLowerCase()) !== -1 ||
-        order.customer.email.toLowerCase().indexOf(name.toLowerCase()) !== -1
+        order.id.toString().toLowerCase().indexOf(name.toLowerCase()) !== -1 ||
+        order.product.name.toLowerCase().indexOf(name.toLowerCase()) !== -1 ||
+        order.createdBy.firstName.toLowerCase().indexOf(name.toLowerCase()) !== -1 ||
+        order.createdBy.lastName.toLowerCase().indexOf(name.toLowerCase()) !== -1
     );
   }
 

@@ -1,15 +1,11 @@
+import { useState, useEffect } from 'react';
 import { useSortable } from '@dnd-kit/sortable';
-import { useState, useEffect, useCallback } from 'react';
 
 import { useBoolean } from 'src/hooks/use-boolean';
 
-import { deleteTask, updateTask } from 'src/actions/kanban';
-
-import { toast } from 'src/components/snackbar';
 import { imageClasses } from 'src/components/image';
 
 import ItemBase from './item-base';
-import { KanbanDetails } from '../details/kanban-details';
 
 // ----------------------------------------------------------------------
 

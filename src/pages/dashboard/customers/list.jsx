@@ -1,13 +1,13 @@
 import { Helmet } from 'react-helmet-async';
-
-import { CONFIG } from 'src/config-global';
-
-import CustomersListView from 'src/sections/customers/view/customers-list-view';
-
-import { LoadingScreen } from 'src/components/loading-screen';
 import { useQuery } from '@tanstack/react-query';
 
 import axios, { endpoints } from 'src/utils/axios';
+
+import { CONFIG } from 'src/config-global';
+
+import { LoadingScreen } from 'src/components/loading-screen';
+
+import CustomersListView from 'src/sections/customers/view/customers-list-view';
 
 // ----------------------------------------------------------------------
 

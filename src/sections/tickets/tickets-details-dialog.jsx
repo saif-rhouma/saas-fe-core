@@ -1,12 +1,14 @@
-import { Button, DialogActions, DialogTitle } from '@mui/material';
 import Box from '@mui/material/Box';
-import Dialog from '@mui/material/Dialog';
-import DialogContent from '@mui/material/DialogContent';
-import Divider from '@mui/material/Divider';
 import Stack from '@mui/material/Stack';
+import Dialog from '@mui/material/Dialog';
+import Divider from '@mui/material/Divider';
 import Typography from '@mui/material/Typography';
-import { Iconify } from 'src/components/iconify';
+import DialogContent from '@mui/material/DialogContent';
+import { Button, DialogTitle, DialogActions } from '@mui/material';
+
 import { Label } from 'src/components/label';
+import { Iconify } from 'src/components/iconify';
+
 import TicketsPreviousMessageDialog from './tickets-previous-message-dialog';
 
 const TicketsDetailsDialog = ({ ticket, open, onClose }) => {

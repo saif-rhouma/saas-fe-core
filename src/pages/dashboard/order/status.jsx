@@ -1,15 +1,13 @@
-import { useQuery } from '@tanstack/react-query';
-import { nanoid } from 'nanoid';
-import { useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
-import { LoadingScreen } from 'src/components/loading-screen';
-
-import { CONFIG } from 'src/config-global';
-import { OrderStatusView } from 'src/sections/kanban/view/order-status-view';
-
-import { OrderListView } from 'src/sections/order/view';
+import { useQuery } from '@tanstack/react-query';
 
 import axios, { endpoints } from 'src/utils/axios';
+
+import { CONFIG } from 'src/config-global';
+
+import { LoadingScreen } from 'src/components/loading-screen';
+
+import { OrderStatusView } from 'src/sections/kanban/view/order-status-view';
 // ----------------------------------------------------------------------
 const columns = [
   {
@@ -388,7 +386,7 @@ const datares = {
   },
 };
 
-/***************************** */
+/** *************************** */
 const metadata = { title: `Order Status | Dashboard - ${CONFIG.site.name}` };
 
 export default function Page() {

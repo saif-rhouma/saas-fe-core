@@ -76,6 +76,7 @@ export function Upload({
         {...getRootProps()}
         sx={{
           p: 5,
+
           outline: 'none',
           borderRadius: 1,
           cursor: 'pointer',

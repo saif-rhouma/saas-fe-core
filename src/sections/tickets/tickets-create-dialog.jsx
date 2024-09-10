@@ -1,22 +1,25 @@
-import { zodResolver } from '@hookform/resolvers/zod';
-import { LoadingButton } from '@mui/lab';
-import { Button, DialogActions, DialogTitle, MenuItem, Select, TextField } from '@mui/material';
-import Box from '@mui/material/Box';
-import Dialog from '@mui/material/Dialog';
-import DialogContent from '@mui/material/DialogContent';
-import Divider from '@mui/material/Divider';
-import Stack from '@mui/material/Stack';
-import Typography from '@mui/material/Typography';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useCallback, useMemo, useRef, useState } from 'react';
+import { z as zod } from 'zod';
 import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useRef, useMemo, useState, useCallback } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+
+import Box from '@mui/material/Box';
+import Stack from '@mui/material/Stack';
+import { LoadingButton } from '@mui/lab';
+import Dialog from '@mui/material/Dialog';
+import Divider from '@mui/material/Divider';
+import Typography from '@mui/material/Typography';
+import DialogContent from '@mui/material/DialogContent';
+import { Button, MenuItem, DialogTitle, DialogActions } from '@mui/material';
+
+import axios, { endpoints } from 'src/utils/axios';
+
+import { Upload } from 'src/components/upload';
+import { toast } from 'src/components/snackbar';
+import { Scrollbar } from 'src/components/scrollbar';
 import { Form, Field } from 'src/components/hook-form';
 import { LoadingScreen } from 'src/components/loading-screen';
-import { Scrollbar } from 'src/components/scrollbar';
-import { toast } from 'src/components/snackbar';
-import { Upload } from 'src/components/upload';
-import axios, { endpoints } from 'src/utils/axios';
-import { z as zod } from 'zod';
 
 export const NewTicketSchema = zod.object({
   topic: zod.string().min(1, { message: 'Topic is required!' }),
@@ -163,9 +166,9 @@ const TicketsCreateDialog = ({ currentTicket, open, onClose }) => {
                 label="Select a Priority"
                 sx={{ width: 420, textTransform: 'capitalize' }}
               >
-                <MenuItem value={'Low'}>Low</MenuItem>
-                <MenuItem value={'Medium'}>Medium</MenuItem>
-                <MenuItem value={'Hight'}>Hight</MenuItem>
+                <MenuItem value="Low">Low</MenuItem>
+                <MenuItem value="Medium">Medium</MenuItem>
+                <MenuItem value="Hight">Hight</MenuItem>
               </Field.Select>
 
               <Field.Select

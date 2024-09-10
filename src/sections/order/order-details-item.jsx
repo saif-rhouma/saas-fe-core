@@ -1,11 +1,13 @@
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
-import CardHeader from '@mui/material/CardHeader';
 import Stack from '@mui/material/Stack';
+import CardHeader from '@mui/material/CardHeader';
+
+import { fDate } from 'src/utils/format-time';
+import { fCurrency } from 'src/utils/format-number';
 
 import { Scrollbar } from 'src/components/scrollbar';
-import { fCurrency } from 'src/utils/format-number';
-import { fDate } from 'src/utils/format-time';
+
 import OrderProductTable from './order-product-table';
 
 // ----------------------------------------------------------------------
@@ -134,7 +136,7 @@ export function OrderDetailsItems({
             borderBottom: (theme) => `dashed 2px ${theme.vars.palette.background.neutral}`,
           }}
         >
-          <OrderProductTable products={order.productToOrder} isDetail={true} />
+          <OrderProductTable products={order.productToOrder} isDetail />
         </Box>
       </Scrollbar>
 

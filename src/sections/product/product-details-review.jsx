@@ -1,15 +1,15 @@
 import Box from '@mui/material/Box';
-import Button from '@mui/material/Button';
-import Divider from '@mui/material/Divider';
-import LinearProgress from '@mui/material/LinearProgress';
-import Rating from '@mui/material/Rating';
 import Stack from '@mui/material/Stack';
+import Button from '@mui/material/Button';
+import Rating from '@mui/material/Rating';
+import Divider from '@mui/material/Divider';
 import Typography from '@mui/material/Typography';
+import LinearProgress from '@mui/material/LinearProgress';
 
 import { useBoolean } from 'src/hooks/use-boolean';
 
-import { fShortenNumber } from 'src/utils/format-number';
 import { sumBy } from 'src/utils/helper';
+import { fShortenNumber } from 'src/utils/format-number';
 
 import { Iconify } from 'src/components/iconify';
 

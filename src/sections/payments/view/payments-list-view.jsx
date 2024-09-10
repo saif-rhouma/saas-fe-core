@@ -1,42 +1,43 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 
-import { Stack, useTheme } from '@mui/material';
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
+import { Stack } from '@mui/material';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 
-import { useRouter } from 'src/routes/hooks';
 import { paths } from 'src/routes/paths';
+import { useRouter } from 'src/routes/hooks';
 
 import { useBoolean } from 'src/hooks/use-boolean';
 import { useSetState } from 'src/hooks/use-set-state';
 
+import axios, { endpoints } from 'src/utils/axios';
 import { fIsAfter, fIsBetween } from 'src/utils/format-time';
 
-import { _orders, ORDER_STATUS_OPTIONS } from 'src/_mock';
+import { ORDER_STATUS_OPTIONS } from 'src/_mock';
 import { DashboardContent } from 'src/layouts/dashboard';
 
-import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
-import { Scrollbar } from 'src/components/scrollbar';
 import { toast } from 'src/components/snackbar';
+import { Scrollbar } from 'src/components/scrollbar';
+import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 import {
+  useTable,
   emptyRows,
-  getComparator,
   rowInPage,
+  TableNoData,
+  getComparator,
   TableEmptyRows,
   TableHeadCustom,
-  TableNoData,
-  TablePaginationCustom,
   TableSelectedAction,
-  useTable,
+  TablePaginationCustom,
 } from 'src/components/table';
-import PaymentEditDialog from '../payment-edit-dialog';
+
 import PaymentsTableRow from '../payments-table-row';
-import { PaymentsTableToolbar } from '../payments-table-toolbar';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import axios, { endpoints } from 'src/utils/axios';
+import PaymentEditDialog from '../payment-edit-dialog';
 import PaymentDetailsDialog from '../payments-details-dialog';
+import { PaymentsTableToolbar } from '../payments-table-toolbar';
 // ----------------------------------------------------------------------
 
 const STATUS_OPTIONS = [{ value: 'all', label: 'All' }, ...ORDER_STATUS_OPTIONS];
@@ -108,7 +109,9 @@ const PaymentsListView = ({ payments }) => {
 
   const queryClient = useQueryClient();
   const { mutate: deletePayment } = useMutation({
-    mutationFn: (id) => axios.delete(endpoints.payments.delete + id),
+    mutationFn: (id) => {
+      axios.delete(endpoints.payments.delete + id);
+    },
     onSuccess: () => {
       toast.success('Delete success!');
       confirm.onFalse();
@@ -137,6 +140,21 @@ const PaymentsListView = ({ payments }) => {
     },
     [dataInPage.length, table, tableData]
   );
+
+  const { mutate: handleEditPayment } = useMutation({
+    mutationFn: ({ id, payload }) => axios.patch(endpoints.payments.edit + id, payload),
+    onSuccess: async () => {
+      toast.success('New Payment Has Been Modified!');
+    },
+    onSettled: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['payments'] });
+      await queryClient.invalidateQueries({ queryKey: ['orders'] });
+      dialogEdit.onFalse();
+    },
+    onError: (err) => {
+      console.log(err);
+    },
+  });
 
   return (
     <>
@@ -216,11 +234,12 @@ const PaymentsListView = ({ payments }) => {
         open={dialog.value}
         onClose={dialog.onFalse}
       />
-      {/* <PaymentEditDialog
+      <PaymentEditDialog
         payment={selectedPayment}
         open={dialogEdit.value}
         onClose={dialogEdit.onFalse}
-      /> */}
+        handler={handleEditPayment}
+      />
     </>
   );
 };

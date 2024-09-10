@@ -1,10 +1,13 @@
 import { Helmet } from 'react-helmet-async';
+import { useQuery } from '@tanstack/react-query';
+
+import axios, { endpoints } from 'src/utils/axios';
 
 import { CONFIG } from 'src/config-global';
-import PaymentsListView from 'src/sections/payments/view/payments-list-view';
-import { useQuery } from '@tanstack/react-query';
-import axios, { endpoints } from 'src/utils/axios';
+
 import { LoadingScreen } from 'src/components/loading-screen';
+
+import PaymentsListView from 'src/sections/payments/view/payments-list-view';
 
 // ----------------------------------------------------------------------
 
