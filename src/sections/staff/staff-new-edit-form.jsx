@@ -21,10 +21,25 @@ import { paths } from 'src/routes/paths';
 
 // List of permissions for the checkbox
 const permissions = [
-  'Order List', 'View Order', 'Download Order Attachment', 'Add Plan', 'Delete Plan', 
-  'Add Customer', 'Add Service', 'Edit Service', 'Order Report', 'Order Due Report', 
-  'Financial List', 'Master Settings', 'Add Staff', 'Edit Staff', 'Add Payment', 
-  'Delete Payment', 'Edit Reminder', 'Create Ticket', 'Reply Ticket'
+  'Order List',
+  'View Order',
+  'Download Order Attachment',
+  'Add Plan',
+  'Delete Plan',
+  'Add Customer',
+  'Add Service',
+  'Edit Service',
+  'Order Report',
+  'Order Due Report',
+  'Financial List',
+  'Master Settings',
+  'Add Staff',
+  'Edit Staff',
+  'Add Payment',
+  'Delete Payment',
+  'Edit Reminder',
+  'Create Ticket',
+  'Reply Ticket',
   // Add more permissions based on your needs
 ];
 
@@ -39,7 +54,6 @@ export const NewStaffSchema = zod.object({
 });
 
 export function StaffNewEditForm({ currentStaff }) {
-  console.log('currentStaff', currentStaff)
   const router = useRouter();
 
   const defaultValues = useMemo(
@@ -101,8 +115,6 @@ export function StaffNewEditForm({ currentStaff }) {
             {/* password field will be hidden */}
             <TextField label="Password" type="password" {...methods.register('staffPassword')} />
           </Box>
-          
-          
         </Stack>
       </Card>
 
@@ -143,18 +155,15 @@ export function StaffNewEditForm({ currentStaff }) {
             label="Is Active?"
           />
           <Box display="flex" justifyContent="flex-end" mt={2}>
-        <Button type="submit" variant="contained" disabled={isSubmitting}>
-          Submit
-        </Button>
-        <Button variant="outlined" onClick={() => reset()} sx={{ ml: 2 }}>
-          Cancel
-        </Button>
-      </Box>
+            <Button type="submit" variant="contained" disabled={isSubmitting}>
+              Submit
+            </Button>
+            <Button variant="outlined" onClick={() => reset()} sx={{ ml: 2 }}>
+              Cancel
+            </Button>
+          </Box>
         </Stack>
-        
       </Card>
-
-      
     </Form>
   );
 }

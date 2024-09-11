@@ -84,9 +84,9 @@ export const navData = [
         path: paths.dashboard.tools.root,
         icon: ICONS.course,
         children: [
-          { title: 'Account Settings', path: paths.dashboard.user.root },
-          { title: 'Financial Year', path: paths.dashboard.user.cards },
-          { title: 'Master Setting', path: paths.dashboard.user.list },
+          { title: 'Account Settings', path: paths.dashboard.tools.root },
+          { title: 'Financial Year', path: paths.dashboard.tools.financial },
+          { title: 'Master Setting', path: paths.dashboard.tools.master },
         ],
       },
       { title: 'Logout', path: paths.dashboard.general.course, icon: ICONS.course },

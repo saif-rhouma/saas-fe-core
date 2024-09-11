@@ -1,48 +1,48 @@
-import { useState, useCallback } from 'react';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useCallback, useEffect, useState } from 'react';
 
+import { Stack } from '@mui/material';
 import Box from '@mui/material/Box';
-import Card from '@mui/material/Card';
-import Table from '@mui/material/Table';
 import Button from '@mui/material/Button';
-import Tooltip from '@mui/material/Tooltip';
-import { Stack, useTheme } from '@mui/material';
-import TableBody from '@mui/material/TableBody';
+import Card from '@mui/material/Card';
 import IconButton from '@mui/material/IconButton';
+import Table from '@mui/material/Table';
+import TableBody from '@mui/material/TableBody';
+import Tooltip from '@mui/material/Tooltip';
 
 import { paths } from 'src/routes/paths';
-import { useRouter } from 'src/routes/hooks';
 
 import { useBoolean } from 'src/hooks/use-boolean';
 import { useSetState } from 'src/hooks/use-set-state';
 
+import axios, { endpoints } from 'src/utils/axios';
 import { fIsAfter, fIsBetween } from 'src/utils/format-time';
 
 import { DashboardContent } from 'src/layouts/dashboard';
-import { _orders, ORDER_STATUS_OPTIONS } from 'src/_mock';
 
-import { toast } from 'src/components/snackbar';
+import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
+import { ConfirmDialog } from 'src/components/custom-dialog';
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
-import { ConfirmDialog } from 'src/components/custom-dialog';
-import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
+import { toast } from 'src/components/snackbar';
 import {
-  useTable,
   emptyRows,
-  rowInPage,
-  TableNoData,
   getComparator,
+  rowInPage,
   TableEmptyRows,
   TableHeadCustom,
-  TableSelectedAction,
+  TableNoData,
   TablePaginationCustom,
+  TableSelectedAction,
+  useTable,
 } from 'src/components/table';
 
 import ProductAddonTableRow from '../product-addon-table-row';
 import { ProductAddonTableToolbar } from '../product-addon-table-toolbar';
+import ProductAddonCreateDialog from '../product-addon-create-dialog';
+import ProductAddonEditDialog from '../product-addon-edit-dialog';
 
 // ----------------------------------------------------------------------
-
-const STATUS_OPTIONS = [{ value: 'all', label: 'All' }, ...ORDER_STATUS_OPTIONS];
 
 const TABLE_HEAD = [
   { id: 'addonId', label: 'No.', width: 60 },
@@ -54,16 +54,17 @@ const TABLE_HEAD = [
 
 // ----------------------------------------------------------------------
 
-export function ProductAddonsView() {
+export function ProductAddonsView({ productAddons }) {
   const table = useTable({ defaultOrderBy: 'planId' });
 
-  const router = useRouter();
-
-  const theme = useTheme();
+  const dialog = useBoolean();
+  const dialogEdit = useBoolean();
 
   const confirm = useBoolean();
 
-  const [tableData, setTableData] = useState(_orders);
+  const [tableData, setTableData] = useState(productAddons);
+
+  const [selectedProductAddon, setSelectedProductAddon] = useState();
 
   const filters = useSetState({
     name: '',
@@ -71,6 +72,10 @@ export function ProductAddonsView() {
     startDate: null,
     endDate: null,
   });
+
+  useEffect(() => {
+    setTableData(productAddons);
+  }, [productAddons]);
 
   const dateError = fIsAfter(filters.state.startDate, filters.state.endDate);
 
@@ -92,6 +97,62 @@ export function ProductAddonsView() {
 
   const handleDeleteRow = useCallback(
     (id) => {
+      deleteProductAddon(id);
+    },
+    [dataInPage.length, table, tableData]
+  );
+
+  const handleDeleteRows = useCallback(() => {
+    // const deleteRows = tableData.filter((row) => !table.selected.includes(row.id));
+    // toast.success('Delete success!');
+    // setTableData(deleteRows);
+    // table.onUpdatePageDeleteRows({
+    //   totalRowsInPage: dataInPage.length,
+    //   totalRowsFiltered: dataFiltered.length,
+    // });
+  }, [dataFiltered.length, dataInPage.length, table, tableData]);
+
+  const handleEditRow = useCallback(
+    (row) => {
+      setSelectedProductAddon(row);
+      dialogEdit.onToggle();
+    },
+    [dataInPage.length, table, tableData]
+  );
+
+  const queryClient = useQueryClient();
+
+  const { mutate: handleCreateProductAddon } = useMutation({
+    mutationFn: (payload) => axios.post(endpoints.productAddons.create, payload),
+    onSuccess: async () => {
+      toast.success('New Product Addon Has Been Created!');
+    },
+    onSettled: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['product-addons'] });
+      dialog.onFalse();
+    },
+    onError: (err) => {
+      console.log(err);
+    },
+  });
+
+  const { mutate: handleEditProductAddon } = useMutation({
+    mutationFn: ({ id, payload }) => axios.patch(endpoints.productAddons.edit + id, payload),
+    onSuccess: async () => {
+      toast.success('New Product Addon Has Been Modified!');
+    },
+    onSettled: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['product-addons'] });
+      dialogEdit.onFalse();
+    },
+    onError: (err) => {
+      console.log(err);
+    },
+  });
+
+  const { mutate: deleteProductAddon } = useMutation({
+    mutationFn: (id) => axios.delete(endpoints.productAddons.delete + id),
+    onSuccess: async (id) => {
       const deleteRow = tableData.filter((row) => row.id !== id);
 
       toast.success('Delete success!');
@@ -100,28 +161,13 @@ export function ProductAddonsView() {
 
       table.onUpdatePageDeleteRow(dataInPage.length);
     },
-    [dataInPage.length, table, tableData]
-  );
-
-  const handleDeleteRows = useCallback(() => {
-    const deleteRows = tableData.filter((row) => !table.selected.includes(row.id));
-
-    toast.success('Delete success!');
-
-    setTableData(deleteRows);
-
-    table.onUpdatePageDeleteRows({
-      totalRowsInPage: dataInPage.length,
-      totalRowsFiltered: dataFiltered.length,
-    });
-  }, [dataFiltered.length, dataInPage.length, table, tableData]);
-
-  const handleViewRow = useCallback(
-    (id) => {
-      router.push(paths.dashboard.order.details(id));
+    onSettled: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['product-addons'] });
     },
-    [router]
-  );
+    onError: (err) => {
+      console.log(err);
+    },
+  });
 
   return (
     <>
@@ -135,8 +181,7 @@ export function ProductAddonsView() {
             ]}
             action={
               <Button
-                // component={RouterLink}
-                href={paths.dashboard.product.new}
+                onClick={() => dialog.onToggle()}
                 variant="contained"
                 startIcon={<Iconify icon="mingcute:add-line" />}
               >
@@ -187,9 +232,8 @@ export function ProductAddonsView() {
                         key={row.id}
                         row={row}
                         selected={table.selected.includes(row.id)}
-                        onSelectRow={() => table.onSelectRow(row.id)}
+                        onEditRow={() => handleEditRow(row)}
                         onDeleteRow={() => handleDeleteRow(row.id)}
-                        onViewRow={() => handleViewRow(row.id)}
                       />
                     ))}
                   <TableBody>
@@ -215,7 +259,17 @@ export function ProductAddonsView() {
           </Card>
         </Stack>
       </DashboardContent>
-      {/* <ProductAddonCreateDialog open={() => true} /> */}
+      <ProductAddonCreateDialog
+        open={dialog.value}
+        onClose={dialog.onFalse}
+        handler={handleCreateProductAddon}
+      />
+      <ProductAddonEditDialog
+        open={dialogEdit.value}
+        onClose={dialogEdit.onFalse}
+        handler={handleEditProductAddon}
+        productAddon={selectedProductAddon}
+      />
       <ConfirmDialog
         open={confirm.value}
         onClose={confirm.onFalse}
@@ -257,10 +311,9 @@ function applyFilter({ inputData, comparator, filters, dateError }) {
 
   if (name) {
     inputData = inputData.filter(
-      (order) =>
-        order.orderNumber.toLowerCase().indexOf(name.toLowerCase()) !== -1 ||
-        order.customer.name.toLowerCase().indexOf(name.toLowerCase()) !== -1 ||
-        order.customer.email.toLowerCase().indexOf(name.toLowerCase()) !== -1
+      (product) =>
+        product.id.toString().toLowerCase().indexOf(name.toLowerCase()) !== -1 ||
+        product.name.toLowerCase().indexOf(name.toLowerCase()) !== -1
     );
   }
 

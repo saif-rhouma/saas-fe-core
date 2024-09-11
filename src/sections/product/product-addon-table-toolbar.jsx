@@ -28,7 +28,7 @@ export function ProductAddonTableToolbar({ filters, onResetPage, options }) {
         sx={{ width: 420 }}
         value={filters.state.name}
         onChange={handleFilterName}
-        placeholder="Search customer or order number..."
+        placeholder="Search by Product Addon Name or Id Number..."
         InputProps={{
           startAdornment: (
             <InputAdornment position="start">

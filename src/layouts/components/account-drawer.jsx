@@ -52,12 +52,15 @@ export function AccountDrawer({ data = [], sx, ...other }) {
     },
     [handleCloseDrawer, router]
   );
-
+  const storageHost = 'http://localhost:3000/api/files/show/';
   const renderAvatar = (
     <AnimateAvatar
       width={96}
       slotProps={{
-        avatar: { src: user?.photoURL, alt: `${user?.firstName} ${user?.lastName}` },
+        avatar: {
+          src: `${storageHost}${user?.avatar}`,
+          alt: `${user?.firstName} ${user?.lastName}`,
+        },
         overlay: {
           border: 2,
           spacing: 3,
@@ -74,7 +77,7 @@ export function AccountDrawer({ data = [], sx, ...other }) {
       <AccountButton
         open={open}
         onClick={handleOpenDrawer}
-        photoURL={user?.photoURL}
+        photoURL={`${storageHost}${user?.avatar}`}
         displayName={user?.displayName}
         sx={sx}
         {...other}
@@ -113,7 +116,7 @@ export function AccountDrawer({ data = [], sx, ...other }) {
             flexWrap="wrap"
             justifyContent="center"
             sx={{ p: 3 }}
-           />
+          />
 
           <Stack
             sx={{

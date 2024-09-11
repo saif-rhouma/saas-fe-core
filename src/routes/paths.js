@@ -212,13 +212,8 @@ export const paths = {
     },
     tools: {
       root: `${ROOTS.DASHBOARD}/tools`,
-      // new: `${ROOTS.DASHBOARD}/plan/new`,
-      // details: (id) => `${ROOTS.DASHBOARD}/plan/${id}`,
-      // edit: (id) => `${ROOTS.DASHBOARD}/plan/${id}/edit`,
-      // demo: {
-      //   details: `${ROOTS.DASHBOARD}/plan/${MOCK_ID}`,
-      //   edit: `${ROOTS.DASHBOARD}/plan/${MOCK_ID}/edit`,
-      // },
+      financial: `${ROOTS.DASHBOARD}/tools/financial-year`,
+      master: `${ROOTS.DASHBOARD}/tools/master-setting`,
     },
     invoice: {
       root: `${ROOTS.DASHBOARD}/invoice`,
