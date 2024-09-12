@@ -109,7 +109,7 @@ const RemindersListView = ({ reminders }) => {
 
   const { mutate: deleteReminder } = useMutation({
     mutationFn: (id) => axios.delete(endpoints.reminders.delete + id),
-    onSuccess: async () => {
+    onSuccess: async (id) => {
       const deleteRow = tableData.filter((row) => row.id !== id);
 
       toast.success('Delete success!');

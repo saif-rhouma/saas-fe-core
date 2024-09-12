@@ -12,36 +12,28 @@ import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
 import { ConfirmDialog } from 'src/components/custom-dialog';
 import { usePopover, CustomPopover } from 'src/components/custom-popover';
+import { fCurrency } from 'src/utils/format-number';
 
-const ProductAddonTableRow = ({ row, selected, onViewRow, onSelectRow, onDeleteRow }) => {
+const ProductAddonTableRow = ({ row, selected, onEditRow, onDeleteRow }) => {
   const confirm = useBoolean();
-
-  const collapse = useBoolean();
 
   const popover = usePopover();
 
   const renderPrimary = (
     <TableRow hover selected={selected}>
-      <TableCell>
-        <Link color="inherit" onClick={onViewRow} underline="always" sx={{ cursor: 'pointer' }}>
-          {row.orderNumber}
-        </Link>
-      </TableCell>
+      <TableCell>{row?.id}</TableCell>
 
-      <TableCell>{row.customer.name}</TableCell>
-      <TableCell>{row.totalQuantity}</TableCell>
+      <TableCell>{row?.name}</TableCell>
+      <TableCell>{fCurrency(row?.price)}</TableCell>
 
       <TableCell>
         <Label
           variant="soft"
           color={
-            (row.status === 'completed' && 'success') ||
-            (row.status === 'pending' && 'warning') ||
-            (row.status === 'cancelled' && 'error') ||
-            'default'
+            (row.isActive === true && 'success') || (row.isActive === false && 'error') || 'default'
           }
         >
-          {row.status}
+          {row?.isActive ? 'ACTIVE' : 'INACTIVE'}
         </Label>
       </TableCell>
 
@@ -65,17 +57,7 @@ const ProductAddonTableRow = ({ row, selected, onViewRow, onSelectRow, onDeleteR
         <MenuList>
           <MenuItem
             onClick={() => {
-              onViewRow();
-              popover.onClose();
-            }}
-          >
-            <Iconify icon="solar:eye-bold" />
-            View
-          </MenuItem>
-
-          <MenuItem
-            onClick={() => {
-              onViewRow();
+              onEditRow();
               popover.onClose();
             }}
           >

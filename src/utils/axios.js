@@ -83,6 +83,13 @@ export const endpoints = {
     delete: '/api/products/',
     productsImages: '/api/files/products',
   },
+  productAddons: {
+    list: '/api/product-addons/',
+    create: '/api/product-addons/create',
+    delete: '/api/product-addons/',
+    edit: '/api/product-addons/',
+    // details: '/api/product-addons/',
+  },
   payments: {
     list: '/api/payments/',
     create: '/api/payments/create',
@@ -107,11 +114,14 @@ export const endpoints = {
   staff: {
     list: '/api/users/staff',
     create: '/api/users/staff',
-    edit: '/api/users/',
+    edit: '/api/users/staff',
     // details: '/api/staff/',
     // analytics: '/api/tickets/analytics',
   },
   files: {
     upload: '/api/files/upload',
+  },
+  account: {
+    edit: '/api/users/',
   },
 };

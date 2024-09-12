@@ -47,9 +47,6 @@ const TicketsDetailsPage = lazy(() => import('src/pages/dashboard/tickets/detail
 const StaffListPage = lazy(() => import('src/pages/dashboard/staff/list'));
 const StaffCreatePage = lazy(() => import('src/pages/dashboard/staff/new'));
 const StaffEditPage = lazy(() => import('src/pages/dashboard/staff/edit'));
-// Reports
-// const ReportsListPage = lazy(() => import('src/pages/dashboard/reminders/list'));
-// const StaffListPage = lazy(() => import('src/pages/dashboard/reminders/list'));
 // Reports;
 const ReportsDailyListPage = lazy(() => import('src/pages/dashboard/reports/daily-list'));
 const ReportsOrderListPage = lazy(() => import('src/pages/dashboard/reports/order-list'));
@@ -57,7 +54,7 @@ const ReportsPlanListPage = lazy(() => import('src/pages/dashboard/reports/plan-
 const ReportsStockListPage = lazy(() => import('src/pages/dashboard/reports/stock-list'));
 // const ReportsCustomListPage = lazy(() => import('src/pages/dashboard/reports/custom-list'));
 // Tools
-// const ToolsListPage = lazy(() => import('src/pages/dashboard/reminders/list'));
+const ToolsAccountPage = lazy(() => import('src/pages/dashboard/tools/list'));
 // Order Status
 const OrderStatus = lazy(() => import('src/pages/dashboard/order/status'));
 // User
@@ -189,8 +186,8 @@ export const dashboardRoutes = [
       {
         path: 'tools',
         children: [
-          { element: <PaymentsListPage />, index: true },
-          { path: 'account-setting', element: <PaymentsListPage /> },
+          { element: <ToolsAccountPage />, index: true },
+          { path: 'account-setting', element: <ToolsAccountPage /> },
           { path: 'financial-year', element: <PaymentsListPage /> },
           { path: 'master-setting', element: <PaymentsListPage /> },
         ],
