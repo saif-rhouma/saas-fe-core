@@ -106,7 +106,7 @@ export const endpoints = {
   },
   staff: {
     list: '/api/users/staff',
-    create: '/api/staff/create',
+    create: '/api/users/staff',
     edit: '/api/users/',
     // details: '/api/staff/',
     // analytics: '/api/tickets/analytics',
