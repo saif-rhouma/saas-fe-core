@@ -36,14 +36,6 @@ export function KanbanTaskItem({ task, disabled, columnId, sx }) {
         }}
         sx={{ ...(openDetails.value && { [`& .${imageClasses.root}`]: { opacity: 0.8 } }), ...sx }}
       />
-
-      {/* <KanbanDetails
-        task={task}
-        openDetails={openDetails.value}
-        onCloseDetails={openDetails.onFalse}
-        onUpdateTask={handleUpdateTask}
-        onDeleteTask={handleDeleteTask}
-      /> */}
     </>
   );
 }

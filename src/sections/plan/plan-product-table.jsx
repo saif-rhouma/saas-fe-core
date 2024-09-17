@@ -12,7 +12,7 @@ const PlanProductTable = ({ products, quantity, onDecrease, onIncrease, removeIt
     { id: 'quantity', label: 'Qty', width: 200 },
   ];
 
-  if (products.length) {
+  if (products?.length) {
     TABLE_HEAD.push({ id: 'action', width: 10 });
   }
 

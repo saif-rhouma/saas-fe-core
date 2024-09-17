@@ -1,8 +1,11 @@
+import { CURRENCY_SYMBOL_KEY } from 'src/auth/context/jwt';
 import { formatNumberLocale } from 'src/locales';
 
 // ----------------------------------------------------------------------
 
-const DEFAULT_LOCALE = { code: 'en-US', currency: 'USD' };
+const DEFAULT_LOCALE = { code: 'en-SA', currency: 'SAR' };
+
+const getLocal = () => {};
 
 function processInput(inputValue) {
   if (inputValue == null || Number.isNaN(inputValue)) return null;
@@ -28,21 +31,41 @@ export function fNumber(inputValue, options) {
 
 // ----------------------------------------------------------------------
 
-export function fCurrency(inputValue, options) {
-  const locale = formatNumberLocale() || DEFAULT_LOCALE;
+// export function fCurrency(inputValue, options) {
+//   const locale = formatNumberLocale() || DEFAULT_LOCALE;
 
+//   const number = processInput(inputValue);
+//   if (number === null) return '';
+
+//   const fm = new Intl.NumberFormat(locale.code, {
+//     style: 'currency',
+//     currency: locale.currency,
+//     minimumFractionDigits: 0,
+//     maximumFractionDigits: 2,
+//     ...options,
+//   }).format(number);
+
+//   return fm;
+// }
+
+export function fCurrency(inputValue, options) {
+  const currencySymbol = localStorage.getItem(CURRENCY_SYMBOL_KEY);
+  if (currencySymbol) {
+    DEFAULT_LOCALE.currency = currencySymbol;
+  }
+  const locale = DEFAULT_LOCALE;
   const number = processInput(inputValue);
   if (number === null) return '';
 
   const fm = new Intl.NumberFormat(locale.code, {
-    style: 'currency',
-    currency: locale.currency,
-    minimumFractionDigits: 0,
+    style: 'decimal',
+    // currency: locale.currency,
+    minimumFractionDigits: 2,
     maximumFractionDigits: 2,
     ...options,
   }).format(number);
 
-  return fm;
+  return `${fm} ${DEFAULT_LOCALE.currency}`;
 }
 
 // ----------------------------------------------------------------------

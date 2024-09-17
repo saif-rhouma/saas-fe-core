@@ -1,50 +1,27 @@
-import { useState, useEffect } from 'react';
-
 import Button from '@mui/material/Button';
-import Switch from '@mui/material/Switch';
-import MenuList from '@mui/material/MenuList';
 import MenuItem from '@mui/material/MenuItem';
+import MenuList from '@mui/material/MenuList';
 import TableRow from '@mui/material/TableRow';
 import TableCell from '@mui/material/TableCell';
 import IconButton from '@mui/material/IconButton';
 
 import { useBoolean } from 'src/hooks/use-boolean';
 
+import { fDate } from 'src/utils/format-time';
+
 import { Iconify } from 'src/components/iconify';
 import { ConfirmDialog } from 'src/components/custom-dialog';
 import { usePopover, CustomPopover } from 'src/components/custom-popover';
 
-const StaffTableRow = ({ row, selected, onViewRow, onDeleteRow,handler }) => {
+const FinancialTableRow = ({ row, selected, onDeleteRow, onEditRow }) => {
   const confirm = useBoolean();
-
   const popover = usePopover();
-  const [isChecked, setIsChecked] = useState(row?.isActive)
-
-  useEffect(() => {
-    setIsChecked(row?.isActive);
-  },[row])
-
-  const handleStatusChange = (id) => () => {
-    setIsChecked(!isChecked);
-    handler({id, isActive: !isChecked});
-  }
-
 
   const renderPrimary = (
     <TableRow hover selected={selected}>
-      <TableCell>{row?.id}</TableCell>
-      <TableCell>{`${row?.firstName} ${row?.lastName}` }</TableCell>
-      <TableCell>{row?.phoneNumber}</TableCell>
-      <TableCell>{row?.email}</TableCell>
-      {/* <TableCell>{row.status}</TableCell> */}
-
-      <TableCell>
-              <Switch
-                checked={isChecked}
-                onChange={handleStatusChange(row.id)}
-                color="primary"
-              />
-            </TableCell>
+      <TableCell>{row?.year}</TableCell>
+      <TableCell>{fDate(row?.startDate)}</TableCell>
+      <TableCell>{fDate(row?.endDate)}</TableCell>
       <TableCell align="right" sx={{ px: 1, whiteSpace: 'nowrap' }}>
         <IconButton color={popover.open ? 'inherit' : 'default'} onClick={popover.onOpen}>
           <Iconify icon="eva:more-vertical-fill" />
@@ -65,6 +42,15 @@ const StaffTableRow = ({ row, selected, onViewRow, onDeleteRow,handler }) => {
         <MenuList>
           <MenuItem
             onClick={() => {
+              onEditRow();
+              popover.onClose();
+            }}
+          >
+            <Iconify icon="solar:pen-bold" />
+            Edit
+          </MenuItem>
+          <MenuItem
+            onClick={() => {
               confirm.onTrue();
               popover.onClose();
             }}
@@ -72,26 +58,6 @@ const StaffTableRow = ({ row, selected, onViewRow, onDeleteRow,handler }) => {
           >
             <Iconify icon="solar:trash-bin-trash-bold" />
             Delete
-          </MenuItem>
-
-          <MenuItem
-            onClick={() => {
-              onViewRow();
-              popover.onClose();
-            }}
-          >
-            <Iconify icon="solar:eye-bold" />
-            View
-          </MenuItem>
-
-          <MenuItem
-            onClick={() => {
-              onViewRow();
-              popover.onClose();
-            }}
-          >
-            <Iconify icon="solar:eye-bold" />
-            Edit
           </MenuItem>
         </MenuList>
       </CustomPopover>
@@ -110,4 +76,4 @@ const StaffTableRow = ({ row, selected, onViewRow, onDeleteRow,handler }) => {
     </>
   );
 };
-export default StaffTableRow;
+export default FinancialTableRow;

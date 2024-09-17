@@ -1,17 +1,18 @@
+import { useState, useEffect, useCallback } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { useCallback, useEffect, useState } from 'react';
 
 import Box from '@mui/material/Box';
-import Button from '@mui/material/Button';
 import Card from '@mui/material/Card';
-import IconButton from '@mui/material/IconButton';
 import Table from '@mui/material/Table';
-import TableBody from '@mui/material/TableBody';
+import Button from '@mui/material/Button';
 import Tooltip from '@mui/material/Tooltip';
+import TableBody from '@mui/material/TableBody';
 import Grid from '@mui/material/Unstable_Grid2';
+import IconButton from '@mui/material/IconButton';
 
-import { RouterLink } from 'src/routes/components';
 import { paths } from 'src/routes/paths';
+import { useRouter } from 'src/routes/hooks';
+import { RouterLink } from 'src/routes/components';
 
 import { useBoolean } from 'src/hooks/use-boolean';
 import { useSetState } from 'src/hooks/use-set-state';
@@ -21,21 +22,21 @@ import { fIsAfter, fIsBetween } from 'src/utils/format-time';
 
 import { DashboardContent } from 'src/layouts/dashboard';
 
-import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
-import { ConfirmDialog } from 'src/components/custom-dialog';
+import { toast } from 'src/components/snackbar';
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
-import { toast } from 'src/components/snackbar';
+import { ConfirmDialog } from 'src/components/custom-dialog';
+import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 import {
+  useTable,
   emptyRows,
-  getComparator,
   rowInPage,
+  TableNoData,
+  getComparator,
   TableEmptyRows,
   TableHeadCustom,
-  TableNoData,
-  TablePaginationCustom,
   TableSelectedAction,
-  useTable,
+  TablePaginationCustom,
 } from 'src/components/table';
 
 import ProductTableRow from '../product-table-row';
@@ -62,6 +63,8 @@ export function ProductListView({ products }) {
   const table = useTable({ defaultOrderBy: 'planId' });
 
   const confirm = useBoolean();
+
+  const router = useRouter();
 
   const [tableData, setTableData] = useState(products);
 
@@ -98,7 +101,15 @@ export function ProductListView({ products }) {
     (id) => {
       deleteProduct(id);
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [dataInPage.length, table, tableData]
+  );
+
+  const handleEditRow = useCallback(
+    (id) => {
+      router.push(paths.dashboard.product.edit(id));
+    },
+    [router]
   );
 
   const handleDeleteRows = useCallback(() => {
@@ -109,6 +120,7 @@ export function ProductListView({ products }) {
     //   totalRowsInPage: dataInPage.length,
     //   totalRowsFiltered: dataFiltered.length,
     // });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dataFiltered.length, dataInPage.length, table, tableData]);
 
   const queryClient = useQueryClient();
@@ -207,7 +219,7 @@ export function ProductListView({ products }) {
                             key={row.id}
                             row={row}
                             selected={table.selected.includes(row.id)}
-                            // onSelectRow={() => table.onSelectRow(row.id)}
+                            onEditRow={() => handleEditRow(row.id)}
                             onDeleteRow={() => handleDeleteRow(row.id)}
                           />
                         ))}

@@ -2,10 +2,10 @@ import { Helmet } from 'react-helmet-async';
 
 import { CONFIG } from 'src/config-global';
 
-import { OrderStatusView } from 'src/sections/kanban/view/order-status-view';
+import { PlanStatusView } from 'src/sections/kanban/view/plan-status-view';
 // ----------------------------------------------------------------------
 
-const metadata = { title: `Order Status | Dashboard - ${CONFIG.site.name}` };
+const metadata = { title: `Plan Status | Dashboard - ${CONFIG.site.name}` };
 
 export default function Page() {
   return (
@@ -14,7 +14,7 @@ export default function Page() {
         <title> {metadata.title}</title>
       </Helmet>
 
-      <OrderStatusView />
+      <PlanStatusView />
     </>
   );
 }

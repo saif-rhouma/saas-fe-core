@@ -24,14 +24,13 @@ import Stack from '@mui/material/Stack';
 import Switch from '@mui/material/Switch';
 import Typography from '@mui/material/Typography';
 
-import { moveColumn, moveTask, useGetOrderBoard } from 'src/actions/kanbanOrder';
+import { moveColumn, moveTask, useGetPlanBoard } from 'src/actions/kanbanPlan';
 import { DashboardContent } from 'src/layouts/dashboard';
 import { hideScrollY } from 'src/theme/styles';
 
 import { EmptyContent } from 'src/components/empty-content';
 
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import dayjs from 'dayjs';
 import axios, { endpoints } from 'src/utils/axios';
 import { kanbanClasses } from '../classes';
 import { KanbanColumn } from '../column/kanban-column';
@@ -45,15 +44,15 @@ const cssVars = {
   '--item-gap': '16px',
   '--item-radius': '12px',
   '--column-gap': '24px',
-  '--column-width': 'calc(95% /3)',
+  '--column-width': 'calc(95% /4)',
   '--column-radius': '16px',
   '--column-padding': '20px 16px 16px 16px',
 };
 
 // ----------------------------------------------------------------------
 
-export function OrderStatusView() {
-  const { board, boardLoading, boardEmpty } = useGetOrderBoard();
+export function PlanStatusView() {
+  const { board, boardLoading, boardEmpty } = useGetPlanBoard();
 
   const [columnFixed, setColumnFixed] = useState(true);
 
@@ -210,52 +209,21 @@ export function OrderStatusView() {
   const changeTaskStatus = () => {
     board.columns.forEach((col) => {
       for (let index = 0; index < board.tasks[col.id].length; index++) {
-        if (col.name === 'In Process') {
-          board.tasks[col.id][index].status = 'InProcess';
+        if (col.name === 'Pending') {
+          board.tasks[col.id][index].status = 'Pending';
         }
-        if (col.name === 'Ready to Deliver') {
+        if (col.name === 'Processing A') {
+          board.tasks[col.id][index].status = 'ProcessingA';
+        }
+        if (col.name === 'Processing B') {
+          board.tasks[col.id][index].status = 'ProcessingB';
+        }
+        if (col.name === 'Ready') {
           board.tasks[col.id][index].status = 'Ready';
-        }
-        if (col.name === 'Delivered') {
-          board.tasks[col.id][index].status = 'Delivered';
         }
       }
     });
   };
-
-  // const detectChangesForUpdate = useCallback(
-  //   (data) => {
-  //     console.log(data);
-  //     // const prevBoard = currentBoard.current;
-  //     // const allTasks = [];
-  //     // const prevTasks = [];
-  //     // board.columns.forEach((col) => {
-  //     //   allTasks.push(...board.tasks[col.id]);
-  //     //   prevTasks.push(...prevBoard[col.id]);
-  //     // });
-  //     // console.log(allTasks);
-  //     // console.log(prevTasks);
-  //     // let isChanged = false;
-  //     // let idx = 0;
-  //     // let changedTask;
-  //     // while (!isChanged || idx < allTasks.length - 2) {
-  //     //   const currentTask = allTasks[idx];
-  //     //   // console.log('---> While', currentTask);
-  //     //   const prevTask = prevTasks.find((task) => task.id === currentTask.id);
-  //     //   // console.log('---> currentTask', currentTask);
-  //     //   // console.log('---> prevTask', prevTask);
-  //     //   if (prevTask.status !== currentTask.status) {
-  //     //     console.log('--->Diff');
-  //     //     isChanged != isChanged;
-  //     //     changedTask = currentTask;
-  //     //   }
-  //     //   idx++;
-  //     // }
-  //     // // console.log('----> changedTask', changedTask);
-  //     // currentBoard.current = { ...board.tasks };
-  //   },
-  //   [board]
-  // );
 
   const detectChangesForUpdate = async (data) => {
     const allTasks = [];
@@ -266,28 +234,7 @@ export function OrderStatusView() {
     const task = allTasks.find((ts) => ts.id === data.id);
     if (task) {
       const payload = { status: task.status };
-      if (task.status === 'Delivered') {
-        payload.deliveryDate = dayjs();
-        board.columns.forEach((col) => {
-          for (let index = 0; index < board.tasks[col.id].length; index++) {
-            if (board.tasks[col.id][index].id === task.id) {
-              board.tasks[col.id][index].deliveryDate = payload.deliveryDate;
-            }
-          }
-        });
-      } else {
-        payload.deliveryDate = null;
-        if (task.deliveryDate) {
-          board.columns.forEach((col) => {
-            for (let index = 0; index < board.tasks[col.id].length; index++) {
-              if (board.tasks[col.id][index].id === task.id) {
-                board.tasks[col.id][index].deliveryDate = null;
-              }
-            }
-          });
-        }
-      }
-      await handleOrderStatus({
+      await handlePlanStatus({
         id: task.id,
         payload,
       });
@@ -421,12 +368,12 @@ export function OrderStatusView() {
 
   const queryClient = useQueryClient();
 
-  const { mutate: handleOrderStatus } = useMutation({
-    mutationFn: ({ id, payload }) => axios.patch(endpoints.orderStatus.edit + id, payload),
+  const { mutate: handlePlanStatus } = useMutation({
+    mutationFn: ({ id, payload }) => axios.patch(endpoints.planStatus.edit + id, payload),
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ['orders'] });
-      await queryClient.invalidateQueries({ queryKey: ['orders', 'analytics'] });
-      await queryClient.invalidateQueries({ queryKey: ['orders-status'] });
+      await queryClient.invalidateQueries({ queryKey: ['plans'] });
+      await queryClient.invalidateQueries({ queryKey: ['plans', 'analytics'] });
+      await queryClient.invalidateQueries({ queryKey: ['plans-status'] });
     },
     onSettled: async () => {},
     onError: (err) => {
@@ -454,7 +401,7 @@ export function OrderStatusView() {
         justifyContent="space-between"
         sx={{ pr: { sm: 3 }, mb: { xs: 3, md: 5 } }}
       >
-        <Typography variant="h4">Orders Status</Typography>
+        <Typography variant="h4">Plans Status</Typography>
 
         <FormControlLabel
           label="Column fixed"

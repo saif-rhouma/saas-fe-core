@@ -1,24 +1,20 @@
-import { useState, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 
 import Box from '@mui/material/Box';
+import { Stack } from '@mui/material';
 import Card from '@mui/material/Card';
 import Table from '@mui/material/Table';
 import Button from '@mui/material/Button';
-import { Stack, useTheme } from '@mui/material';
 import TableBody from '@mui/material/TableBody';
 
 import { paths } from 'src/routes/paths';
-import { useRouter } from 'src/routes/hooks';
 
-import { useBoolean } from 'src/hooks/use-boolean';
 import { useSetState } from 'src/hooks/use-set-state';
 
 import { fIsAfter, fIsBetween } from 'src/utils/format-time';
 
 import { DashboardContent } from 'src/layouts/dashboard';
-import { _orders, ORDER_STATUS_OPTIONS } from 'src/_mock';
 
-import { toast } from 'src/components/snackbar';
 import { Iconify } from 'src/components/iconify';
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 import {
@@ -37,31 +33,24 @@ import ReportsStockTableRow from '../reports-stock-table-row';
 
 // ----------------------------------------------------------------------
 
-const STATUS_OPTIONS = [{ value: 'all', label: 'All' }, ...ORDER_STATUS_OPTIONS];
-
 const TABLE_HEAD = [
   { id: 'id', label: '#', width: 60 },
   { id: 'productName', label: 'Product Name', width: 260 },
   { id: 'planId', label: 'Plan Qty' },
   { id: 'orderAmount', label: 'Pending Stock' },
-  { id: 'status', label: 'Processing Stock' },
+  { id: 'status', label: 'Processing A Stock' },
+  { id: 'status', label: 'Processing B Stock' },
   { id: 'status', label: 'Ready to Deliver Stock' },
-  { id: 'status', label: 'Delivered Stock' },
+  // { id: 'status', label: 'Delivered Stock' },
   { id: 'status', label: 'In Stock' },
 ];
 
 // ----------------------------------------------------------------------
 
-const ReportsStockListView = () => {
+const ReportsStockListView = ({ products }) => {
   const table = useTable({ defaultOrderBy: 'orderNumber' });
 
-  const router = useRouter();
-
-  const theme = useTheme();
-
-  const confirm = useBoolean();
-
-  const [tableData, setTableData] = useState(_orders);
+  const [tableData, setTableData] = useState(products);
 
   const filters = useSetState({
     name: '',
@@ -79,6 +68,10 @@ const ReportsStockListView = () => {
     dateError,
   });
 
+  useEffect(() => {
+    setTableData(products);
+  }, [products]);
+
   const dataInPage = rowInPage(dataFiltered, table.page, table.rowsPerPage);
 
   const canReset =
@@ -88,110 +81,77 @@ const ReportsStockListView = () => {
 
   const notFound = (!dataFiltered.length && canReset) || !dataFiltered.length;
 
-  const handleDeleteRow = useCallback(
-    (id) => {
-      const deleteRow = tableData.filter((row) => row.id !== id);
-
-      toast.success('Delete success!');
-
-      setTableData(deleteRow);
-
-      table.onUpdatePageDeleteRow(dataInPage.length);
-    },
-    [dataInPage.length, table, tableData]
-  );
-
-  const handleDeleteRows = useCallback(() => {
-    const deleteRows = tableData.filter((row) => !table.selected.includes(row.id));
-
-    toast.success('Delete success!');
-
-    setTableData(deleteRows);
-
-    table.onUpdatePageDeleteRows({
-      totalRowsInPage: dataInPage.length,
-      totalRowsFiltered: dataFiltered.length,
-    });
-  }, [dataFiltered.length, dataInPage.length, table, tableData]);
-
-  const handleViewRow = useCallback(
-    (id) => {
-      router.push(paths.dashboard.order.details(id));
-    },
-    [router]
-  );
-
   return (
     <DashboardContent maxWidth="xl">
-        <Stack spacing={3}>
-          <CustomBreadcrumbs
-            links={[
-              { name: 'Dashboard', href: paths.dashboard.root },
-              { name: 'Reports', href: paths.dashboard.reports.root },
-              { name: 'Stock Report', href: paths.dashboard.reports.stock },
-            ]}
-            action={
-              <Button
-                // component={RouterLink}
-                href={paths.dashboard.product.new}
-                variant="contained"
-                startIcon={<Iconify icon="mingcute:add-line" />}
-              >
-                Export Excel
-              </Button>
-            }
-          />
-          <Card>
-            <Box sx={{ position: 'relative' }}>
-              <TableSelectedAction
-                dense={table.dense}
-                numSelected={table.selected.length}
+      <Stack spacing={3}>
+        <CustomBreadcrumbs
+          links={[
+            { name: 'Dashboard', href: paths.dashboard.root },
+            { name: 'Reports', href: paths.dashboard.reports.root },
+            { name: 'Stock Report', href: paths.dashboard.reports.stock },
+          ]}
+          action={
+            <Button
+              // // component={RouterLink}
+              // href={paths.dashboard.product.new}
+              variant="contained"
+              startIcon={<Iconify icon="mdi:microsoft-excel" />}
+            >
+              Export Excel
+            </Button>
+          }
+        />
+        <Card>
+          <Box sx={{ position: 'relative' }}>
+            <TableSelectedAction
+              dense={table.dense}
+              numSelected={table.selected.length}
+              rowCount={dataFiltered.length}
+            />
+
+            <Table size={table.dense ? 'small' : 'medium'} sx={{ minWidth: 960 }}>
+              <TableHeadCustom
+                order={table.order}
+                orderBy={table.orderBy}
+                headLabel={TABLE_HEAD}
                 rowCount={dataFiltered.length}
               />
 
-              <Table size={table.dense ? 'small' : 'medium'} sx={{ minWidth: 960 }}>
-                <TableHeadCustom
-                  order={table.order}
-                  orderBy={table.orderBy}
-                  headLabel={TABLE_HEAD}
-                  rowCount={dataFiltered.length}
+              <TableBody>
+                {dataFiltered
+                  .slice(
+                    table.page * table.rowsPerPage,
+                    table.page * table.rowsPerPage + table.rowsPerPage
+                  )
+                  .map((row) => (
+                    <ReportsStockTableRow
+                      key={row.id}
+                      row={row}
+                      selected={table.selected.includes(row.id)}
+                    />
+                  ))}
+
+                <TableEmptyRows
+                  height={table.dense ? 56 : 56 + 20}
+                  emptyRows={emptyRows(table.page, table.rowsPerPage, dataFiltered.length)}
                 />
 
-                <TableBody>
-                  {dataFiltered
-                    .slice(
-                      table.page * table.rowsPerPage,
-                      table.page * table.rowsPerPage + table.rowsPerPage
-                    )
-                    .map((row) => (
-                      <ReportsStockTableRow
-                        key={row.id}
-                        row={row}
-                        selected={table.selected.includes(row.id)}
-                      />
-                    ))}
-
-                  <TableEmptyRows
-                    height={table.dense ? 56 : 56 + 20}
-                    emptyRows={emptyRows(table.page, table.rowsPerPage, dataFiltered.length)}
-                  />
-
-                  <TableNoData notFound={notFound} />
-                </TableBody>
-              </Table>
-            </Box>
-            <TablePaginationCustom
-              page={table.page}
-              dense={table.dense}
-              count={dataFiltered.length}
-              rowsPerPage={table.rowsPerPage}
-              onPageChange={table.onChangePage}
-              onChangeDense={table.onChangeDense}
-              onRowsPerPageChange={table.onChangeRowsPerPage}
-            />
-          </Card>
-        </Stack>
-      </DashboardContent>
+                <TableNoData notFound={notFound} />
+              </TableBody>
+            </Table>
+          </Box>
+          <TablePaginationCustom
+            page={table.page}
+            dense={table.dense}
+            count={dataFiltered.length}
+            rowsPerPage={table.rowsPerPage}
+            onPageChange={table.onChangePage}
+            onChangeDense={table.onChangeDense}
+            onRowsPerPageChange={table.onChangeRowsPerPage}
+          />
+        </Card>
+      </Stack>
+    </DashboardContent>
   );
 };
 export default ReportsStockListView;

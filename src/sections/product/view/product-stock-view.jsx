@@ -1,10 +1,10 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 
 import Box from '@mui/material/Box';
+import { Stack } from '@mui/material';
 import Card from '@mui/material/Card';
 import Table from '@mui/material/Table';
 import Tooltip from '@mui/material/Tooltip';
-import { Stack, useTheme } from '@mui/material';
 import TableBody from '@mui/material/TableBody';
 import IconButton from '@mui/material/IconButton';
 
@@ -19,7 +19,6 @@ import { fIsAfter, fIsBetween } from 'src/utils/format-time';
 import { _orders } from 'src/_mock';
 import { DashboardContent } from 'src/layouts/dashboard';
 
-import { toast } from 'src/components/snackbar';
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
@@ -48,16 +47,14 @@ const TABLE_HEAD = [
 
 // ----------------------------------------------------------------------
 
-export function ProductStockView() {
+export function ProductStockView({ stocks }) {
   const table = useTable({ defaultOrderBy: 'planId' });
 
   const router = useRouter();
 
-  const theme = useTheme();
-
   const confirm = useBoolean();
 
-  const [tableData, setTableData] = useState(_orders);
+  const [tableData, setTableData] = useState(stocks);
 
   const filters = useSetState({
     name: '',
@@ -65,6 +62,10 @@ export function ProductStockView() {
     startDate: null,
     endDate: null,
   });
+
+  useEffect(() => {
+    setTableData(stocks);
+  }, [stocks]);
 
   const dateError = fIsAfter(filters.state.startDate, filters.state.endDate);
 
@@ -83,32 +84,6 @@ export function ProductStockView() {
     (!!filters.state.startDate && !!filters.state.endDate);
 
   const notFound = (!dataFiltered.length && canReset) || !dataFiltered.length;
-
-  const handleDeleteRow = useCallback(
-    (id) => {
-      const deleteRow = tableData.filter((row) => row.id !== id);
-
-      toast.success('Delete success!');
-
-      setTableData(deleteRow);
-
-      table.onUpdatePageDeleteRow(dataInPage.length);
-    },
-    [dataInPage.length, table, tableData]
-  );
-
-  const handleDeleteRows = useCallback(() => {
-    const deleteRows = tableData.filter((row) => !table.selected.includes(row.id));
-
-    toast.success('Delete success!');
-
-    setTableData(deleteRows);
-
-    table.onUpdatePageDeleteRows({
-      totalRowsInPage: dataInPage.length,
-      totalRowsFiltered: dataFiltered.length,
-    });
-  }, [dataFiltered.length, dataInPage.length, table, tableData]);
 
   const handleViewRow = useCallback(
     (id) => {
@@ -214,14 +189,9 @@ function applyFilter({ inputData, comparator, filters, dateError }) {
   if (name) {
     inputData = inputData.filter(
       (order) =>
-        order.orderNumber.toLowerCase().indexOf(name.toLowerCase()) !== -1 ||
-        order.customer.name.toLowerCase().indexOf(name.toLowerCase()) !== -1 ||
-        order.customer.email.toLowerCase().indexOf(name.toLowerCase()) !== -1
+        order.id.toString().toLowerCase().indexOf(name.toLowerCase()) !== -1 ||
+        order.name.toLowerCase().indexOf(name.toLowerCase()) !== -1
     );
-  }
-
-  if (status !== 'all') {
-    inputData = inputData.filter((order) => order.status === status);
   }
 
   if (!dateError) {

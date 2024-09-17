@@ -104,6 +104,7 @@ const PaymentsListView = ({ payments }) => {
       setTableData(deleteRow);
       table.onUpdatePageDeleteRow(dataInPage.length);
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [dataInPage.length, table, tableData]
   );
 
@@ -130,6 +131,7 @@ const PaymentsListView = ({ payments }) => {
       setSelectedPayment(row);
       dialog.onToggle();
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [router]
   );
 
@@ -138,6 +140,7 @@ const PaymentsListView = ({ payments }) => {
       setSelectedPayment(row);
       dialogEdit.onToggle();
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [dataInPage.length, table, tableData]
   );
 

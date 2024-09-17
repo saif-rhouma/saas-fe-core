@@ -7,33 +7,29 @@ import Stack from '@mui/material/Stack';
 import { LoadingButton } from '@mui/lab';
 import Dialog from '@mui/material/Dialog';
 import DialogContent from '@mui/material/DialogContent';
-import {
-  Button,
-  Divider,
-  DialogTitle,
-  DialogActions,
-} from '@mui/material';
+import { Button, Divider, DialogTitle, DialogActions } from '@mui/material';
 
-import { Form, Field } from 'src/components/hook-form';
+import { Form, Field, schemaHelper } from 'src/components/hook-form';
+import dayjs from 'dayjs';
 
 const ProductAddonCreationSchema = zod.object({
-  name: zod.string().min(1, { message: 'Name is required!' }),
-  price: zod.number().min(1, { message: 'Tax number is required!' }),
-  isActive: zod.boolean(),
+  year: schemaHelper.date({ message: { required_error: 'Year is required!' } }),
+  startDate: schemaHelper.date({ message: { required_error: 'Start date is required!' } }),
+  endDate: schemaHelper.date({ message: { required_error: 'End date is required!' } }),
 });
 
-const ProductAddonCreateDialog = ({ productAddon, open, onClose, handler }) => {
+const FinancialCreateDialog = ({ financial, open, onClose, handler }) => {
   const defaultValues = {
-    name: productAddon?.name || '',
-    price: parseInt(productAddon?.price) || '',
-    isActive: productAddon?.isActive || true,
+    year: financial?.year || dayjs(),
+    startDate: financial?.startDate || dayjs(),
+    endDate: financial?.endDate || dayjs(),
   };
 
   useEffect(() => {
-    if (productAddon) {
+    if (financial) {
       reset(defaultValues);
     }
-  }, [productAddon]);
+  }, [financial]);
 
   const [errorMsg, setErrorMsg] = useState('');
 
@@ -51,8 +47,9 @@ const ProductAddonCreateDialog = ({ productAddon, open, onClose, handler }) => {
   const onSubmit = handleSubmit(async (data) => {
     try {
       const payload = { ...data };
-      if (productAddon) {
-        await handler({ id: productAddon.id, payload });
+      payload.year = dayjs(payload.year).format('YYYY');
+      if (financial) {
+        await handler({ id: financial.id, payload });
       } else {
         await handler(payload);
       }
@@ -65,7 +62,7 @@ const ProductAddonCreateDialog = ({ productAddon, open, onClose, handler }) => {
 
   return (
     <Dialog fullWidth open={open} onClose={onClose}>
-      <DialogTitle>Add Addon</DialogTitle>
+      <DialogTitle>Add Financial</DialogTitle>
       <Divider />
       {!!errorMsg && (
         <Alert severity="error" sx={{ mb: 3 }}>
@@ -80,26 +77,25 @@ const ProductAddonCreateDialog = ({ productAddon, open, onClose, handler }) => {
             gridTemplateColumns={{
               xs: 'repeat(1, 1fr)',
               sm: 'repeat(1, 1fr)',
-              md: 'repeat(2, 1fr)',
-              lg: 'repeat(2, 1fr)',
+              md: 'repeat(1, 1fr)',
+              lg: 'repeat1, 1fr)',
             }}
           >
-            <Field.Text fullWidth label="Enter Addon Name" name="name" sx={{ mt: 2 }} />
-            <Field.Text
-              fullWidth
-              type="number"
-              label="Enter Addon Price"
-              name="price"
+            <Field.DatePicker
+              views={['year']}
+              format={'YYYY'}
+              label="Year"
+              name="year"
               sx={{ mt: 2 }}
             />
-
-            <Field.Switch name="isActive" label="Is Active?" />
+            <Field.DatePicker fullWidth label="Start Date" name="startDate" sx={{ mt: 2 }} />
+            <Field.DatePicker fullWidth label="End Date" name="endDate" sx={{ mt: 2 }} />
           </Stack>
         </DialogContent>
         <Divider sx={{ pt: 1, mt: 1 }} />
         <DialogActions>
           <LoadingButton type="submit" variant="contained">
-            {productAddon ? 'Save Changes' : 'Save'}
+            {financial ? 'Save Changes' : 'Save'}
           </LoadingButton>
           <Button color="inherit" variant="outlined" onClick={onClose}>
             Cancel
@@ -109,4 +105,4 @@ const ProductAddonCreateDialog = ({ productAddon, open, onClose, handler }) => {
     </Dialog>
   );
 };
-export default ProductAddonCreateDialog;
+export default FinancialCreateDialog;

@@ -25,7 +25,7 @@ export function AppTopAuthors({ title, subheader, list, ...other }) {
           flexDirection: 'column',
         }}
       >
-        {orderBy(list, ['totalFavorites'], ['desc']).map((item, index) => (
+        {orderBy(list, ['total_orders'], ['desc']).map((item, index) => (
           <Item key={item.id} item={item} index={index} />
         ))}
       </Box>
@@ -44,7 +44,7 @@ function Item({ item, index, sx, ...other }) {
       }}
       {...other}
     >
-      <Avatar alt={item.name} src={item.avatarUrl} />
+      <Avatar alt={item.name} src={item.avatar} />
 
       <Box flexGrow={1}>
         <Box sx={{ typography: 'subtitle2' }}>{item.name}</Box>
@@ -58,8 +58,8 @@ function Item({ item, index, sx, ...other }) {
             color: 'text.secondary',
           }}
         >
-          <Iconify icon="solar:heart-bold" width={14} />
-          {fShortenNumber(item.totalFavorites)}
+          <Iconify icon="solar:cart-large-4-bold-duotone" width={14} />
+          {fShortenNumber(item.total_orders)}
         </Box>
       </Box>
 

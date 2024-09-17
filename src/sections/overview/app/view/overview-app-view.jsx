@@ -3,6 +3,8 @@ import Button from '@mui/material/Button';
 import { useTheme } from '@mui/material/styles';
 import Grid from '@mui/material/Unstable_Grid2';
 
+import { monthName } from 'src/utils/format-time';
+
 import { DashboardContent } from 'src/layouts/dashboard';
 import { SeoIllustration } from 'src/assets/illustrations';
 import { _appAuthors, _appRelated, _appFeatured, _appInvoices, _appInstalled } from 'src/_mock';
@@ -24,9 +26,9 @@ import { AppTopInstalledCountries } from '../app-top-installed-countries';
 
 // ----------------------------------------------------------------------
 
-export function OverviewAppView() {
+export function OverviewAppView({ analytics }) {
   const { user } = useMockedUser();
-
+  console.log('----> user', analytics);
   const theme = useTheme();
 
   return (
@@ -51,52 +53,53 @@ export function OverviewAppView() {
 
         <Grid xs={12} md={4}>
           <AppWidgetSummary
-            title="Total active users"
-            percent={2.6}
-            total={18765}
+            title="Waiting for Approval"
+            total={analytics.orders.analytics.Draft}
             chart={{
-              categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug'],
-              series: [15, 18, 12, 51, 68, 11, 39, 37],
+              categories: analytics.orders.draftLastSixMonth.map((item) =>
+                monthName(item?.inMonth)
+              ),
+              series: analytics.orders.draftLastSixMonth.map((item) => item?.ClaimsPerMonth),
             }}
           />
         </Grid>
 
         <Grid xs={12} md={4}>
           <AppWidgetSummary
-            title="Total installed"
-            percent={0.2}
-            total={4876}
+            title="Processing Order"
+            total={analytics.orders.analytics.InProcess}
             chart={{
-              colors: [theme.vars.palette.info.main],
-              categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug'],
-              series: [20, 41, 63, 33, 28, 35, 50, 46],
+              categories: analytics.orders.inProcessLastSixMonth.map((item) =>
+                monthName(item?.inMonth)
+              ),
+              series: analytics.orders.inProcessLastSixMonth.map((item) => item?.ClaimsPerMonth),
             }}
           />
         </Grid>
 
         <Grid xs={12} md={4}>
           <AppWidgetSummary
-            title="Total downloads"
-            percent={-0.1}
-            total={678}
+            title="Ready to Deliver"
+            total={analytics.orders.analytics.Ready}
             chart={{
-              colors: [theme.vars.palette.error.main],
-              categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug'],
-              series: [18, 19, 31, 8, 16, 37, 12, 33],
+              categories: analytics.orders.readyLastSixMonth.map((item) =>
+                monthName(item?.inMonth)
+              ),
+              series: analytics.orders.readyLastSixMonth.map((item) => item?.ClaimsPerMonth),
             }}
           />
         </Grid>
 
         <Grid xs={12} md={6} lg={4}>
           <AppCurrentDownload
-            title="Current download"
-            subheader="Downloaded by operating system"
+            title="Order Overview"
+            // subheader="Downloaded by operating system"
             chart={{
               series: [
-                { label: 'Mac', value: 12244 },
-                { label: 'Window', value: 53345 },
-                { label: 'iOS', value: 44313 },
-                { label: 'Android', value: 78343 },
+                { label: 'Ready', value: analytics.orders.analytics.Ready },
+                { label: 'In Process', value: analytics.orders.analytics.InProcess },
+                { label: 'Waiting for Approval', value: analytics.orders.analytics.Draft },
+                { label: 'Delivered', value: analytics.orders.analytics.Delivered },
               ],
             }}
           />
@@ -153,31 +156,30 @@ export function OverviewAppView() {
 
         <Grid xs={12} lg={8}>
           <AppNewInvoice
-            title="New invoice"
-            tableData={_appInvoices}
+            title="Top 5 Ordered Products By Quantity"
+            tableData={analytics.products}
             headLabel={[
-              { id: 'id', label: 'Invoice ID' },
-              { id: 'category', label: 'Category' },
+              { id: 'id', label: '#', width: 60 },
+              { id: 'name', label: 'Product Name' },
               { id: 'price', label: 'Price' },
-              { id: 'status', label: 'Status' },
-              { id: '' },
+              { id: 'quantity', label: 'Total Quantity', width: 160 },
             ]}
           />
         </Grid>
 
-        <Grid xs={12} md={6} lg={4}>
+        {/* <Grid xs={12} md={6} lg={4}>
           <AppTopRelated title="Related applications" list={_appRelated} />
         </Grid>
 
         <Grid xs={12} md={6} lg={4}>
           <AppTopInstalledCountries title="Top installed countries" list={_appInstalled} />
-        </Grid>
+        </Grid> */}
 
         <Grid xs={12} md={6} lg={4}>
-          <AppTopAuthors title="Top authors" list={_appAuthors} />
+          <AppTopAuthors title="Top 5 Customers" list={analytics.customers} />
         </Grid>
 
-        <Grid xs={12} md={6} lg={4}>
+        {/* <Grid xs={12} md={6} lg={4}>
           <Box sx={{ gap: 3, display: 'flex', flexDirection: 'column' }}>
             <AppWidget
               title="Conversion"
@@ -197,7 +199,7 @@ export function OverviewAppView() {
               sx={{ bgcolor: 'info.dark', [`& .${svgColorClasses.root}`]: { color: 'info.light' } }}
             />
           </Box>
-        </Grid>
+        </Grid> */}
       </Grid>
     </DashboardContent>
   );

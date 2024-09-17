@@ -14,6 +14,7 @@ import { Iconify } from 'src/components/iconify';
 import { imageClasses } from 'src/components/image';
 
 import { kanbanClasses } from '../classes';
+import { fDate } from 'src/utils/format-time';
 
 // ----------------------------------------------------------------------
 
@@ -54,7 +55,7 @@ export const StyledItem = styled(Stack)(({ theme }) => ({
 
 const ItemBase = forwardRef(({ task, stateProps, sx, ...other }, ref) => {
   const theme = useTheme();
-
+  const storageHost = 'http://localhost:3000/api/files/show/';
   useEffect(() => {
     if (!stateProps?.dragOverlay) {
       return;
@@ -85,17 +86,17 @@ const ItemBase = forwardRef(({ task, stateProps, sx, ...other }, ref) => {
   const renderPriority = (
     <Iconify
       icon={
-        (task.priority === 'low' && 'solar:double-alt-arrow-down-bold-duotone') ||
-        (task.priority === 'medium' && 'solar:double-alt-arrow-right-bold-duotone') ||
-        'solar:double-alt-arrow-up-bold-duotone'
+        task.status === 'Delivered'
+          ? 'solar:double-alt-arrow-up-bold-duotone'
+          : 'solar:double-alt-arrow-right-bold-duotone'
       }
       sx={{
         top: 4,
         right: 4,
         position: 'absolute',
-        ...(task.priority === 'low' && { color: 'info.main' }),
-        ...(task.priority === 'medium' && { color: 'warning.main' }),
-        ...(task.priority === 'hight' && { color: 'error.main' }),
+        ...(task.status === 'Delivered' && { color: 'info.main' }),
+        ...(task.status === 'Ready' && { color: 'warning.main' }),
+        ...(task.status === 'InProcess' && { color: 'error.main' }),
       }}
     />
   );
@@ -126,19 +127,18 @@ const ItemBase = forwardRef(({ task, stateProps, sx, ...other }, ref) => {
         alignItems="center"
         sx={{ typography: 'caption', color: 'text.disabled' }}
       >
-        <Iconify width={16} icon="solar:chat-round-dots-bold" sx={{ mr: 0.25 }} />
-
         <Box component="span" sx={{ mr: 1 }}>
-          {task?.comments?.length}
+          Product:
         </Box>
-
-        <Iconify width={16} icon="eva:attach-2-fill" sx={{ mr: 0.25 }} />
-        <Box component="span">{task?.attachments?.length}</Box>
       </Stack>
 
       <AvatarGroup sx={{ [`& .${avatarGroupClasses.avatar}`]: { width: 24, height: 24 } }}>
-        {task?.assignee?.map((user) => (
-          <Avatar key={user.id} alt={user.name} src={user.avatarUrl} />
+        {task?.productToOrder?.map((op) => (
+          <Avatar
+            key={op?.id}
+            alt={op?.product?.name}
+            src={`${storageHost}${op?.product?.image}`}
+          />
         ))}
       </AvatarGroup>
     </Stack>
@@ -167,12 +167,26 @@ const ItemBase = forwardRef(({ task, stateProps, sx, ...other }, ref) => {
         {...stateProps?.listeners}
         {...other}
       >
-        {renderImg}
-
-        <Stack spacing={2} sx={{ px: 2, py: 2.5, position: 'relative' }}>
+        <Stack spacing={1} sx={{ px: 2, py: 2.5, position: 'relative' }}>
           {renderPriority}
-
-          <Typography variant="subtitle2">{task.name}</Typography>
+          <Stack direction="row" justifyContent="space-between">
+            <Typography variant="subtitle2">{task?.customer?.name}</Typography>
+            <Typography variant="subtitle2">ORD-{task?.id}</Typography>
+          </Stack>
+          <Stack direction="row" justifyContent="space-between" sx={{ typography: 'body2' }}>
+            <Box sx={{ color: 'text.secondary' }}>Order Date:</Box>
+            <Box sx={{ color: 'text.secondary' }}>{fDate(task?.orderDate)}</Box>
+          </Stack>
+          <Stack direction="row" justifyContent="space-between" sx={{ typography: 'body2' }}>
+            <Box sx={{ color: 'text.secondary' }}>Delivery Date:</Box>
+            <Box sx={{ color: 'text.secondary' }}>
+              {task.deliveryDate ? fDate(task?.deliveryDate) : '-'}
+            </Box>
+          </Stack>
+          <Stack direction="row" justifyContent="space-between" sx={{ typography: 'body2' }}>
+            <Box sx={{ color: 'text.secondary' }}>Last Updated Date:</Box>
+            <Box sx={{ color: 'text.secondary' }}>{fDate(task?.updateTime)}</Box>
+          </Stack>
 
           {renderInfo}
         </Stack>

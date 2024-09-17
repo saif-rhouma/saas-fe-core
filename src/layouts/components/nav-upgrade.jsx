@@ -20,7 +20,6 @@ import { useAuthContext } from 'src/auth/hooks';
 
 export function NavUpgrade({ sx, ...other }) {
   const { user } = useAuthContext();
-  console.log('----> USER', user);
   return (
     <Stack sx={{ px: 2, py: 5, textAlign: 'center', ...sx }} {...other}>
       <Stack alignItems="center">

@@ -2,17 +2,20 @@ import { useCallback } from 'react';
 
 import Stack from '@mui/material/Stack';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import dayjs from 'dayjs';
 
 // ----------------------------------------------------------------------
 
-export function ReportsDailyTableToolbar({ filters, onResetPage, options }) {
-  const handleFilterName = useCallback(
-    (event) => {
+export function ReportsDailyTableToolbar({ filters, onResetPage }) {
+  const handleFilterStartDate = useCallback(
+    (newValue) => {
+      const endDate = dayjs(newValue).add(1, 'day').format('YYYY-MM-DD');
       onResetPage();
-      filters.setState({ name: event.target.value });
+      filters.setState({ startDate: newValue, endDate });
     },
     [filters, onResetPage]
   );
+
   return (
     <Stack
       spacing={2}
@@ -21,7 +24,12 @@ export function ReportsDailyTableToolbar({ filters, onResetPage, options }) {
       direction={{ xs: 'column', md: 'row' }}
       sx={{ p: 2.5 }}
     >
-      <DatePicker label="Date" />
+      <DatePicker
+        label="Date"
+        format="DD/MM/YYYY"
+        value={filters.state.startDate}
+        onChange={handleFilterStartDate}
+      />
     </Stack>
   );
 }

@@ -63,7 +63,12 @@ export function OrderDetailsView({ order }) {
         </Grid>
 
         <Grid xs={12} md={3}>
-          <OrderProductAddons payments={order?.payments} dialog={dialog} />
+          <OrderProductAddons
+            // setTriggerRender={setTriggerRender}
+            order={order}
+            payments={order?.payments}
+            dialog={dialog}
+          />
         </Grid>
       </Grid>
       <OrderPaymentDetailsDialog

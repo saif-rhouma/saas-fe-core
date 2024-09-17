@@ -1,7 +1,6 @@
 import ProductAddonCreateDialog from './product-addon-create-dialog';
 
-const ProductAddonEditDialog = ({ productAddon, open, onClose, handler }) => {
-  return (
+const ProductAddonEditDialog = ({ productAddon, open, onClose, handler }) => (
     <ProductAddonCreateDialog
       productAddon={productAddon}
       open={open}
@@ -9,5 +8,4 @@ const ProductAddonEditDialog = ({ productAddon, open, onClose, handler }) => {
       handler={handler}
     />
   );
-};
 export default ProductAddonEditDialog;

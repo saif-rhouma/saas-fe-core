@@ -34,14 +34,6 @@ export function OrderTableRow({ row, selected, onViewRow, onSelectRow, onDeleteR
 
   const renderPrimary = (
     <TableRow hover selected={selected}>
-      <TableCell padding="checkbox">
-        <Checkbox
-          checked={selected}
-          onClick={onSelectRow}
-          inputProps={{ id: `row-checkbox-${row.id}`, 'aria-label': `Row checkbox` }}
-        />
-      </TableCell>
-
       <TableCell>
         <Link color="inherit" onClick={onViewRow} underline="always" sx={{ cursor: 'pointer' }}>
           {row.id}
@@ -88,9 +80,9 @@ export function OrderTableRow({ row, selected, onViewRow, onSelectRow, onDeleteR
         <Label
           variant="soft"
           color={
-            (row.status === 'completed' && 'success') ||
+            (row.status === 'Ready' && 'info') ||
             (row.status === 'InProcess' && 'warning') ||
-            (row.status === 'cancelled' && 'error') ||
+            (row.status === 'Delivered' && 'success') ||
             'default'
           }
         >

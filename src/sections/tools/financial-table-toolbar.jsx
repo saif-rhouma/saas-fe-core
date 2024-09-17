@@ -8,7 +8,7 @@ import { Iconify } from 'src/components/iconify';
 
 // ----------------------------------------------------------------------
 
-export function StaffTableToolbar({ filters, onResetPage, options }) {
+export function FinancialTableToolbar({ filters, onResetPage, options }) {
   const handleFilterName = useCallback(
     (event) => {
       onResetPage();
@@ -28,7 +28,7 @@ export function StaffTableToolbar({ filters, onResetPage, options }) {
         sx={{ width: 420 }}
         value={filters.state.name}
         onChange={handleFilterName}
-        placeholder="Search staff or email..."
+        placeholder="Search customer or order number..."
         InputProps={{
           startAdornment: (
             <InputAdornment position="start">

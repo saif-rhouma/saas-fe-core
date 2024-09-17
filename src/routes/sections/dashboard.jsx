@@ -12,12 +12,6 @@ import { AuthGuard } from 'src/auth/guard';
 
 // Overview
 const IndexPage = lazy(() => import('src/pages/dashboard'));
-const OverviewEcommercePage = lazy(() => import('src/pages/dashboard/ecommerce'));
-const OverviewAnalyticsPage = lazy(() => import('src/pages/dashboard/analytics'));
-const OverviewBankingPage = lazy(() => import('src/pages/dashboard/banking'));
-const OverviewBookingPage = lazy(() => import('src/pages/dashboard/booking'));
-const OverviewFilePage = lazy(() => import('src/pages/dashboard/file'));
-const OverviewCoursePage = lazy(() => import('src/pages/dashboard/course'));
 // Order
 const OrderListPage = lazy(() => import('src/pages/dashboard/order/list'));
 const OrderDetailsPage = lazy(() => import('src/pages/dashboard/order/details'));
@@ -55,8 +49,12 @@ const ReportsStockListPage = lazy(() => import('src/pages/dashboard/reports/stoc
 // const ReportsCustomListPage = lazy(() => import('src/pages/dashboard/reports/custom-list'));
 // Tools
 const ToolsAccountPage = lazy(() => import('src/pages/dashboard/tools/list'));
+const ToolsFinancialPage = lazy(() => import('src/pages/dashboard/tools/financial'));
+const ToolsMasterPage = lazy(() => import('src/pages/dashboard/tools/master'));
 // Order Status
 const OrderStatus = lazy(() => import('src/pages/dashboard/order/status'));
+// Plan Status
+const PlanStatus = lazy(() => import('src/pages/dashboard/plan/status'));
 // User
 const UserProfilePage = lazy(() => import('src/pages/dashboard/user/profile'));
 const UserCardsPage = lazy(() => import('src/pages/dashboard/user/cards'));
@@ -84,12 +82,6 @@ export const dashboardRoutes = [
     element: CONFIG.auth.skip ? <>{layoutContent}</> : <AuthGuard>{layoutContent}</AuthGuard>,
     children: [
       { element: <IndexPage />, index: true },
-      { path: 'ecommerce', element: <OverviewEcommercePage /> },
-      { path: 'analytics', element: <OverviewAnalyticsPage /> },
-      { path: 'banking', element: <OverviewBankingPage /> },
-      { path: 'booking', element: <OverviewBookingPage /> },
-      { path: 'file', element: <OverviewFilePage /> },
-      { path: 'course', element: <OverviewCoursePage /> },
       {
         path: 'user',
         children: [
@@ -103,6 +95,7 @@ export const dashboardRoutes = [
         ],
       },
       { path: 'order-status', element: <OrderStatus /> },
+      { path: 'plan-status', element: <PlanStatus /> },
       {
         path: 'product',
         children: [
@@ -188,8 +181,8 @@ export const dashboardRoutes = [
         children: [
           { element: <ToolsAccountPage />, index: true },
           { path: 'account-setting', element: <ToolsAccountPage /> },
-          { path: 'financial-year', element: <PaymentsListPage /> },
-          { path: 'master-setting', element: <PaymentsListPage /> },
+          { path: 'financial-year', element: <ToolsFinancialPage /> },
+          { path: 'master-setting', element: <ToolsMasterPage /> },
         ],
       },
       { path: 'kanban', element: <KanbanPage /> },

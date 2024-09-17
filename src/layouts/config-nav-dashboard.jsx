@@ -76,7 +76,7 @@ export const navData = [
           { title: 'Order Report', path: paths.dashboard.reports.order },
           { title: 'Plan Report', path: paths.dashboard.reports.plan },
           { title: 'Stock Report', path: paths.dashboard.reports.stock },
-          { title: 'Custom Report', path: paths.dashboard.reports.custom },
+          // { title: 'Custom Report', path: paths.dashboard.reports.custom },
         ],
       },
       {
