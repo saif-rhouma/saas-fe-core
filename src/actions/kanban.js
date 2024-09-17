@@ -1,16 +1,14 @@
 import { useMemo } from 'react';
 import useSWR, { mutate } from 'swr';
 
-import axios, { fetcher, endpoints } from 'src/utils/axios';
-import { useQuery } from '@tanstack/react-query';
-import { nanoid } from 'nanoid';
+import axios, { fetcher } from 'src/utils/axios';
+import { CONFIG } from 'src/config-global';
 
 // ----------------------------------------------------------------------
 
 const enableServer = false;
 
-// const KANBAN_ENDPOINT = 'https://api-dev-minimal-v6.vercel.app/api/kanban';
-const KANBAN_ENDPOINT = 'http://localhost:3000/api/orders-status';
+const KANBAN_ENDPOINT = `${CONFIG.site.serverUrl}/api/orders-status`;
 
 const swrOptions = {
   revalidateIfStale: enableServer,

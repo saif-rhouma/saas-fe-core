@@ -12,6 +12,8 @@ import { useBoolean } from 'src/hooks/use-boolean';
 
 import { fCurrency } from 'src/utils/format-number';
 
+import { CONFIG } from 'src/config-global';
+
 import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
 import { ConfirmDialog } from 'src/components/custom-dialog';
@@ -21,7 +23,6 @@ const ProductTableRow = ({ row, selected, onViewRow, onSelectRow, onDeleteRow, o
   const confirm = useBoolean();
 
   const popover = usePopover();
-  const storageHost = 'http://localhost:3000/api/files/show/';
   const renderPrimary = (
     <TableRow hover selected={selected}>
       <TableCell padding="checkbox">
@@ -41,7 +42,7 @@ const ProductTableRow = ({ row, selected, onViewRow, onSelectRow, onDeleteRow, o
       {/* <TableCell>{row?.name}</TableCell> */}
       <TableCell>
         <Stack spacing={2} direction="row" alignItems="center">
-          <Avatar alt={row?.name} src={storageHost + row?.image} />
+          <Avatar alt={row?.name} src={CONFIG.site.serverFileHost + row?.image} />
           <Box component="span">{row?.name}</Box>
         </Stack>
       </TableCell>

@@ -4,22 +4,19 @@ import Card from '@mui/material/Card';
 import Table from '@mui/material/Table';
 import Button from '@mui/material/Button';
 import Divider from '@mui/material/Divider';
-import MenuList from '@mui/material/MenuList';
-import MenuItem from '@mui/material/MenuItem';
 import TableRow from '@mui/material/TableRow';
+import { Stack, Avatar } from '@mui/material';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
 import CardHeader from '@mui/material/CardHeader';
-import IconButton from '@mui/material/IconButton';
 
 import { fCurrency } from 'src/utils/format-number';
 
-import { Label } from 'src/components/label';
+import { CONFIG } from 'src/config-global';
+
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
 import { TableHeadCustom } from 'src/components/table';
-import { usePopover, CustomPopover } from 'src/components/custom-popover';
-import { Avatar, Stack } from '@mui/material';
 
 // ----------------------------------------------------------------------
 
@@ -56,14 +53,12 @@ export function AppNewInvoice({ title, subheader, tableData, headLabel, ...other
 }
 
 function RowItem({ row }) {
-  const popover = usePopover();
-  const storageHost = 'http://localhost:3000/api/files/show/';
   return (
     <TableRow>
       <TableCell>{row.id}</TableCell>
       <TableCell>
         <Stack spacing={2} direction="row" alignItems="center">
-          <Avatar alt={row?.name} src={storageHost + row?.image} />
+          <Avatar alt={row?.name} src={CONFIG.site.serverFileHost + row?.image} />
           <Box component="span">{row?.name}</Box>
         </Stack>
       </TableCell>

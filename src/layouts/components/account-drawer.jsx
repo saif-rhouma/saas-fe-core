@@ -11,6 +11,7 @@ import IconButton from '@mui/material/IconButton';
 import { paths } from 'src/routes/paths';
 import { useRouter, usePathname } from 'src/routes/hooks';
 
+import { CONFIG } from 'src/config-global';
 import { varAlpha } from 'src/theme/styles';
 
 import { Label } from 'src/components/label';
@@ -52,13 +53,12 @@ export function AccountDrawer({ data = [], sx, ...other }) {
     },
     [handleCloseDrawer, router]
   );
-  const storageHost = 'http://localhost:3000/api/files/show/';
   const renderAvatar = (
     <AnimateAvatar
       width={96}
       slotProps={{
         avatar: {
-          src: `${storageHost}${user?.avatar}`,
+          src: `${CONFIG.site.serverFileHost}${user?.avatar}`,
           alt: `${user?.firstName} ${user?.lastName}`,
         },
         overlay: {
@@ -77,7 +77,7 @@ export function AccountDrawer({ data = [], sx, ...other }) {
       <AccountButton
         open={open}
         onClick={handleOpenDrawer}
-        photoURL={`${storageHost}${user?.avatar}`}
+        photoURL={`${CONFIG.site.serverFileHost}${user?.avatar}`}
         displayName={user?.displayName}
         sx={sx}
         {...other}

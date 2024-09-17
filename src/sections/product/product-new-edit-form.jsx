@@ -109,7 +109,7 @@ export function ProductNewEditForm({ currentProduct, productsImages }) {
     },
     [selectedImage]
   );
-  const storageHost = 'http://localhost:3000/api/files/show/';
+
   const handleDropSingleFile = useCallback((acceptedFiles) => {
     const newFile = acceptedFiles[0];
     setFile(newFile);
@@ -195,7 +195,7 @@ export function ProductNewEditForm({ currentProduct, productsImages }) {
                 gridTemplateColumns={{ xs: 'repeat(2, 1fr)', md: 'repeat(12, 1fr)' }}
               >
                 <ProductItemButton
-                  image={storageHost + currentProduct.image}
+                  image={CONFIG.site.serverFileHost + currentProduct.image}
                   handleClick={handleSelectedImage}
                   selected={currentProduct.image === selectedImage}
                 />
@@ -224,7 +224,7 @@ export function ProductNewEditForm({ currentProduct, productsImages }) {
                   >
                     {productsImages.map((img) => (
                       <ProductItemButton
-                        image={storageHost + img.name}
+                        image={CONFIG.site.serverFileHost + img.name}
                         handleClick={handleSelectedImage}
                         payload={img.name}
                         selected={img.name === selectedImage}

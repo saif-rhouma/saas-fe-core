@@ -8,13 +8,15 @@ import Typography from '@mui/material/Typography';
 import { styled, useTheme } from '@mui/material/styles';
 import AvatarGroup, { avatarGroupClasses } from '@mui/material/AvatarGroup';
 
+import { fDate } from 'src/utils/format-time';
+
+import { CONFIG } from 'src/config-global';
 import { varAlpha, stylesMode } from 'src/theme/styles';
 
 import { Iconify } from 'src/components/iconify';
 import { imageClasses } from 'src/components/image';
 
 import { kanbanClasses } from '../classes';
-import { fDate } from 'src/utils/format-time';
 
 // ----------------------------------------------------------------------
 
@@ -55,7 +57,7 @@ export const StyledItem = styled(Stack)(({ theme }) => ({
 
 const ItemBase = forwardRef(({ task, stateProps, sx, ...other }, ref) => {
   const theme = useTheme();
-  const storageHost = 'http://localhost:3000/api/files/show/';
+
   useEffect(() => {
     if (!stateProps?.dragOverlay) {
       return;
@@ -137,7 +139,7 @@ const ItemBase = forwardRef(({ task, stateProps, sx, ...other }, ref) => {
           <Avatar
             key={op?.id}
             alt={op?.product?.name}
-            src={`${storageHost}${op?.product?.image}`}
+            src={`${CONFIG.site.serverFileHost}${op?.product?.image}`}
           />
         ))}
       </AvatarGroup>

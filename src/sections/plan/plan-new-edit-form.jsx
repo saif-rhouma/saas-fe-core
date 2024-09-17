@@ -13,6 +13,8 @@ import { useRouter } from 'src/routes/hooks';
 
 import axios, { endpoints } from 'src/utils/axios';
 
+import { CONFIG } from 'src/config-global';
+
 import { toast } from 'src/components/snackbar';
 import { Iconify } from 'src/components/iconify';
 import ProductItemButton from 'src/components/product/product-Item-button';
@@ -27,8 +29,6 @@ export function PlanNewEditForm({ products, plan }) {
   const [filterProducts, setFilterProducts] = useState(products);
 
   const queryClient = useQueryClient();
-
-  const storageHost = 'http://localhost:3000/api/files/show/';
 
   useEffect(() => {
     if (plan) {
@@ -169,7 +169,7 @@ export function PlanNewEditForm({ products, plan }) {
               handleClick={handleAddProducts}
               key={product?.id}
               productName={product?.name}
-              image={storageHost + product?.image}
+              image={CONFIG.site.serverFileHost + product?.image}
             />
           ))}
         </Box>
