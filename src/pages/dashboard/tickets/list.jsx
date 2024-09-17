@@ -32,10 +32,10 @@ export default function Page() {
     },
   });
 
-  if (response.isPending || response.isLoading) {
+  if (responseAnalytics.isLoading || response.isLoading) {
     return <LoadingScreen />;
   }
-  if (response.isError) {
+  if (response.isError || responseAnalytics.isError) {
     return <ErrorBlock route={paths.dashboard.tickets.root} />;
   }
   return (

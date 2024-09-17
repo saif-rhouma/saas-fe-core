@@ -36,7 +36,7 @@ export default function Page() {
     return <LoadingScreen />;
   }
 
-  if (response.isError) {
+  if (response.isError || responseAnalytics.isError) {
     return <ErrorBlock route={paths.dashboard.order.root} />;
   }
 
