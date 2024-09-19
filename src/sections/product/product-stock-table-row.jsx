@@ -1,10 +1,16 @@
+/* eslint-disable no-unsafe-optional-chaining */
 import TableRow from '@mui/material/TableRow';
 import TableCell from '@mui/material/TableCell';
-import { Box, Stack, Avatar } from '@mui/material';
+import IconButton from '@mui/material/IconButton';
+import { Box, Stack, Avatar, MenuItem, MenuList } from '@mui/material';
 
 import { CONFIG } from 'src/config-global';
 
-const ProductStockTableRow = ({ row, selected }) => {
+import { Iconify } from 'src/components/iconify';
+import { usePopover, CustomPopover } from 'src/components/custom-popover';
+
+const ProductStockTableRow = ({ row, selected, onEditRow }) => {
+  const popover = usePopover();
   const renderPrimary = (
     <TableRow hover selected={selected}>
       <TableCell>{row?.id}</TableCell>
@@ -15,8 +21,35 @@ const ProductStockTableRow = ({ row, selected }) => {
         </Stack>
       </TableCell>
       <TableCell>{row.quantity}</TableCell>
+      <TableCell align="right" sx={{ px: 1, whiteSpace: 'nowrap' }}>
+        <IconButton color={popover.open ? 'inherit' : 'default'} onClick={popover.onOpen}>
+          <Iconify icon="eva:more-vertical-fill" />
+        </IconButton>
+      </TableCell>
     </TableRow>
   );
-  return renderPrimary;
+  return (
+    <>
+      {renderPrimary}
+      <CustomPopover
+        open={popover.open}
+        anchorEl={popover.anchorEl}
+        onClose={popover.onClose}
+        slotProps={{ arrow: { placement: 'right-top' } }}
+      >
+        <MenuList>
+          <MenuItem
+            onClick={() => {
+              onEditRow(row.id);
+              popover.onClose();
+            }}
+          >
+            <Iconify icon="solar:pen-bold" />
+            Edit
+          </MenuItem>
+        </MenuList>
+      </CustomPopover>
+    </>
+  );
 };
 export default ProductStockTableRow;

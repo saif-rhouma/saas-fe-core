@@ -3,11 +3,13 @@ import useSWR, { mutate } from 'swr';
 
 import axios, { fetcher } from 'src/utils/axios';
 
+import { CONFIG } from 'src/config-global';
+
 // ----------------------------------------------------------------------
 
-const enableServer = false;
+const enableServer = true;
 
-const KANBAN_ORDER_ENDPOINT = 'http://localhost:3000/api/orders-status';
+const KANBAN_ORDER_ENDPOINT = `${CONFIG.site.serverUrl}/api/orders-status`;
 
 const swrOptions = {
   revalidateIfStale: enableServer,

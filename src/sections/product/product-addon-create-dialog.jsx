@@ -1,3 +1,4 @@
+/* eslint-disable radix */
 import { z as zod } from 'zod';
 import { useForm } from 'react-hook-form';
 import { useState, useEffect } from 'react';
@@ -7,12 +8,7 @@ import Stack from '@mui/material/Stack';
 import { LoadingButton } from '@mui/lab';
 import Dialog from '@mui/material/Dialog';
 import DialogContent from '@mui/material/DialogContent';
-import {
-  Button,
-  Divider,
-  DialogTitle,
-  DialogActions,
-} from '@mui/material';
+import { Alert, Button, Divider, DialogTitle, DialogActions } from '@mui/material';
 
 import { Form, Field } from 'src/components/hook-form';
 
@@ -26,13 +22,14 @@ const ProductAddonCreateDialog = ({ productAddon, open, onClose, handler }) => {
   const defaultValues = {
     name: productAddon?.name || '',
     price: parseInt(productAddon?.price) || '',
-    isActive: productAddon?.isActive || true,
+    isActive: productAddon?.isActive,
   };
 
   useEffect(() => {
     if (productAddon) {
       reset(defaultValues);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [productAddon]);
 
   const [errorMsg, setErrorMsg] = useState('');

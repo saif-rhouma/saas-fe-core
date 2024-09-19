@@ -38,6 +38,7 @@ import RemindersTableRow from '../reminders-table-row';
 import ReminderEditDialog from '../reminder-edit-dialog';
 import ReminderCreateDialog from '../reminder-create-dialog';
 import { RemindersTableToolbar } from '../reminders-table-toolbar';
+import { ReminderTableFiltersResult } from '../reminder-table-filters-result';
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
@@ -179,6 +180,15 @@ const RemindersListView = ({ reminders }) => {
               onResetPage={table.onResetPage}
               dateError={dateError}
             />
+
+            {canReset && (
+              <ReminderTableFiltersResult
+                filters={filters}
+                totalResults={dataFiltered.length}
+                onResetPage={table.onResetPage}
+                sx={{ p: 2.5, pt: 0 }}
+              />
+            )}
 
             <Box sx={{ position: 'relative' }}>
               <TableSelectedAction

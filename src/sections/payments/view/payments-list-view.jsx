@@ -38,6 +38,7 @@ import PaymentsTableRow from '../payments-table-row';
 import PaymentEditDialog from '../payment-edit-dialog';
 import PaymentDetailsDialog from '../payments-details-dialog';
 import { PaymentsTableToolbar } from '../payments-table-toolbar';
+import { PaymentsTableFiltersResult } from '../payments-table-filters-result';
 // ----------------------------------------------------------------------
 
 const STATUS_OPTIONS = [{ value: 'all', label: 'All' }, ...ORDER_STATUS_OPTIONS];
@@ -176,6 +177,15 @@ const PaymentsListView = ({ payments }) => {
               dateError={dateError}
             />
 
+            {canReset && (
+              <PaymentsTableFiltersResult
+                filters={filters}
+                totalResults={dataFiltered.length}
+                onResetPage={table.onResetPage}
+                sx={{ p: 2.5, pt: 0 }}
+              />
+            )}
+
             <Box sx={{ position: 'relative' }}>
               <TableSelectedAction
                 dense={table.dense}
@@ -264,7 +274,7 @@ function applyFilter({ inputData, comparator, filters, dateError }) {
   if (name) {
     inputData = inputData.filter(
       (order) =>
-        order.orderNumber.toLowerCase().indexOf(name.toLowerCase()) !== -1 ||
+        order.id.toString().toLowerCase().indexOf(name.toLowerCase()) !== -1 ||
         order.customer.name.toLowerCase().indexOf(name.toLowerCase()) !== -1 ||
         order.customer.email.toLowerCase().indexOf(name.toLowerCase()) !== -1
     );

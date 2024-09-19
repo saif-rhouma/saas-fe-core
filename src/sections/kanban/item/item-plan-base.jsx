@@ -54,7 +54,7 @@ export const StyledItem = styled(Stack)(({ theme }) => ({
   [`&.${kanbanClasses.state.dragging}`]: { opacity: 0.2, filter: 'grayscale(1)' },
 }));
 
-const ItemBase = forwardRef(({ task, stateProps, sx, ...other }, ref) => {
+const ItemPlanBase = forwardRef(({ task, stateProps, sx, ...other }, ref) => {
   useEffect(() => {
     if (!stateProps?.dragOverlay) {
       return;
@@ -82,6 +82,16 @@ const ItemBase = forwardRef(({ task, stateProps, sx, ...other }, ref) => {
       ''
   );
 
+  /*
+
+
+ (row.status === 'Ready' && 'success') ||
+            (row.status === 'Pending' && 'info') ||
+            (row.status === 'ProcessingA' && 'warning') ||
+            (row.status === 'ProcessingB' && 'error') ||
+
+  */
+
   const renderPriority = (
     <Iconify
       icon={
@@ -93,9 +103,10 @@ const ItemBase = forwardRef(({ task, stateProps, sx, ...other }, ref) => {
         top: 4,
         right: 4,
         position: 'absolute',
-        ...(task.status === 'Delivered' && { color: 'info.main' }),
-        ...(task.status === 'Ready' && { color: 'warning.main' }),
-        ...(task.status === 'InProcess' && { color: 'error.main' }),
+        ...(task.status === 'ProcessingA' && { color: 'warning.main' }),
+        ...(task.status === 'Ready' && { color: 'success.main' }),
+        ...(task.status === 'Pending' && { color: 'info.main' }),
+        ...(task.status === 'ProcessingB' && { color: 'error.main' }),
       }}
     />
   );
@@ -114,13 +125,11 @@ const ItemBase = forwardRef(({ task, stateProps, sx, ...other }, ref) => {
       </Stack>
 
       <AvatarGroup sx={{ [`& .${avatarGroupClasses.avatar}`]: { width: 24, height: 24 } }}>
-        {task?.productToOrder?.map((op) => (
-          <Avatar
-            key={op?.id}
-            alt={op?.product?.name}
-            src={`${CONFIG.site.serverFileHost}${op?.product?.image}`}
-          />
-        ))}
+        <Avatar
+          key={task?.product?.id}
+          alt={task?.product?.name}
+          src={`${CONFIG.site.serverFileHost}${task?.product?.image}`}
+        />
       </AvatarGroup>
     </Stack>
   );
@@ -151,18 +160,16 @@ const ItemBase = forwardRef(({ task, stateProps, sx, ...other }, ref) => {
         <Stack spacing={1} sx={{ px: 2, py: 2.5, position: 'relative' }}>
           {renderPriority}
           <Stack direction="row" justifyContent="space-between">
-            <Typography variant="subtitle2">{task?.customer?.name}</Typography>
-            <Typography variant="subtitle2">ORD-{task?.id}</Typography>
+            <Typography variant="subtitle2">{task?.product?.name}</Typography>
+            <Typography variant="subtitle2">PLAN-{task?.id}</Typography>
           </Stack>
           <Stack direction="row" justifyContent="space-between" sx={{ typography: 'body2' }}>
-            <Box sx={{ color: 'text.secondary' }}>Order Date:</Box>
-            <Box sx={{ color: 'text.secondary' }}>{fDate(task?.orderDate)}</Box>
+            <Box sx={{ color: 'text.secondary' }}>Plan Date:</Box>
+            <Box sx={{ color: 'text.secondary' }}>{fDate(task?.planDate)}</Box>
           </Stack>
           <Stack direction="row" justifyContent="space-between" sx={{ typography: 'body2' }}>
-            <Box sx={{ color: 'text.secondary' }}>Delivery Date:</Box>
-            <Box sx={{ color: 'text.secondary' }}>
-              {task.deliveryDate ? fDate(task?.deliveryDate) : '-'}
-            </Box>
+            <Box sx={{ color: 'text.secondary' }}>Quantity:</Box>
+            <Box sx={{ color: 'text.secondary' }}>{task.quantity ? task.quantity : '-'}</Box>
           </Stack>
           <Stack direction="row" justifyContent="space-between" sx={{ typography: 'body2' }}>
             <Box sx={{ color: 'text.secondary' }}>Last Updated Date:</Box>
@@ -176,4 +183,4 @@ const ItemBase = forwardRef(({ task, stateProps, sx, ...other }, ref) => {
   );
 });
 
-export default memo(ItemBase);
+export default memo(ItemPlanBase);

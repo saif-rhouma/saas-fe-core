@@ -2,11 +2,12 @@ import { useMemo } from 'react';
 import useSWR, { mutate } from 'swr';
 
 import axios, { fetcher } from 'src/utils/axios';
+
 import { CONFIG } from 'src/config-global';
 
 // ----------------------------------------------------------------------
 
-const enableServer = false;
+const enableServer = true;
 
 const KANBAN_PLAN_ENDPOINT = `${CONFIG.site.serverUrl}/api/plans-status`;
 

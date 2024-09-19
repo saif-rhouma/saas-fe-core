@@ -1,48 +1,55 @@
-import { useState, useCallback, useEffect } from 'react';
+/* eslint-disable react-hooks/exhaustive-deps */
+import { useState, useEffect, useCallback } from 'react';
+import { useQuery } from '@tanstack/react-query';
 
 import Box from '@mui/material/Box';
-import { Stack } from '@mui/material';
 import Card from '@mui/material/Card';
 import Table from '@mui/material/Table';
 import Tooltip from '@mui/material/Tooltip';
+import { Stack, Button } from '@mui/material';
 import TableBody from '@mui/material/TableBody';
 import IconButton from '@mui/material/IconButton';
 
 import { paths } from 'src/routes/paths';
-import { useRouter } from 'src/routes/hooks';
 
 import { useBoolean } from 'src/hooks/use-boolean';
 import { useSetState } from 'src/hooks/use-set-state';
 
-import { fIsAfter, fIsBetween } from 'src/utils/format-time';
+import { fIsAfter } from 'src/utils/format-time';
+import axios, { endpoints } from 'src/utils/axios';
 
-import { _orders } from 'src/_mock';
 import { DashboardContent } from 'src/layouts/dashboard';
 
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
+import { LoadingScreen } from 'src/components/loading-screen';
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 import {
   useTable,
   emptyRows,
-  rowInPage,
   TableNoData,
   getComparator,
   TableEmptyRows,
   TableHeadCustom,
   TableSelectedAction,
   TablePaginationCustom,
+  rowInPage,
 } from 'src/components/table';
 
-import ProductStockTableRow from '../product-stock-table-row';
-import { ProductStockTableToolbar } from '../product-stock-table-toolbar';
+import { ErrorBlock } from 'src/sections/error/error-block';
 
+import ProductStockTableRow from '../product-stock-table-row';
+import ProductStockCreateDialog from '../product-stock-create-dialog';
+import { ProductStockTableToolbar } from '../product-stock-table-toolbar';
+import { ProductTableFiltersResult } from '../product-table-filters-result';
+import ProductStockEditDialog from '../product-stock-edit-dialog';
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
   { id: 'stockId', label: 'No.', width: 60 },
   { id: 'productName', label: 'Product Name' },
-  { id: 'stock', label: 'In Stock', width: 140 },
+  { id: 'stock', label: 'In Stock', width: 200 },
+  { id: '', width: 40 },
 ];
 
 // ----------------------------------------------------------------------
@@ -50,7 +57,10 @@ const TABLE_HEAD = [
 export function ProductStockView({ stocks }) {
   const table = useTable({ defaultOrderBy: 'planId' });
 
-  const router = useRouter();
+  const [selectedStock, setSelectedStock] = useState();
+
+  const dialog = useBoolean();
+  const dialogEdit = useBoolean();
 
   const confirm = useBoolean();
 
@@ -78,6 +88,14 @@ export function ProductStockView({ stocks }) {
 
   const dataInPage = rowInPage(dataFiltered, table.page, table.rowsPerPage);
 
+  const handleEditRow = useCallback(
+    (row) => {
+      setSelectedStock(row);
+      dialogEdit.onToggle();
+    },
+    [dataInPage.length, table, tableData]
+  );
+
   const canReset =
     !!filters.state.name ||
     filters.state.status !== 'all' ||
@@ -85,96 +103,142 @@ export function ProductStockView({ stocks }) {
 
   const notFound = (!dataFiltered.length && canReset) || !dataFiltered.length;
 
-  const handleViewRow = useCallback(
-    (id) => {
-      router.push(paths.dashboard.order.details(id));
+  const productsList = useQuery({
+    queryKey: ['products'],
+    queryFn: async () => {
+      const { data } = await axios.get(endpoints.products.list);
+      return data;
     },
-    [router]
-  );
+  });
+
+  if (productsList.isPending || productsList.isLoading) {
+    return <LoadingScreen />;
+  }
+  if (productsList.isError) {
+    return <ErrorBlock route={paths.dashboard.products.root} />;
+  }
 
   return (
-    <DashboardContent maxWidth="xl">
-      <Stack spacing={3}>
-        <CustomBreadcrumbs
-          links={[
-            { name: 'Dashboard', href: paths.dashboard.root },
-            { name: 'Products', href: paths.dashboard.product.root },
-            { name: 'Product Stock' },
-          ]}
-        />
-        <Card>
-          <ProductStockTableToolbar
-            filters={filters}
-            onResetPage={table.onResetPage}
-            dateError={dateError}
+    <>
+      <DashboardContent maxWidth="xl">
+        <Stack spacing={3}>
+          <CustomBreadcrumbs
+            links={[
+              { name: 'Dashboard', href: paths.dashboard.root },
+              { name: 'Products', href: paths.dashboard.product.root },
+              { name: 'Product Stock' },
+            ]}
+            action={
+              productsList.data.filter((prod) => prod.stock === null).length ? (
+                <Button
+                  onClick={() => dialog.onToggle()}
+                  variant="contained"
+                  startIcon={<Iconify icon="mingcute:add-line" />}
+                >
+                  Add Stock
+                </Button>
+              ) : (
+                ''
+              )
+            }
           />
-          <Box sx={{ position: 'relative' }}>
-            <TableSelectedAction
-              dense={table.dense}
-              numSelected={table.selected.length}
-              rowCount={dataFiltered.length}
-              onSelectAllRows={(checked) =>
-                table.onSelectAllRows(
-                  checked,
-                  dataFiltered.map((row) => row.id)
-                )
-              }
-              action={
-                <Tooltip title="Delete">
-                  <IconButton color="primary" onClick={confirm.onTrue}>
-                    <Iconify icon="solar:trash-bin-trash-bold" />
-                  </IconButton>
-                </Tooltip>
-              }
+          <Card>
+            <ProductStockTableToolbar
+              filters={filters}
+              onResetPage={table.onResetPage}
+              dateError={dateError}
             />
-            <Scrollbar sx={{ minHeight: 200 }}>
-              <Table size={table.dense ? 'small' : 'medium'} sx={{ minWidth: 960 }}>
-                <TableHeadCustom
-                  order={table.order}
-                  orderBy={table.orderBy}
-                  headLabel={TABLE_HEAD}
-                  rowCount={dataFiltered.length}
-                />
-                {dataFiltered
-                  .slice(
-                    table.page * table.rowsPerPage,
-                    table.page * table.rowsPerPage + table.rowsPerPage
-                  )
-                  .map((row) => (
-                    <ProductStockTableRow
-                      key={row.id}
-                      row={row}
-                      selected={table.selected.includes(row.id)}
-                    />
-                  ))}
-                <TableBody>
-                  <TableEmptyRows
-                    height={table.dense ? 56 : 56 + 20}
-                    emptyRows={emptyRows(table.page, table.rowsPerPage, dataFiltered.length)}
-                  />
 
-                  <TableNoData notFound={notFound} />
-                </TableBody>
-              </Table>
-            </Scrollbar>
-          </Box>
-          <TablePaginationCustom
-            page={table.page}
-            dense={table.dense}
-            count={dataFiltered.length}
-            rowsPerPage={table.rowsPerPage}
-            onPageChange={table.onChangePage}
-            onChangeDense={table.onChangeDense}
-            onRowsPerPageChange={table.onChangeRowsPerPage}
-          />
-        </Card>
-      </Stack>
-    </DashboardContent>
+            {canReset && (
+              <ProductTableFiltersResult
+                filters={filters}
+                totalResults={dataFiltered.length}
+                onResetPage={table.onResetPage}
+                sx={{ p: 2.5, pt: 0 }}
+              />
+            )}
+            <Box sx={{ position: 'relative' }}>
+              <TableSelectedAction
+                dense={table.dense}
+                numSelected={table.selected.length}
+                rowCount={dataFiltered.length}
+                onSelectAllRows={(checked) =>
+                  table.onSelectAllRows(
+                    checked,
+                    dataFiltered.map((row) => row.id)
+                  )
+                }
+                action={
+                  <Tooltip title="Delete">
+                    <IconButton color="primary" onClick={confirm.onTrue}>
+                      <Iconify icon="solar:trash-bin-trash-bold" />
+                    </IconButton>
+                  </Tooltip>
+                }
+              />
+              <Scrollbar sx={{ minHeight: 200 }}>
+                <Table size={table.dense ? 'small' : 'medium'} sx={{ minWidth: 960 }}>
+                  <TableHeadCustom
+                    order={table.order}
+                    orderBy={table.orderBy}
+                    headLabel={TABLE_HEAD}
+                    rowCount={dataFiltered.length}
+                  />
+                  {dataFiltered
+                    .slice(
+                      table.page * table.rowsPerPage,
+                      table.page * table.rowsPerPage + table.rowsPerPage
+                    )
+                    .map((row) => (
+                      <ProductStockTableRow
+                        key={row.id}
+                        row={row}
+                        onEditRow={() => handleEditRow(row)}
+                        selected={table.selected.includes(row.id)}
+                      />
+                    ))}
+                  <TableBody>
+                    <TableEmptyRows
+                      height={table.dense ? 56 : 56 + 20}
+                      emptyRows={emptyRows(table.page, table.rowsPerPage, dataFiltered.length)}
+                    />
+
+                    <TableNoData notFound={notFound} />
+                  </TableBody>
+                </Table>
+              </Scrollbar>
+            </Box>
+            <TablePaginationCustom
+              page={table.page}
+              dense={table.dense}
+              count={dataFiltered.length}
+              rowsPerPage={table.rowsPerPage}
+              onPageChange={table.onChangePage}
+              onChangeDense={table.onChangeDense}
+              onRowsPerPageChange={table.onChangeRowsPerPage}
+            />
+          </Card>
+        </Stack>
+      </DashboardContent>
+      {dialog.value && (
+        <ProductStockCreateDialog
+          productsList={productsList.data}
+          open={dialog.value}
+          onClose={dialog.onFalse}
+        />
+      )}
+
+      <ProductStockEditDialog
+        stock={selectedStock}
+        open={dialogEdit.value}
+        onClose={dialogEdit.onFalse}
+      />
+    </>
   );
 }
 
-function applyFilter({ inputData, comparator, filters, dateError }) {
-  const { status, name, startDate, endDate } = filters;
+function applyFilter({ inputData, comparator, filters }) {
+  const { name } = filters;
 
   const stabilizedThis = inputData.map((el, index) => [el, index]);
 
@@ -192,12 +256,6 @@ function applyFilter({ inputData, comparator, filters, dateError }) {
         order.id.toString().toLowerCase().indexOf(name.toLowerCase()) !== -1 ||
         order.name.toLowerCase().indexOf(name.toLowerCase()) !== -1
     );
-  }
-
-  if (!dateError) {
-    if (startDate && endDate) {
-      inputData = inputData.filter((order) => fIsBetween(order.createdAt, startDate, endDate));
-    }
   }
 
   return inputData;

@@ -5,11 +5,11 @@ import { useBoolean } from 'src/hooks/use-boolean';
 
 import { imageClasses } from 'src/components/image';
 
-import ItemBase from './item-base';
+import ItemPlanBase from './item-plan-base';
 
 // ----------------------------------------------------------------------
 
-export function KanbanTaskItem({ task, disabled, columnId, sx }) {
+export function KanbanTaskPlanItem({ task, disabled, columnId, sx }) {
   const openDetails = useBoolean();
 
   const { setNodeRef, listeners, isDragging, isSorting, transform, transition } = useSortable({
@@ -21,7 +21,7 @@ export function KanbanTaskItem({ task, disabled, columnId, sx }) {
   const mountedWhileDragging = isDragging && !mounted;
 
   return (
-    <ItemBase
+    <ItemPlanBase
       ref={disabled ? undefined : setNodeRef}
       task={task}
       onClick={openDetails.onTrue}

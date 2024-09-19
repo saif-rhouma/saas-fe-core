@@ -50,7 +50,7 @@ export function ProductNewEditForm({ currentProduct, productsImages }) {
       name: currentProduct?.name || '',
       price: currentProduct?.price || 0,
       images: currentProduct?.images || [],
-      isActive: currentProduct?.isActive || true,
+      isActive: currentProduct?.isActive,
     }),
     [currentProduct]
   );
@@ -134,6 +134,7 @@ export function ProductNewEditForm({ currentProduct, productsImages }) {
     },
     onSettled: async () => {
       await queryClient.invalidateQueries({ queryKey: ['products-images'] });
+      setFile(null);
       dialog.onFalse();
     },
     onError: (err) => {
@@ -167,6 +168,19 @@ export function ProductNewEditForm({ currentProduct, productsImages }) {
     onSettled: async () => {
       await queryClient.invalidateQueries({ queryKey: ['products'] });
       dialog.onFalse();
+    },
+    onError: (err) => {
+      console.log(err);
+    },
+  });
+
+  const { mutate: handleDeleteImage } = useMutation({
+    mutationFn: (payload) => axios.delete(endpoints.files.delete + payload),
+    onSuccess: async () => {
+      toast.success('Image Has been Deleted!');
+    },
+    onSettled: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['products-images'] });
     },
     onError: (err) => {
       console.log(err);
@@ -226,6 +240,7 @@ export function ProductNewEditForm({ currentProduct, productsImages }) {
                       <ProductItemButton
                         image={CONFIG.site.serverFileHost + img.name}
                         handleClick={handleSelectedImage}
+                        handleDelete={handleDeleteImage}
                         payload={img.name}
                         selected={img.name === selectedImage}
                       />

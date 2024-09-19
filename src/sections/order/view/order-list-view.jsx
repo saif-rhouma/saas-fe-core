@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 import { useState, useEffect, useCallback } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
@@ -6,10 +7,8 @@ import Card from '@mui/material/Card';
 import Table from '@mui/material/Table';
 import { useTheme } from '@mui/material';
 import Button from '@mui/material/Button';
-import Tooltip from '@mui/material/Tooltip';
 import TableBody from '@mui/material/TableBody';
 import Grid from '@mui/material/Unstable_Grid2';
-import IconButton from '@mui/material/IconButton';
 
 import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hooks';
@@ -117,6 +116,7 @@ export function OrderListView({ orders, analytics }) {
     },
     onSettled: async () => {
       await queryClient.invalidateQueries({ queryKey: ['orders'] });
+      await queryClient.invalidateQueries({ queryKey: ['orders-status'] });
       await queryClient.invalidateQueries({ queryKey: ['orders', 'analytics'] });
     },
     onError: () => {},

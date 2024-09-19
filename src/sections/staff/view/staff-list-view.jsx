@@ -38,6 +38,7 @@ import {
 
 import StaffTableRow from '../staff-table-row';
 import { StaffTableToolbar } from '../staff-table-toolbar';
+import { StaffTableFiltersResult } from '../staff-table-filters-result';
 // import PaymentDetailsDialog from '../reminders-details-dialog';
 // import PaymentEditDialog from '../reminder-create-dialog';
 // import ReminderCreateDialog from '../reminder-create-dialog';
@@ -167,6 +168,15 @@ const StaffListView = ({ staffs }) => {
               onResetPage={table.onResetPage}
               dateError={dateError}
             />
+
+            {canReset && (
+              <StaffTableFiltersResult
+                filters={filters}
+                totalResults={dataFiltered.length}
+                onResetPage={table.onResetPage}
+                sx={{ p: 2.5, pt: 0 }}
+              />
+            )}
 
             <Box sx={{ position: 'relative' }}>
               <TableSelectedAction

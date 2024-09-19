@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { useState, useEffect, useCallback } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
@@ -23,7 +24,6 @@ import { DashboardContent } from 'src/layouts/dashboard';
 import { toast } from 'src/components/snackbar';
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
-import { ConfirmDialog } from 'src/components/custom-dialog';
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 import {
   useTable,
@@ -41,6 +41,7 @@ import ProductAddonTableRow from '../product-addon-table-row';
 import ProductAddonEditDialog from '../product-addon-edit-dialog';
 import ProductAddonCreateDialog from '../product-addon-create-dialog';
 import { ProductAddonTableToolbar } from '../product-addon-table-toolbar';
+import { ProductTableFiltersResult } from '../product-table-filters-result';
 
 // ----------------------------------------------------------------------
 
@@ -101,16 +102,6 @@ export function ProductAddonsView({ productAddons }) {
     },
     [dataInPage.length, table, tableData]
   );
-
-  const handleDeleteRows = useCallback(() => {
-    // const deleteRows = tableData.filter((row) => !table.selected.includes(row.id));
-    // toast.success('Delete success!');
-    // setTableData(deleteRows);
-    // table.onUpdatePageDeleteRows({
-    //   totalRowsInPage: dataInPage.length,
-    //   totalRowsFiltered: dataFiltered.length,
-    // });
-  }, [dataFiltered.length, dataInPage.length, table, tableData]);
 
   const handleEditRow = useCallback(
     (row) => {
@@ -195,6 +186,14 @@ export function ProductAddonsView({ productAddons }) {
               onResetPage={table.onResetPage}
               dateError={dateError}
             />
+            {canReset && (
+              <ProductTableFiltersResult
+                filters={filters}
+                totalResults={dataFiltered.length}
+                onResetPage={table.onResetPage}
+                sx={{ p: 2.5, pt: 0 }}
+              />
+            )}
             <Box sx={{ position: 'relative' }}>
               <TableSelectedAction
                 dense={table.dense}
@@ -269,28 +268,6 @@ export function ProductAddonsView({ productAddons }) {
         onClose={dialogEdit.onFalse}
         handler={handleEditProductAddon}
         productAddon={selectedProductAddon}
-      />
-      <ConfirmDialog
-        open={confirm.value}
-        onClose={confirm.onFalse}
-        title="Delete"
-        content={
-          <>
-            Are you sure want to delete <strong> {table.selected.length} </strong> items?
-          </>
-        }
-        action={
-          <Button
-            variant="contained"
-            color="error"
-            onClick={() => {
-              handleDeleteRows();
-              confirm.onFalse();
-            }}
-          >
-            Delete
-          </Button>
-        }
       />
     </>
   );

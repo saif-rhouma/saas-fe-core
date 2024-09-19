@@ -1,6 +1,5 @@
 import Link from '@mui/material/Link';
 import Button from '@mui/material/Button';
-import Checkbox from '@mui/material/Checkbox';
 import MenuItem from '@mui/material/MenuItem';
 import MenuList from '@mui/material/MenuList';
 import TableRow from '@mui/material/TableRow';
@@ -21,20 +20,10 @@ import { usePopover, CustomPopover } from 'src/components/custom-popover';
 export function PlanTableRow({ row, selected, onViewRow, onEditRow, onSelectRow, onDeleteRow }) {
   const confirm = useBoolean();
 
-  const collapse = useBoolean();
-
   const popover = usePopover();
 
   const renderPrimary = (
     <TableRow hover selected={selected}>
-      <TableCell padding="checkbox">
-        <Checkbox
-          checked={selected}
-          onClick={onSelectRow}
-          inputProps={{ id: `row-checkbox-${row.id}`, 'aria-label': `Row checkbox` }}
-        />
-      </TableCell>
-
       <TableCell>
         <Link color="inherit" onClick={onViewRow} underline="always" sx={{ cursor: 'pointer' }}>
           PLN-{row.id}
@@ -50,9 +39,10 @@ export function PlanTableRow({ row, selected, onViewRow, onEditRow, onSelectRow,
         <Label
           variant="soft"
           color={
-            (row.status === 'completed' && 'success') ||
-            (row.status === 'Pending' && 'warning') ||
-            (row.status === 'cancelled' && 'error') ||
+            (row.status === 'Ready' && 'success') ||
+            (row.status === 'Pending' && 'info') ||
+            (row.status === 'ProcessingA' && 'warning') ||
+            (row.status === 'ProcessingB' && 'error') ||
             'default'
           }
         >

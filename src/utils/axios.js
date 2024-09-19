@@ -20,7 +20,6 @@ export const fetcher = async (args) => {
     const [url, config] = Array.isArray(args) ? args : [args];
 
     const res = await axiosInstance.get(url, { ...config });
-    console.log('----> Trigger Request');
     return res.data;
   } catch (error) {
     console.error('Failed to fetch:', error);
@@ -70,6 +69,7 @@ export const endpoints = {
     list: '/api/plans/',
     details: '/api/plans/',
     create: '/api/plans/create',
+    delete: '/api/plans/',
     edit: '/api/plans/',
     transferToStock: '/api/plans/stock/',
   },
@@ -123,6 +123,7 @@ export const endpoints = {
   },
   files: {
     upload: '/api/files/upload',
+    delete: '/api/files/delete/',
   },
   account: {
     edit: '/api/users/',
@@ -131,6 +132,8 @@ export const endpoints = {
     edit: '/api/applications/',
   },
   stock: {
+    create: '/api/stock/create',
+    edit: '/api/stock/',
     products: '/api/stock/',
     details: '/api/stock/details',
   },

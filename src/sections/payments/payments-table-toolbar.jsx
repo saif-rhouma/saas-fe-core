@@ -28,7 +28,7 @@ export function PaymentsTableToolbar({ filters, onResetPage, options }) {
         sx={{ width: 420 }}
         value={filters.state.name}
         onChange={handleFilterName}
-        placeholder="Search customer or order number..."
+        placeholder="Search Customer Name or Payment number..."
         InputProps={{
           startAdornment: (
             <InputAdornment position="start">

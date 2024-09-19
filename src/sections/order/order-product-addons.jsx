@@ -16,12 +16,9 @@ import { fDateTime } from 'src/utils/format-time';
 import { fCurrency } from 'src/utils/format-number';
 
 import { Label } from 'src/components/label';
-import axios, { endpoints } from 'src/utils/axios';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { toast } from 'src/components/snackbar';
-import { nanoid } from 'nanoid';
+import { Iconify } from 'src/components/iconify';
 
-const OrderProductAddons = ({ order, payments, dialog, setTriggerRender }) => {
+const OrderProductAddons = ({ order, payments, dialog, handleApproveOrder, handlePrint }) => {
   const renderTimeline = (
     <Box sx={{ pr: 4, pl: 4, pb: 4, pt: 2 }}>
       <Box sx={{ mb: 2 }}>
@@ -72,35 +69,23 @@ const OrderProductAddons = ({ order, payments, dialog, setTriggerRender }) => {
         <Button variant="contained" onClick={() => dialog.onTrue()}>
           Add Payment
         </Button>
-        <Button
-          variant="outlined"
-          onClick={() => {
-            handleApproveOrder(order.id);
-          }}
-        >
-          Approve
+        {order?.status === 'Draft' && (
+          <Button
+            variant="outlined"
+            onClick={() => {
+              handleApproveOrder(order.id);
+            }}
+          >
+            Approve
+          </Button>
+        )}
+        <Button variant="outlined" color="info" onClick={() => handlePrint()}>
+          <Iconify icon="solar:printer-minimalistic-bold" />
+          <span style={{ margin: 4 }}>Print Invoice</span>
         </Button>
-        <Button>Print Invoice</Button>
       </Stack>
     </Box>
   );
-  const queryClient = useQueryClient();
-  const { mutate: handleApproveOrder } = useMutation({
-    mutationFn: (id) => axios.get(endpoints.order.approve + id),
-    onSuccess: async () => {
-      toast.success('Order Has Been Approved!');
-    },
-    onSettled: async () => {
-      const id = order.id;
-      await queryClient.invalidateQueries({ queryKey: ['orders'] });
-      await queryClient.invalidateQueries({ queryKey: ['order', id] });
-      // setTriggerRender(nanoid());
-    },
-    onError: (err) => {
-      console.log(err);
-    },
-  });
-
   return (
     <Card>
       <CardHeader title="Product Addons" />
