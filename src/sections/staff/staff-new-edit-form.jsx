@@ -19,6 +19,9 @@ import { useRouter } from 'src/routes/hooks';
 
 import { toast } from 'src/components/snackbar';
 import { Form } from 'src/components/hook-form';
+import { paths } from 'src/routes/paths';
+import axios, { endpoints } from 'src/utils/axios';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 // List of permissions for the checkbox
 const permissions = [
@@ -46,25 +49,28 @@ const permissions = [
 
 // Schema definition for form validation
 export const NewStaffSchema = zod.object({
-  staffName: zod.string().min(1, { message: 'Staff Name is required!' }),
-  staffPassword: zod.string().min(1, { message: 'Password is required!' }),
-  staffEmail: zod.string().min(1, { message: 'Email is required!' }),
-  staffPhone: zod.string().min(1, { message: 'Phone Number is required!' }),
+  firstName: zod.string().min(1, { message: 'Staff firstName is required!' }),
+  lastName: zod.string().min(1, { message: 'Staff lastName is required!' }),
+  password: zod.string().min(1, { message: 'Password is required!' }),
+  email: zod.string().min(1, { message: 'Email is required!' }),
+  phoneNumber: zod.string().min(1, { message: 'Phone Number is required!' }),
   isActive: zod.boolean(),
   permissions: zod.array(zod.string()).min(1, { message: 'At least one permission is required!' }),
 });
 
 export function StaffNewEditForm({ currentStaff }) {
+  const queryClient = useQueryClient();
   const router = useRouter();
 
   const defaultValues = useMemo(
     () => ({
-      staffName: currentStaff?.staffName || '',
-      staffPhoneNumber: currentStaff?.staffPhoneNumber || '',
-      staffEmail: currentStaff?.staffEmail || '',
-      staffPassword: currentStaff?.staffPassword || '',
+      firstName: currentStaff?.firstName || '',
+      lastName: currentStaff?.lastName || '',
+      phoneNumber: currentStaff?.phoneNumber || '',
+      email: currentStaff?.email || '',
+      password: currentStaff?.password || '',
       isActive: currentStaff?.isActive || true,
-      permissions: currentStaff?.permissions || [], // default empty permissions
+      permissions: currentStaff?.permissions || [],
     }),
     [currentStaff]
   );
@@ -83,21 +89,29 @@ export function StaffNewEditForm({ currentStaff }) {
     formState: { isSubmitting },
   } = methods;
 
-  const onSubmit = handleSubmit(async (data) => {
-    try {
-      await new Promise((resolve) => setTimeout(resolve, 500));
+  const { mutate: handleCreateStaff } = useMutation({
+    mutationFn: (payload) => axios.post(endpoints.staff.create, payload),
+    onSuccess: () => {
+      toast.success(
+        currentStaff ? 'Staff updated successfully!' : 'New Staff created successfully!'
+      );
+      queryClient.invalidateQueries(['staff']);
       reset();
-      toast.success(currentStaff ? 'Update success!' : 'Create success!');
-      router.push(paths.dashboard.product.root);
-      console.info('DATA', data);
-    } catch (error) {
-      console.error(error);
-    }
+      router.push(paths.dashboard.staff.root);
+    },
+    onError: (err) => {
+      console.error(err);
+      toast.error('Failed to save staff. Please try again.');
+    },
+  });
+
+  const onSubmit = handleSubmit((data) => {
+    console.info('DATA Staff', data);
+    handleCreateStaff(data);
   });
 
   return (
     <Form methods={methods} onSubmit={onSubmit}>
-      {/* Card for Staff Details */}
       <Card sx={{ mb: 4 }}>
         <Stack spacing={4} sx={{ p: 3 }}>
           <Typography variant="h6" gutterBottom>
@@ -107,19 +121,17 @@ export function StaffNewEditForm({ currentStaff }) {
             columnGap={2}
             rowGap={3}
             display="grid"
-            gridTemplateColumns={{ xs: 'repeat(1, 1fr)', md: 'repeat(2, 1fr)' }}
+            gridTemplateColumns={{ xs: 'repeat(1, 1fr)', md: 'repeat(3, 1fr)' }}
           >
-            <TextField label="Staff Name" {...methods.register('staffName')} />
-            <TextField label="Phone Number" {...methods.register('staffPhone')} />
-            <TextField label="Email" {...methods.register('staffEmail')} />
-            {/* <TextField label="Password" {...methods.register('staffPassword')} /> */}
-            {/* password field will be hidden */}
-            <TextField label="Password" type="password" {...methods.register('staffPassword')} />
+            <TextField label="First Name" {...methods.register('firstName')} />
+            <TextField label="Last Name" {...methods.register('lastName')} />
+            <TextField label="Phone Number" {...methods.register('phoneNumber')} />
+            <TextField label="Email" {...methods.register('email')} />
+            <TextField label="Password" type="password" {...methods.register('password')} />
           </Box>
         </Stack>
       </Card>
 
-      {/* Card for Permissions */}
       <Card>
         <Stack spacing={4} sx={{ p: 3 }}>
           <Typography variant="h6" gutterBottom>
