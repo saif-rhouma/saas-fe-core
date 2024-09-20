@@ -1,7 +1,7 @@
 import axios, { endpoints } from 'src/utils/axios';
 
 import { setSession } from './utils';
-import { STORAGE_KEY } from './constant';
+import { STORAGE_KEY, CURRENCY_SYMBOL_KEY } from './constant';
 
 /** **************************************
  * Sign in
@@ -14,10 +14,13 @@ export const signInWithPassword = async ({ email, password }) => {
 
     const { accessToken } = res.data;
 
+    const { currencySymbol } = res.data?.userOwnedApps;
+
     if (!accessToken) {
       throw new Error('Access token not found in response');
     }
 
+    localStorage.setItem(CURRENCY_SYMBOL_KEY, currencySymbol);
     setSession(accessToken);
   } catch (error) {
     console.error('Error during sign in:', error);

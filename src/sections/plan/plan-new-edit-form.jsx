@@ -13,6 +13,8 @@ import { useRouter } from 'src/routes/hooks';
 
 import axios, { endpoints } from 'src/utils/axios';
 
+import { CONFIG } from 'src/config-global';
+
 import { toast } from 'src/components/snackbar';
 import { Iconify } from 'src/components/iconify';
 import ProductItemButton from 'src/components/product/product-Item-button';
@@ -24,11 +26,9 @@ export function PlanNewEditForm({ products, plan }) {
   const [planId, setPlanId] = useState();
   const [selectedDate, setSelectedDate] = useState(dayjs(new Date()));
   const [selectedProducts, setSelectedProducts] = useState([]);
-  const [filterProducts, setfilterProducts] = useState(products);
+  const [filterProducts, setFilterProducts] = useState(products);
 
   const queryClient = useQueryClient();
-
-  const storageHost = 'http://localhost:3000/api/files/show/';
 
   useEffect(() => {
     if (plan) {
@@ -69,17 +69,20 @@ export function PlanNewEditForm({ products, plan }) {
     setPlanId(event.target.value);
   }, []);
 
-  const handleFilterProducts = useCallback((event) => {
-    const name = event.target.value;
-    if (name) {
-      setfilterProducts(
-        products.filter((product) => product.name.toLowerCase().indexOf(name) !== -1)
-      );
-    }
-    if (name === undefined || name === null || name === '') {
-      setfilterProducts(products);
-    }
-  }, []);
+  const handleFilterProducts = useCallback(
+    (event) => {
+      const name = event.target.value;
+      if (name) {
+        setFilterProducts(
+          products.filter((product) => product.name.toLowerCase().indexOf(name) !== -1)
+        );
+      }
+      if (name === undefined || name === null || name === '') {
+        setFilterProducts(products);
+      }
+    },
+    [products]
+  );
 
   const handleAddProducts = useCallback(
     (payload) => {
@@ -166,7 +169,7 @@ export function PlanNewEditForm({ products, plan }) {
               handleClick={handleAddProducts}
               key={product?.id}
               productName={product?.name}
-              image={storageHost + product?.image}
+              image={CONFIG.site.serverFileHost + product?.image}
             />
           ))}
         </Box>

@@ -96,7 +96,7 @@ function OrderCustomerCreateDialog({ customer, open, onClose, handler }) {
           >
             <Field.Text fullWidth label="Enter Customer Name" name="name" sx={{ mt: 2 }} />
             <Field.Text label="Enter The City" name="city" sx={{ mt: 2 }} />
-            <Field.Text label="Enter Phone Number" name="phoneNumber" sx={{ mt: 2 }} />
+            <Field.Phone name="phoneNumber" label="Phone number" sx={{ mt: 2 }} />
             <Field.Text label="Enter Email Address" type="email" name="email" sx={{ mt: 2 }} />
             <Field.Text type="number" label="Enter Tax Number" name="taxNumber" sx={{ mt: 2 }} />
             <Field.Text label="Enter Address" name="address" multiline rows={3} sx={{ mt: 2 }} />

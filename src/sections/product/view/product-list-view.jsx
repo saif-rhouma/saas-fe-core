@@ -1,17 +1,18 @@
+import { useState, useEffect, useCallback } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { useCallback, useEffect, useState } from 'react';
 
 import Box from '@mui/material/Box';
-import Button from '@mui/material/Button';
 import Card from '@mui/material/Card';
-import IconButton from '@mui/material/IconButton';
 import Table from '@mui/material/Table';
-import TableBody from '@mui/material/TableBody';
+import Button from '@mui/material/Button';
 import Tooltip from '@mui/material/Tooltip';
+import TableBody from '@mui/material/TableBody';
 import Grid from '@mui/material/Unstable_Grid2';
+import IconButton from '@mui/material/IconButton';
 
-import { RouterLink } from 'src/routes/components';
 import { paths } from 'src/routes/paths';
+import { useRouter } from 'src/routes/hooks';
+import { RouterLink } from 'src/routes/components';
 
 import { useBoolean } from 'src/hooks/use-boolean';
 import { useSetState } from 'src/hooks/use-set-state';
@@ -21,38 +22,38 @@ import { fIsAfter, fIsBetween } from 'src/utils/format-time';
 
 import { DashboardContent } from 'src/layouts/dashboard';
 
-import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
-import { ConfirmDialog } from 'src/components/custom-dialog';
+import { toast } from 'src/components/snackbar';
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
-import { toast } from 'src/components/snackbar';
+import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 import {
+  useTable,
   emptyRows,
-  getComparator,
   rowInPage,
+  TableNoData,
+  getComparator,
   TableEmptyRows,
   TableHeadCustom,
-  TableNoData,
-  TablePaginationCustom,
   TableSelectedAction,
-  useTable,
+  TablePaginationCustom,
 } from 'src/components/table';
 
 import ProductTableRow from '../product-table-row';
 import { ProductTableToolbar } from '../product-table-toolbar';
+import { ProductTableFiltersResult } from '../product-table-filters-result';
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
-  { id: 'productId', label: 'No.', width: 60 },
-  { id: 'productName', label: 'Product Name', width: 140 },
-  { id: 'productPrice', label: 'Product Price', width: 140 },
+  { id: 'productId', label: 'No.', width: 80 },
+  { id: 'productName', label: 'Product Name' },
+  { id: 'productPrice', label: 'Product Price', width: 200 },
   {
     id: 'stock',
     label: 'Stock',
-    width: 120,
+
     align: 'center',
   },
-  { id: 'status', label: 'Status', width: 140 },
+  { id: 'status', label: 'Status', width: 100 },
   { id: '', width: 88 },
 ];
 
@@ -62,6 +63,8 @@ export function ProductListView({ products }) {
   const table = useTable({ defaultOrderBy: 'planId' });
 
   const confirm = useBoolean();
+
+  const router = useRouter();
 
   const [tableData, setTableData] = useState(products);
 
@@ -98,18 +101,16 @@ export function ProductListView({ products }) {
     (id) => {
       deleteProduct(id);
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [dataInPage.length, table, tableData]
   );
 
-  const handleDeleteRows = useCallback(() => {
-    // const deleteRows = tableData.filter((row) => !table.selected.includes(row.id));
-    // toast.success('Delete success!');
-    // setTableData(deleteRows);
-    // table.onUpdatePageDeleteRows({
-    //   totalRowsInPage: dataInPage.length,
-    //   totalRowsFiltered: dataFiltered.length,
-    // });
-  }, [dataFiltered.length, dataInPage.length, table, tableData]);
+  const handleEditRow = useCallback(
+    (id) => {
+      router.push(paths.dashboard.product.edit(id));
+    },
+    [router]
+  );
 
   const queryClient = useQueryClient();
 
@@ -131,133 +132,113 @@ export function ProductListView({ products }) {
   });
 
   return (
-    <>
-      <DashboardContent maxWidth="xl">
-        <Grid container spacing={3}>
-          <Grid xs={12} md={12}>
-            <CustomBreadcrumbs
-              links={[
-                { name: 'Dashboard', href: paths.dashboard.root },
-                { name: 'Product', href: paths.dashboard.plan.root },
-                { name: 'List' },
-              ]}
-              action={
-                <Button
-                  component={RouterLink}
-                  href={paths.dashboard.product.new}
-                  variant="contained"
-                  startIcon={<Iconify icon="mingcute:add-line" />}
-                >
-                  Add New Product
-                </Button>
-              }
+    <DashboardContent maxWidth="xl">
+      <Grid container spacing={3}>
+        <Grid xs={12} md={12}>
+          <CustomBreadcrumbs
+            links={[
+              { name: 'Dashboard', href: paths.dashboard.root },
+              { name: 'Product', href: paths.dashboard.plan.root },
+              { name: 'List' },
+            ]}
+            action={
+              <Button
+                component={RouterLink}
+                href={paths.dashboard.product.new}
+                variant="contained"
+                startIcon={<Iconify icon="mingcute:add-line" />}
+              >
+                Add New Product
+              </Button>
+            }
+          />
+        </Grid>
+        <Grid xs={12} md={12}>
+          <Card>
+            <ProductTableToolbar
+              filters={filters}
+              onResetPage={table.onResetPage}
+              dateError={dateError}
             />
-          </Grid>
-          <Grid xs={12} md={12}>
-            <Card>
-              <ProductTableToolbar
+
+            {canReset && (
+              <ProductTableFiltersResult
                 filters={filters}
+                totalResults={dataFiltered.length}
                 onResetPage={table.onResetPage}
-                dateError={dateError}
+                sx={{ p: 2.5, pt: 0 }}
               />
-              <Box sx={{ position: 'relative' }}>
-                <TableSelectedAction
-                  dense={table.dense}
-                  numSelected={table.selected.length}
-                  rowCount={dataFiltered.length}
-                  onSelectAllRows={(checked) =>
-                    table.onSelectAllRows(
-                      checked,
-                      dataFiltered.map((row) => row.id)
-                    )
-                  }
-                  action={
-                    <Tooltip title="Delete">
-                      <IconButton color="primary" onClick={confirm.onTrue}>
-                        <Iconify icon="solar:trash-bin-trash-bold" />
-                      </IconButton>
-                    </Tooltip>
-                  }
-                />
-                <Scrollbar sx={{ minHeight: 444 }}>
-                  <Table size={table.dense ? 'small' : 'medium'} sx={{ minWidth: 960 }}>
-                    <TableHeadCustom
-                      order={table.order}
-                      orderBy={table.orderBy}
-                      headLabel={TABLE_HEAD}
-                      rowCount={dataFiltered.length}
-                      numSelected={table.selected.length}
-                      onSort={table.onSort}
-                      onSelectAllRows={(checked) =>
-                        table.onSelectAllRows(
-                          checked,
-                          dataFiltered.map((row) => row.id)
-                        )
-                      }
+            )}
+
+            <Box sx={{ position: 'relative' }}>
+              <TableSelectedAction
+                dense={table.dense}
+                numSelected={table.selected.length}
+                rowCount={dataFiltered.length}
+                onSelectAllRows={(checked) =>
+                  table.onSelectAllRows(
+                    checked,
+                    dataFiltered.map((row) => row.id)
+                  )
+                }
+                action={
+                  <Tooltip title="Delete">
+                    <IconButton color="primary" onClick={confirm.onTrue}>
+                      <Iconify icon="solar:trash-bin-trash-bold" />
+                    </IconButton>
+                  </Tooltip>
+                }
+              />
+              <Scrollbar sx={{ minHeight: 444 }}>
+                <Table size={table.dense ? 'small' : 'medium'} sx={{ minWidth: 960 }}>
+                  <TableHeadCustom
+                    order={table.order}
+                    orderBy={table.orderBy}
+                    headLabel={TABLE_HEAD}
+                    rowCount={dataFiltered.length}
+                    numSelected={table.selected.length}
+                    onSort={table.onSort}
+                  />
+
+                  <TableBody>
+                    {dataFiltered
+                      .slice(
+                        table.page * table.rowsPerPage,
+                        table.page * table.rowsPerPage + table.rowsPerPage
+                      )
+                      .map((row) => (
+                        <ProductTableRow
+                          key={row.id}
+                          row={row}
+                          selected={table.selected.includes(row.id)}
+                          onEditRow={() => handleEditRow(row.id)}
+                          onDeleteRow={() => handleDeleteRow(row.id)}
+                        />
+                      ))}
+
+                    <TableEmptyRows
+                      height={table.dense ? 56 : 56 + 20}
+                      emptyRows={emptyRows(table.page, table.rowsPerPage, dataFiltered.length)}
                     />
 
-                    <TableBody>
-                      {dataFiltered
-                        .slice(
-                          table.page * table.rowsPerPage,
-                          table.page * table.rowsPerPage + table.rowsPerPage
-                        )
-                        .map((row) => (
-                          <ProductTableRow
-                            key={row.id}
-                            row={row}
-                            selected={table.selected.includes(row.id)}
-                            // onSelectRow={() => table.onSelectRow(row.id)}
-                            onDeleteRow={() => handleDeleteRow(row.id)}
-                          />
-                        ))}
-
-                      <TableEmptyRows
-                        height={table.dense ? 56 : 56 + 20}
-                        emptyRows={emptyRows(table.page, table.rowsPerPage, dataFiltered.length)}
-                      />
-
-                      <TableNoData notFound={notFound} />
-                    </TableBody>
-                  </Table>
-                </Scrollbar>
-              </Box>
-              <TablePaginationCustom
-                page={table.page}
-                dense={table.dense}
-                count={dataFiltered.length}
-                rowsPerPage={table.rowsPerPage}
-                onPageChange={table.onChangePage}
-                onChangeDense={table.onChangeDense}
-                onRowsPerPageChange={table.onChangeRowsPerPage}
-              />
-            </Card>
-          </Grid>
+                    <TableNoData notFound={notFound} />
+                  </TableBody>
+                </Table>
+              </Scrollbar>
+            </Box>
+            <TablePaginationCustom
+              page={table.page}
+              dense={table.dense}
+              count={dataFiltered.length}
+              rowsPerPage={table.rowsPerPage}
+              onPageChange={table.onChangePage}
+              onChangeDense={table.onChangeDense}
+              onRowsPerPageChange={table.onChangeRowsPerPage}
+            />
+          </Card>
         </Grid>
-      </DashboardContent>
-      <ConfirmDialog
-        open={confirm.value}
-        onClose={confirm.onFalse}
-        title="Delete"
-        content={
-          <>
-            Are you sure want to delete <strong> {table.selected.length} </strong> items?
-          </>
-        }
-        action={
-          <Button
-            variant="contained"
-            color="error"
-            onClick={() => {
-              handleDeleteRows();
-              confirm.onFalse();
-            }}
-          >
-            Delete
-          </Button>
-        }
-      />
-    </>
+      </Grid>
+    </DashboardContent>
   );
 }
 

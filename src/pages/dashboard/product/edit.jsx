@@ -1,12 +1,17 @@
 import { Helmet } from 'react-helmet-async';
+import { useQuery } from '@tanstack/react-query';
 
+import { paths } from 'src/routes/paths';
 import { useParams } from 'src/routes/hooks';
 
+import axios, { endpoints } from 'src/utils/axios';
+
 import { CONFIG } from 'src/config-global';
-import { useGetProduct } from 'src/actions/product';
+
+import { LoadingScreen } from 'src/components/loading-screen';
 
 import { ProductEditView } from 'src/sections/product/view';
-
+import { ErrorBlock } from 'src/sections/error/error-block';
 // ----------------------------------------------------------------------
 
 const metadata = { title: `Product edit | Dashboard - ${CONFIG.site.name}` };
@@ -14,7 +19,29 @@ const metadata = { title: `Product edit | Dashboard - ${CONFIG.site.name}` };
 export default function Page() {
   const { id = '' } = useParams();
 
-  const { product } = useGetProduct(id);
+  const responseImages = useQuery({
+    queryKey: ['products-images'],
+    queryFn: async () => {
+      const { data } = await axios.get(endpoints.products.productsImages);
+      return data;
+    },
+  });
+
+  const response = useQuery({
+    queryKey: ['products', id],
+    queryFn: async () => {
+      const res = await axios.get(endpoints.products.details + id);
+      return res.data;
+    },
+  });
+
+  if (response.isLoading || responseImages.isLoading) {
+    return <LoadingScreen />;
+  }
+
+  if (response.isError || responseImages.isError) {
+    return <ErrorBlock route={paths.dashboard.products.root} />;
+  }
 
   return (
     <>
@@ -22,7 +49,7 @@ export default function Page() {
         <title> {metadata.title}</title>
       </Helmet>
 
-      <ProductEditView product={product} />
+      <ProductEditView product={response.data} productsImages={responseImages.data} />
     </>
   );
 }

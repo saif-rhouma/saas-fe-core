@@ -20,7 +20,6 @@ export const fetcher = async (args) => {
     const [url, config] = Array.isArray(args) ? args : [args];
 
     const res = await axiosInstance.get(url, { ...config });
-
     return res.data;
   } catch (error) {
     console.error('Failed to fetch:', error);
@@ -33,9 +32,11 @@ export const fetcher = async (args) => {
 export const endpoints = {
   chat: '/api/chat',
   kanban: '/api/oders',
+  dashboard: '/api/analytics',
   calendar: '/api/calendar',
   auth: {
     me: '/api/auth/me',
+    application: '/api/auth/application',
     // signIn: '/api/auth/sign-in',
     signIn: '/api/auth/login',
     signUp: '/api/auth/sign-up',
@@ -62,12 +63,15 @@ export const endpoints = {
     delete: '/api/orders/',
     details: '/api/orders/',
     analytics: '/api/orders/analytics',
+    approve: '/api/orders/approve/',
   },
   plan: {
     list: '/api/plans/',
     details: '/api/plans/',
     create: '/api/plans/create',
+    delete: '/api/plans/',
     edit: '/api/plans/',
+    transferToStock: '/api/plans/stock/',
   },
   customers: {
     list: '/api/customers/',
@@ -80,15 +84,16 @@ export const endpoints = {
     list: '/api/products/',
     details: '/api/products/',
     create: '/api/products/create',
+    edit: '/api/products/',
     delete: '/api/products/',
     productsImages: '/api/files/products',
+    stock: '/api/stock/',
   },
   productAddons: {
     list: '/api/product-addons/',
     create: '/api/product-addons/create',
     delete: '/api/product-addons/',
     edit: '/api/product-addons/',
-    // details: '/api/product-addons/',
   },
   payments: {
     list: '/api/payments/',
@@ -115,13 +120,35 @@ export const endpoints = {
     list: '/api/users/staff',
     create: '/api/users/staff',
     edit: '/api/users/staff',
-    // details: '/api/staff/',
-    // analytics: '/api/tickets/analytics',
   },
   files: {
     upload: '/api/files/upload',
+    delete: '/api/files/delete/',
   },
   account: {
     edit: '/api/users/',
+  },
+  master: {
+    edit: '/api/applications/',
+  },
+  stock: {
+    create: '/api/stock/create',
+    edit: '/api/stock/',
+    products: '/api/stock/',
+    details: '/api/stock/details',
+  },
+  orderStatus: {
+    list: '/api/orders-status/',
+    edit: '/api/orders-status/',
+  },
+  planStatus: {
+    list: '/api/plans-status/',
+    edit: '/api/plans-status/',
+  },
+  financial: {
+    list: '/api/financial/',
+    create: '/api/financial/create',
+    edit: '/api/financial/',
+    delete: '/api/financial/',
   },
 };

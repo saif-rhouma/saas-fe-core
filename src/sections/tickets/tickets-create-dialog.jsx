@@ -13,6 +13,8 @@ import Typography from '@mui/material/Typography';
 import DialogContent from '@mui/material/DialogContent';
 import { Button, MenuItem, DialogTitle, DialogActions } from '@mui/material';
 
+import { paths } from 'src/routes/paths';
+
 import axios, { endpoints } from 'src/utils/axios';
 
 import { Upload } from 'src/components/upload';
@@ -20,6 +22,8 @@ import { toast } from 'src/components/snackbar';
 import { Scrollbar } from 'src/components/scrollbar';
 import { Form, Field } from 'src/components/hook-form';
 import { LoadingScreen } from 'src/components/loading-screen';
+
+import { ErrorBlock } from '../error/error-block';
 
 export const NewTicketSchema = zod.object({
   topic: zod.string().min(1, { message: 'Topic is required!' }),
@@ -53,6 +57,7 @@ const TicketsCreateDialog = ({ currentTicket, open, onClose }) => {
   //! Upload Logic END
 
   const { mutate: handleUploadTicketFile } = useMutation({
+    // eslint-disable-next-line no-shadow
     mutationFn: (file) => axios.post(endpoints.files.upload, file, uploadConfig),
     onSuccess: async ({ data }) => {
       const { name: filename } = data;
@@ -140,7 +145,9 @@ const TicketsCreateDialog = ({ currentTicket, open, onClose }) => {
   if (response.isPending || response.isLoading) {
     return <LoadingScreen />;
   }
-
+  if (response.isError) {
+    return <ErrorBlock route={paths.dashboard.staff.root} />;
+  }
   return (
     <Dialog fullWidth maxWidth="md" open={open} onClose={onClose}>
       <DialogTitle>Add New Ticket</DialogTitle>

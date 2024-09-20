@@ -16,8 +16,9 @@ import { fDateTime } from 'src/utils/format-time';
 import { fCurrency } from 'src/utils/format-number';
 
 import { Label } from 'src/components/label';
+import { Iconify } from 'src/components/iconify';
 
-const OrderProductAddons = ({ payments, dialog }) => {
+const OrderProductAddons = ({ order, payments, dialog, handleApproveOrder, handlePrint }) => {
   const renderTimeline = (
     <Box sx={{ pr: 4, pl: 4, pb: 4, pt: 2 }}>
       <Box sx={{ mb: 2 }}>
@@ -68,12 +69,23 @@ const OrderProductAddons = ({ payments, dialog }) => {
         <Button variant="contained" onClick={() => dialog.onTrue()}>
           Add Payment
         </Button>
-        <Button variant="outlined">Approve</Button>
-        <Button>Print Invoice</Button>
+        {order?.status === 'Draft' && (
+          <Button
+            variant="outlined"
+            onClick={() => {
+              handleApproveOrder(order.id);
+            }}
+          >
+            Approve
+          </Button>
+        )}
+        <Button variant="outlined" color="info" onClick={() => handlePrint()}>
+          <Iconify icon="solar:printer-minimalistic-bold" />
+          <span style={{ margin: 4 }}>Print Invoice</span>
+        </Button>
       </Stack>
     </Box>
   );
-
   return (
     <Card>
       <CardHeader title="Product Addons" />

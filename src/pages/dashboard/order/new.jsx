@@ -1,12 +1,15 @@
 import { Helmet } from 'react-helmet-async';
 import { useQuery } from '@tanstack/react-query';
 
+import { paths } from 'src/routes/paths';
+
 import axios, { endpoints } from 'src/utils/axios';
 
 import { CONFIG } from 'src/config-global';
 
 import { LoadingScreen } from 'src/components/loading-screen';
 
+import { ErrorBlock } from 'src/sections/error/error-block';
 import { OrderCreateView } from 'src/sections/order/view/order-create-view';
 
 const metadata = { title: `Create a new Order | Dashboard - ${CONFIG.site.name}` };
@@ -30,6 +33,10 @@ export default function Page() {
 
   if (responseProducst.isLoading || responseCustomers.isLoading) {
     return <LoadingScreen />;
+  }
+
+  if (responseProducst.isError || responseProducst.isError) {
+    return <ErrorBlock route={paths.dashboard.order.root} />;
   }
   return (
     <>

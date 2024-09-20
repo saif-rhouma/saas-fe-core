@@ -1,59 +1,59 @@
-import { useRef, useState, useEffect, useCallback } from 'react';
+import {
+  closestCenter,
+  DndContext,
+  getFirstCollision,
+  KeyboardSensor,
+  MeasuringStrategy,
+  MouseSensor,
+  pointerWithin,
+  rectIntersection,
+  TouchSensor,
+  useSensor,
+  useSensors,
+} from '@dnd-kit/core';
 import {
   arrayMove,
+  horizontalListSortingStrategy,
   SortableContext,
   verticalListSortingStrategy,
-  horizontalListSortingStrategy,
 } from '@dnd-kit/sortable';
-import {
-  useSensor,
-  DndContext,
-  useSensors,
-  MouseSensor,
-  TouchSensor,
-  closestCenter,
-  pointerWithin,
-  KeyboardSensor,
-  rectIntersection,
-  getFirstCollision,
-  MeasuringStrategy,
-} from '@dnd-kit/core';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
+import FormControlLabel from '@mui/material/FormControlLabel';
 import Stack from '@mui/material/Stack';
 import Switch from '@mui/material/Switch';
 import Typography from '@mui/material/Typography';
-import FormControlLabel from '@mui/material/FormControlLabel';
 
-import { hideScrollY } from 'src/theme/styles';
+import { moveColumn, moveTask, useGetOrderBoard } from 'src/actions/kanbanOrder';
 import { DashboardContent } from 'src/layouts/dashboard';
-import { moveTask, moveColumn } from 'src/actions/kanban';
+import { hideScrollY } from 'src/theme/styles';
 
 import { EmptyContent } from 'src/components/empty-content';
 
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import dayjs from 'dayjs';
+import axios, { endpoints } from 'src/utils/axios';
 import { kanbanClasses } from '../classes';
-import { coordinateGetter } from '../utils';
 import { KanbanColumn } from '../column/kanban-column';
-import { KanbanTaskItem } from '../item/kanban-task-item';
-import { KanbanColumnSkeleton } from '../components/kanban-skeleton';
 import { KanbanDragOverlay } from '../components/kanban-drag-overlay';
-
+import { KanbanColumnSkeleton } from '../components/kanban-skeleton';
+import { KanbanTaskItem } from '../item/kanban-task-item';
+import { coordinateGetter } from '../utils';
 // ----------------------------------------------------------------------
-
-const PLACEHOLDER_ID = 'placeholder';
 
 const cssVars = {
   '--item-gap': '16px',
   '--item-radius': '12px',
   '--column-gap': '24px',
-  '--column-width': '336px',
+  '--column-width': 'calc(95% /3)',
   '--column-radius': '16px',
   '--column-padding': '20px 16px 16px 16px',
 };
 
 // ----------------------------------------------------------------------
 
-export function OrderStatusView({ boardData, boardLoading, boardEmpty }) {
-  const [board, setBoard] = useState(boardData);
+export function OrderStatusView() {
+  const { board, boardLoading, boardEmpty } = useGetOrderBoard();
 
   const [columnFixed, setColumnFixed] = useState(true);
 
@@ -207,10 +207,99 @@ export function OrderStatusView({ boardData, boardLoading, boardEmpty }) {
     }
   };
 
+  const changeTaskStatus = () => {
+    board.columns.forEach((col) => {
+      for (let index = 0; index < board.tasks[col.id].length; index++) {
+        if (col.name === 'In Process') {
+          board.tasks[col.id][index].status = 'InProcess';
+        }
+        if (col.name === 'Ready to Deliver') {
+          board.tasks[col.id][index].status = 'Ready';
+        }
+        if (col.name === 'Delivered') {
+          board.tasks[col.id][index].status = 'Delivered';
+        }
+      }
+    });
+  };
+
+  // const detectChangesForUpdate = useCallback(
+  //   (data) => {
+  //     console.log(data);
+  //     // const prevBoard = currentBoard.current;
+  //     // const allTasks = [];
+  //     // const prevTasks = [];
+  //     // board.columns.forEach((col) => {
+  //     //   allTasks.push(...board.tasks[col.id]);
+  //     //   prevTasks.push(...prevBoard[col.id]);
+  //     // });
+  //     // console.log(allTasks);
+  //     // console.log(prevTasks);
+  //     // let isChanged = false;
+  //     // let idx = 0;
+  //     // let changedTask;
+  //     // while (!isChanged || idx < allTasks.length - 2) {
+  //     //   const currentTask = allTasks[idx];
+  //     //   // console.log('---> While', currentTask);
+  //     //   const prevTask = prevTasks.find((task) => task.id === currentTask.id);
+  //     //   // console.log('---> currentTask', currentTask);
+  //     //   // console.log('---> prevTask', prevTask);
+  //     //   if (prevTask.status !== currentTask.status) {
+  //     //     console.log('--->Diff');
+  //     //     isChanged != isChanged;
+  //     //     changedTask = currentTask;
+  //     //   }
+  //     //   idx++;
+  //     // }
+  //     // // console.log('----> changedTask', changedTask);
+  //     // currentBoard.current = { ...board.tasks };
+  //   },
+  //   [board]
+  // );
+
+  const detectChangesForUpdate = async (data) => {
+    const allTasks = [];
+    board.columns.forEach((col) => {
+      allTasks.push(...board.tasks[col.id]);
+    });
+
+    const task = allTasks.find((ts) => ts.id === data.id);
+    if (task) {
+      const payload = { status: task.status };
+      if (task.status === 'Delivered') {
+        payload.deliveryDate = dayjs();
+        board.columns.forEach((col) => {
+          for (let index = 0; index < board.tasks[col.id].length; index++) {
+            if (board.tasks[col.id][index].id === task.id) {
+              board.tasks[col.id][index].deliveryDate = payload.deliveryDate;
+            }
+          }
+        });
+      } else {
+        payload.deliveryDate = null;
+        if (task.deliveryDate) {
+          board.columns.forEach((col) => {
+            for (let index = 0; index < board.tasks[col.id].length; index++) {
+              if (board.tasks[col.id][index].id === task.id) {
+                board.tasks[col.id][index].deliveryDate = null;
+              }
+            }
+          });
+        }
+      }
+      await handleOrderStatus({
+        id: task.id,
+        payload,
+      });
+    }
+  };
+
   /**
    * onDragEnd
    */
   const onDragEnd = ({ active, over }) => {
+    let updateData;
+
     if (active.id in board.tasks && over?.id) {
       const activeIndex = columnIds.indexOf(active.id);
       const overIndex = columnIds.indexOf(over.id);
@@ -243,16 +332,21 @@ export function OrderStatusView({ boardData, boardLoading, boardEmpty }) {
       const activeIndex = activeContainerTaskIds.indexOf(active.id);
       const overIndex = overContainerTaskIds.indexOf(overId);
 
+      const task = board.tasks[activeColumn][activeIndex];
+
       if (activeIndex !== overIndex) {
         const updateTasks = {
           ...board.tasks,
           [overColumn]: arrayMove(board.tasks[overColumn], activeIndex, overIndex),
         };
 
-        // moveTask(updateTasks);
+        moveTask(updateTasks);
       }
+      updateData = { id: task.id, payload: { status: task.status } };
     }
 
+    changeTaskStatus();
+    detectChangesForUpdate(updateData);
     setActiveId(null);
   };
 
@@ -293,10 +387,7 @@ export function OrderStatusView({ boardData, boardLoading, boardEmpty }) {
               }),
             }}
           >
-            <SortableContext
-              items={[...columnIds, PLACEHOLDER_ID]}
-              strategy={horizontalListSortingStrategy}
-            >
+            <SortableContext items={[columnIds]} strategy={horizontalListSortingStrategy}>
               {board?.columns.map((column) => (
                 <KanbanColumn key={column.id} column={column} tasks={board.tasks[column.id]}>
                   <SortableContext
@@ -328,6 +419,21 @@ export function OrderStatusView({ boardData, boardLoading, boardEmpty }) {
     </DndContext>
   );
 
+  const queryClient = useQueryClient();
+
+  const { mutate: handleOrderStatus } = useMutation({
+    mutationFn: ({ id, payload }) => axios.patch(endpoints.orderStatus.edit + id, payload),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['orders'] });
+      await queryClient.invalidateQueries({ queryKey: ['orders', 'analytics'] });
+      await queryClient.invalidateQueries({ queryKey: ['orders-status'] });
+    },
+    onSettled: async () => {},
+    onError: (err) => {
+      console.log(err);
+    },
+  });
+
   return (
     <DashboardContent
       maxWidth={false}
@@ -348,7 +454,7 @@ export function OrderStatusView({ boardData, boardLoading, boardEmpty }) {
         justifyContent="space-between"
         sx={{ pr: { sm: 3 }, mb: { xs: 3, md: 5 } }}
       >
-        <Typography variant="h4">Kanban</Typography>
+        <Typography variant="h4">Orders Status</Typography>
 
         <FormControlLabel
           label="Column fixed"

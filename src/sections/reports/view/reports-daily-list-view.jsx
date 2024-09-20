@@ -1,59 +1,55 @@
-import { useState, useCallback } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
+import { Stack } from '@mui/material';
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import Table from '@mui/material/Table';
-import { Stack, useTheme } from '@mui/material';
 import TableBody from '@mui/material/TableBody';
 
 import { paths } from 'src/routes/paths';
-import { useRouter } from 'src/routes/hooks';
 
-import { useBoolean } from 'src/hooks/use-boolean';
 import { useSetState } from 'src/hooks/use-set-state';
 
 import { fIsAfter, fIsBetween } from 'src/utils/format-time';
 
 import { DashboardContent } from 'src/layouts/dashboard';
-import { _orders, ORDER_STATUS_OPTIONS } from 'src/_mock';
 
-import { toast } from 'src/components/snackbar';
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 import {
-  useTable,
   emptyRows,
-  rowInPage,
-  TableNoData,
   getComparator,
   TableEmptyRows,
   TableHeadCustom,
+  TableNoData,
   TableSelectedAction,
+  useTable,
 } from 'src/components/table';
 
 import ReportsDailyTableRow from '../reports-daily-table-row';
 import { ReportsDailyTableToolbar } from '../reports-daily-table-toolbar';
+import { fCurrency } from 'src/utils/format-number';
 
 // ----------------------------------------------------------------------
-
-const STATUS_OPTIONS = [{ value: 'all', label: 'All' }, ...ORDER_STATUS_OPTIONS];
 
 const TABLE_HEAD = [
   { id: 'reminderId', label: 'Particular' },
   { id: 'date', label: 'value', width: 280 },
 ];
 
+const TABLE_ROWS = [
+  { label: 'Orders', value: 0 },
+  { label: 'No. of Orders Delivered', value: 0 },
+  { label: 'Total Sales', value: 0 },
+  { label: 'Total Payment', value: 0 },
+];
+
 // ----------------------------------------------------------------------
 
-const ReportsDailyListView = () => {
+const ReportsDailyListView = ({ orders }) => {
   const table = useTable({ defaultOrderBy: 'orderNumber' });
 
-  const router = useRouter();
-
-  const theme = useTheme();
-
-  const confirm = useBoolean();
-
-  const [tableData, setTableData] = useState(_orders);
+  const [tableData, setTableData] = useState(orders);
+  const [dailyData, setDailyData] = useState(TABLE_ROWS);
 
   const filters = useSetState({
     name: '',
@@ -71,7 +67,30 @@ const ReportsDailyListView = () => {
     dateError,
   });
 
-  const dataInPage = rowInPage(dataFiltered, table.page, table.rowsPerPage);
+  const getDataRow = useCallback((data) => {
+    const nbDelivered = data.filter((row) => row.status === 'Delivered').length;
+
+    const totalSales = fCurrency(data.reduce((acc, order) => acc + order.totalOrderAmount, 0));
+    const totalPayments = fCurrency(data.reduce((acc, order) => acc + order.orderPaymentAmount, 0));
+    const result = {
+      orders: data.length,
+      nbDelivered,
+      totalSales,
+      totalPayments,
+    };
+    return result;
+  }, []);
+
+  useEffect(() => {
+    const rowValues = getDataRow(dataFiltered);
+    const tableRowValues = [
+      { label: 'Orders', value: rowValues.orders },
+      { label: 'No. of Orders Delivered', value: rowValues.nbDelivered },
+      { label: 'Total Sales', value: rowValues.totalSales },
+      { label: 'Total Payment', value: rowValues.totalPayments },
+    ];
+    setDailyData(tableRowValues);
+  }, [dataFiltered.length, table, tableData]);
 
   const canReset =
     !!filters.state.name ||
@@ -80,103 +99,65 @@ const ReportsDailyListView = () => {
 
   const notFound = (!dataFiltered.length && canReset) || !dataFiltered.length;
 
-  const handleDeleteRow = useCallback(
-    (id) => {
-      const deleteRow = tableData.filter((row) => row.id !== id);
-
-      toast.success('Delete success!');
-
-      setTableData(deleteRow);
-
-      table.onUpdatePageDeleteRow(dataInPage.length);
-    },
-    [dataInPage.length, table, tableData]
-  );
-
-  const handleDeleteRows = useCallback(() => {
-    const deleteRows = tableData.filter((row) => !table.selected.includes(row.id));
-
-    toast.success('Delete success!');
-
-    setTableData(deleteRows);
-
-    table.onUpdatePageDeleteRows({
-      totalRowsInPage: dataInPage.length,
-      totalRowsFiltered: dataFiltered.length,
-    });
-  }, [dataFiltered.length, dataInPage.length, table, tableData]);
-
-  const handleViewRow = useCallback(
-    (id) => {
-      router.push(paths.dashboard.order.details(id));
-    },
-    [router]
-  );
-
   return (
     <DashboardContent maxWidth="xl">
-        <Stack spacing={3}>
-          <CustomBreadcrumbs
-            links={[
-              { name: 'Dashboard', href: paths.dashboard.root },
-              { name: 'Reports', href: paths.dashboard.reports.root },
-              { name: 'Daily Report', href: paths.dashboard.reports.daily },
-            ]}
+      <Stack spacing={3}>
+        <CustomBreadcrumbs
+          links={[
+            { name: 'Dashboard', href: paths.dashboard.root },
+            { name: 'Reports', href: paths.dashboard.reports.root },
+            { name: 'Daily Report', href: paths.dashboard.reports.daily },
+          ]}
+        />
+        <Card>
+          <ReportsDailyTableToolbar
+            filters={filters}
+            onResetPage={table.onResetPage}
+            dateError={dateError}
           />
-          <Card>
-            <ReportsDailyTableToolbar
-              filters={filters}
-              onResetPage={table.onResetPage}
-              dateError={dateError}
+
+          <Box sx={{ position: 'relative' }}>
+            <TableSelectedAction
+              dense={table.dense}
+              numSelected={table.selected.length}
+              rowCount={dataFiltered.length}
             />
 
-            <Box sx={{ position: 'relative' }}>
-              <TableSelectedAction
-                dense={table.dense}
-                numSelected={table.selected.length}
+            <Table size={table.dense ? 'small' : 'medium'} sx={{ minWidth: 960 }}>
+              <TableHeadCustom
+                order={table.order}
+                orderBy={table.orderBy}
+                headLabel={TABLE_HEAD}
                 rowCount={dataFiltered.length}
               />
 
-              <Table size={table.dense ? 'small' : 'medium'} sx={{ minWidth: 960 }}>
-                <TableHeadCustom
-                  order={table.order}
-                  orderBy={table.orderBy}
-                  headLabel={TABLE_HEAD}
-                  rowCount={dataFiltered.length}
+              <TableBody>
+                {dailyData.map((row) => (
+                  <ReportsDailyTableRow
+                    key={row.id}
+                    row={row}
+                    selected={table.selected.includes(row.id)}
+                  />
+                ))}
+
+                <TableEmptyRows
+                  height={table.dense ? 56 : 56 + 20}
+                  emptyRows={emptyRows(table.page, table.rowsPerPage, dataFiltered.length)}
                 />
 
-                <TableBody>
-                  {dataFiltered
-                    .slice(
-                      table.page * table.rowsPerPage,
-                      table.page * table.rowsPerPage + table.rowsPerPage
-                    )
-                    .map((row) => (
-                      <ReportsDailyTableRow
-                        key={row.id}
-                        row={row}
-                        selected={table.selected.includes(row.id)}
-                      />
-                    ))}
-
-                  <TableEmptyRows
-                    height={table.dense ? 56 : 56 + 20}
-                    emptyRows={emptyRows(table.page, table.rowsPerPage, dataFiltered.length)}
-                  />
-
-                  <TableNoData notFound={notFound} />
-                </TableBody>
-              </Table>
-            </Box>
-          </Card>
-        </Stack>
-      </DashboardContent>
+                <TableNoData notFound={notFound} />
+              </TableBody>
+            </Table>
+          </Box>
+        </Card>
+      </Stack>
+    </DashboardContent>
   );
 };
 export default ReportsDailyListView;
 
 function applyFilter({ inputData, comparator, filters, dateError }) {
-  const { status, name, startDate, endDate } = filters;
+  const { status, startDate, endDate } = filters;
 
   const stabilizedThis = inputData.map((el, index) => [el, index]);
 
@@ -188,22 +169,13 @@ function applyFilter({ inputData, comparator, filters, dateError }) {
 
   inputData = stabilizedThis.map((el) => el[0]);
 
-  if (name) {
-    inputData = inputData.filter(
-      (order) =>
-        order.orderNumber.toLowerCase().indexOf(name.toLowerCase()) !== -1 ||
-        order.customer.name.toLowerCase().indexOf(name.toLowerCase()) !== -1 ||
-        order.customer.email.toLowerCase().indexOf(name.toLowerCase()) !== -1
-    );
-  }
-
   if (status !== 'all') {
     inputData = inputData.filter((order) => order.status === status);
   }
 
   if (!dateError) {
     if (startDate && endDate) {
-      inputData = inputData.filter((order) => fIsBetween(order.createdAt, startDate, endDate));
+      inputData = inputData.filter((order) => fIsBetween(order.orderDate, startDate, endDate));
     }
   }
 

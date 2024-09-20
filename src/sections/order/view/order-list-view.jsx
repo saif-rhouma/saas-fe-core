@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 import { useState, useEffect, useCallback } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
@@ -6,10 +7,8 @@ import Card from '@mui/material/Card';
 import Table from '@mui/material/Table';
 import { useTheme } from '@mui/material';
 import Button from '@mui/material/Button';
-import Tooltip from '@mui/material/Tooltip';
 import TableBody from '@mui/material/TableBody';
 import Grid from '@mui/material/Unstable_Grid2';
-import IconButton from '@mui/material/IconButton';
 
 import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hooks';
@@ -26,7 +25,6 @@ import { DashboardContent } from 'src/layouts/dashboard';
 import { toast } from 'src/components/snackbar';
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
-import { ConfirmDialog } from 'src/components/custom-dialog';
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 import {
   useTable,
@@ -48,7 +46,7 @@ import { OrderTableFiltersResult } from '../order-table-filters-result';
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
-  { id: 'orderNumber', label: 'Order', width: 88 },
+  { id: 'orderNumber', label: '#', width: 88 },
   { id: 'name', label: 'Customer' },
   { id: 'createdAt', label: 'Date', width: 140 },
   {
@@ -74,10 +72,6 @@ export function OrderListView({ orders, analytics }) {
   const confirm = useBoolean();
 
   const [tableData, setTableData] = useState(() => orders);
-  const [overviewData, setOverviewData] = useState([]);
-  const [inProcessData, setInProcessData] = useState([]);
-  const [deliveredData, setDeliveredData] = useState([]);
-
   const filters = useSetState({
     name: '',
     status: 'all',
@@ -122,6 +116,7 @@ export function OrderListView({ orders, analytics }) {
     },
     onSettled: async () => {
       await queryClient.invalidateQueries({ queryKey: ['orders'] });
+      await queryClient.invalidateQueries({ queryKey: ['orders-status'] });
       await queryClient.invalidateQueries({ queryKey: ['orders', 'analytics'] });
     },
     onError: () => {},
@@ -131,6 +126,7 @@ export function OrderListView({ orders, analytics }) {
     (id) => {
       deleteOrder(id);
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [dataInPage.length, table, tableData]
   );
 
@@ -142,185 +138,139 @@ export function OrderListView({ orders, analytics }) {
   );
 
   return (
-    <>
-      <DashboardContent maxWidth="xl">
-        <Grid container spacing={3}>
-          <Grid xs={12} md={12}>
-            <CustomBreadcrumbs
-              links={[
-                { name: 'Dashboard', href: paths.dashboard.root },
-                { name: 'Order', href: paths.dashboard.order.root },
-                { name: 'List' },
-              ]}
-              action={
-                <Button
-                  component={RouterLink}
-                  href={paths.dashboard.order.new}
-                  variant="contained"
-                  startIcon={<Iconify icon="mingcute:add-line" />}
-                >
-                  New Order
-                </Button>
-              }
-            />
-          </Grid>
-          <Grid xs={12} md={4}>
-            <AppWidgetSummary
-              title="All Orders"
-              total={orders.length}
-              chart={{
-                categories: analytics.data.lastSixMonth.map((item) => monthName(item?.inMonth)),
-                series: analytics.data.lastSixMonth.map((item) => item?.ClaimsPerMonth),
-              }}
-            />
-          </Grid>
+    <DashboardContent maxWidth="xl">
+      <Grid container spacing={3}>
+        <Grid xs={12} md={12}>
+          <CustomBreadcrumbs
+            links={[
+              { name: 'Dashboard', href: paths.dashboard.root },
+              { name: 'Order', href: paths.dashboard.order.root },
+              { name: 'List' },
+            ]}
+            action={
+              <Button
+                component={RouterLink}
+                href={paths.dashboard.order.new}
+                variant="contained"
+                startIcon={<Iconify icon="mingcute:add-line" />}
+              >
+                New Order
+              </Button>
+            }
+          />
+        </Grid>
+        <Grid xs={12} md={4}>
+          <AppWidgetSummary
+            title="All Orders"
+            total={orders.length}
+            chart={{
+              categories: analytics.data.lastSixMonth.map((item) => monthName(item?.inMonth)),
+              series: analytics.data.lastSixMonth.map((item) => item?.ClaimsPerMonth),
+            }}
+          />
+        </Grid>
 
-          <Grid xs={12} md={4}>
-            <AppWidgetSummary
-              title="Processing Order"
-              total={analytics.data.analytics.InProcess}
-              chart={{
-                colors: [theme.vars.palette.info.main],
-                categories: analytics.data.inProcessLastSixMonth.map((item) =>
-                  monthName(item?.inMonth)
-                ),
-                series: analytics.data.inProcessLastSixMonth.map((item) => item?.ClaimsPerMonth),
-              }}
-            />
-          </Grid>
+        <Grid xs={12} md={4}>
+          <AppWidgetSummary
+            title="Processing Order"
+            total={analytics.data.analytics.InProcess}
+            chart={{
+              colors: [theme.vars.palette.info.main],
+              categories: analytics.data.inProcessLastSixMonth.map((item) =>
+                monthName(item?.inMonth)
+              ),
+              series: analytics.data.inProcessLastSixMonth.map((item) => item?.ClaimsPerMonth),
+            }}
+          />
+        </Grid>
 
-          <Grid xs={12} md={4}>
-            <AppWidgetSummary
-              title="Delivered"
-              total={analytics.data.analytics.Delivered}
-              chart={{
-                colors: [theme.vars.palette.error.main],
-                categories: analytics.data.deliveredLastSixMonth.map((item) =>
-                  monthName(item?.inMonth)
-                ),
-                series: analytics.data.deliveredLastSixMonth.map((item) => item?.ClaimsPerMonth),
-              }}
+        <Grid xs={12} md={4}>
+          <AppWidgetSummary
+            title="Delivered"
+            total={analytics.data.analytics.Delivered}
+            chart={{
+              colors: [theme.vars.palette.error.main],
+              categories: analytics.data.deliveredLastSixMonth.map((item) =>
+                monthName(item?.inMonth)
+              ),
+              series: analytics.data.deliveredLastSixMonth.map((item) => item?.ClaimsPerMonth),
+            }}
+          />
+        </Grid>
+        <Grid xs={12} md={12}>
+          <Card>
+            <OrderTableToolbar
+              filters={filters}
+              onResetPage={table.onResetPage}
+              dateError={dateError}
             />
-          </Grid>
-          <Grid xs={12} md={12}>
-            <Card>
-              <OrderTableToolbar
+
+            {canReset && (
+              <OrderTableFiltersResult
                 filters={filters}
+                totalResults={dataFiltered.length}
                 onResetPage={table.onResetPage}
-                dateError={dateError}
+                sx={{ p: 2.5, pt: 0 }}
+              />
+            )}
+
+            <Box sx={{ position: 'relative' }}>
+              <TableSelectedAction
+                dense={table.dense}
+                numSelected={table.selected.length}
+                rowCount={dataFiltered.length}
               />
 
-              {canReset && (
-                <OrderTableFiltersResult
-                  filters={filters}
-                  totalResults={dataFiltered.length}
-                  onResetPage={table.onResetPage}
-                  sx={{ p: 2.5, pt: 0 }}
-                />
-              )}
+              <Scrollbar sx={{ minHeight: 444 }}>
+                <Table size={table.dense ? 'small' : 'medium'} sx={{ minWidth: 960 }}>
+                  <TableHeadCustom
+                    order={table.order}
+                    orderBy={table.orderBy}
+                    headLabel={TABLE_HEAD}
+                    rowCount={dataFiltered.length}
+                  />
 
-              <Box sx={{ position: 'relative' }}>
-                <TableSelectedAction
-                  dense={table.dense}
-                  numSelected={table.selected.length}
-                  rowCount={dataFiltered.length}
-                  onSelectAllRows={(checked) =>
-                    table.onSelectAllRows(
-                      checked,
-                      dataFiltered.map((row) => row.id)
-                    )
-                  }
-                  action={
-                    <Tooltip title="Delete">
-                      <IconButton color="primary" onClick={confirm.onTrue}>
-                        <Iconify icon="solar:trash-bin-trash-bold" />
-                      </IconButton>
-                    </Tooltip>
-                  }
-                />
+                  <TableBody>
+                    {dataFiltered
+                      .slice(
+                        table.page * table.rowsPerPage,
+                        table.page * table.rowsPerPage + table.rowsPerPage
+                      )
+                      .map((row) => (
+                        <OrderTableRow
+                          key={row.id}
+                          row={row}
+                          selected={table.selected.includes(row.id)}
+                          onSelectRow={() => table.onSelectRow(row.id)}
+                          onDeleteRow={() => handleDeleteRow(row.id)}
+                          onViewRow={() => handleViewRow(row.id)}
+                        />
+                      ))}
 
-                <Scrollbar sx={{ minHeight: 444 }}>
-                  <Table size={table.dense ? 'small' : 'medium'} sx={{ minWidth: 960 }}>
-                    <TableHeadCustom
-                      order={table.order}
-                      orderBy={table.orderBy}
-                      headLabel={TABLE_HEAD}
-                      rowCount={dataFiltered.length}
-                      numSelected={table.selected.length}
-                      onSort={table.onSort}
-                      onSelectAllRows={(checked) =>
-                        table.onSelectAllRows(
-                          checked,
-                          dataFiltered.map((row) => row.id)
-                        )
-                      }
+                    <TableEmptyRows
+                      height={table.dense ? 56 : 56 + 20}
+                      emptyRows={emptyRows(table.page, table.rowsPerPage, dataFiltered.length)}
                     />
 
-                    <TableBody>
-                      {dataFiltered
-                        .slice(
-                          table.page * table.rowsPerPage,
-                          table.page * table.rowsPerPage + table.rowsPerPage
-                        )
-                        .map((row) => (
-                          <OrderTableRow
-                            key={row.id}
-                            row={row}
-                            selected={table.selected.includes(row.id)}
-                            onSelectRow={() => table.onSelectRow(row.id)}
-                            onDeleteRow={() => handleDeleteRow(row.id)}
-                            onViewRow={() => handleViewRow(row.id)}
-                          />
-                        ))}
+                    <TableNoData notFound={notFound} />
+                  </TableBody>
+                </Table>
+              </Scrollbar>
+            </Box>
 
-                      <TableEmptyRows
-                        height={table.dense ? 56 : 56 + 20}
-                        emptyRows={emptyRows(table.page, table.rowsPerPage, dataFiltered.length)}
-                      />
-
-                      <TableNoData notFound={notFound} />
-                    </TableBody>
-                  </Table>
-                </Scrollbar>
-              </Box>
-
-              <TablePaginationCustom
-                page={table.page}
-                dense={table.dense}
-                count={dataFiltered.length}
-                rowsPerPage={table.rowsPerPage}
-                onPageChange={table.onChangePage}
-                onChangeDense={table.onChangeDense}
-                onRowsPerPageChange={table.onChangeRowsPerPage}
-              />
-            </Card>
-          </Grid>
+            <TablePaginationCustom
+              page={table.page}
+              dense={table.dense}
+              count={dataFiltered.length}
+              rowsPerPage={table.rowsPerPage}
+              onPageChange={table.onChangePage}
+              onChangeDense={table.onChangeDense}
+              onRowsPerPageChange={table.onChangeRowsPerPage}
+            />
+          </Card>
         </Grid>
-      </DashboardContent>
-
-      <ConfirmDialog
-        open={confirm.value}
-        onClose={confirm.onFalse}
-        title="Delete"
-        content={
-          <>
-            Are you sure want to delete <strong> {table.selected.length} </strong> items?
-          </>
-        }
-        action={
-          <Button
-            variant="contained"
-            color="error"
-            onClick={() => {
-              handleDeleteRows();
-              confirm.onFalse();
-            }}
-          >
-            Delete
-          </Button>
-        }
-      />
-    </>
+      </Grid>
+    </DashboardContent>
   );
 }
 

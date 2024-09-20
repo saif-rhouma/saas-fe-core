@@ -1,14 +1,15 @@
+/* eslint-disable react-hooks/exhaustive-deps */
+import { useState, useEffect, useCallback } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { useCallback, useEffect, useState } from 'react';
 
-import { Stack } from '@mui/material';
 import Box from '@mui/material/Box';
-import Button from '@mui/material/Button';
+import { Stack } from '@mui/material';
 import Card from '@mui/material/Card';
-import IconButton from '@mui/material/IconButton';
 import Table from '@mui/material/Table';
-import TableBody from '@mui/material/TableBody';
+import Button from '@mui/material/Button';
 import Tooltip from '@mui/material/Tooltip';
+import TableBody from '@mui/material/TableBody';
+import IconButton from '@mui/material/IconButton';
 
 import { paths } from 'src/routes/paths';
 
@@ -20,27 +21,27 @@ import { fIsAfter, fIsBetween } from 'src/utils/format-time';
 
 import { DashboardContent } from 'src/layouts/dashboard';
 
-import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
-import { ConfirmDialog } from 'src/components/custom-dialog';
+import { toast } from 'src/components/snackbar';
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
-import { toast } from 'src/components/snackbar';
+import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 import {
+  useTable,
   emptyRows,
-  getComparator,
   rowInPage,
+  TableNoData,
+  getComparator,
   TableEmptyRows,
   TableHeadCustom,
-  TableNoData,
-  TablePaginationCustom,
   TableSelectedAction,
-  useTable,
+  TablePaginationCustom,
 } from 'src/components/table';
 
 import ProductAddonTableRow from '../product-addon-table-row';
-import { ProductAddonTableToolbar } from '../product-addon-table-toolbar';
-import ProductAddonCreateDialog from '../product-addon-create-dialog';
 import ProductAddonEditDialog from '../product-addon-edit-dialog';
+import ProductAddonCreateDialog from '../product-addon-create-dialog';
+import { ProductAddonTableToolbar } from '../product-addon-table-toolbar';
+import { ProductTableFiltersResult } from '../product-table-filters-result';
 
 // ----------------------------------------------------------------------
 
@@ -101,16 +102,6 @@ export function ProductAddonsView({ productAddons }) {
     },
     [dataInPage.length, table, tableData]
   );
-
-  const handleDeleteRows = useCallback(() => {
-    // const deleteRows = tableData.filter((row) => !table.selected.includes(row.id));
-    // toast.success('Delete success!');
-    // setTableData(deleteRows);
-    // table.onUpdatePageDeleteRows({
-    //   totalRowsInPage: dataInPage.length,
-    //   totalRowsFiltered: dataFiltered.length,
-    // });
-  }, [dataFiltered.length, dataInPage.length, table, tableData]);
 
   const handleEditRow = useCallback(
     (row) => {
@@ -195,6 +186,14 @@ export function ProductAddonsView({ productAddons }) {
               onResetPage={table.onResetPage}
               dateError={dateError}
             />
+            {canReset && (
+              <ProductTableFiltersResult
+                filters={filters}
+                totalResults={dataFiltered.length}
+                onResetPage={table.onResetPage}
+                sx={{ p: 2.5, pt: 0 }}
+              />
+            )}
             <Box sx={{ position: 'relative' }}>
               <TableSelectedAction
                 dense={table.dense}
@@ -269,28 +268,6 @@ export function ProductAddonsView({ productAddons }) {
         onClose={dialogEdit.onFalse}
         handler={handleEditProductAddon}
         productAddon={selectedProductAddon}
-      />
-      <ConfirmDialog
-        open={confirm.value}
-        onClose={confirm.onFalse}
-        title="Delete"
-        content={
-          <>
-            Are you sure want to delete <strong> {table.selected.length} </strong> items?
-          </>
-        }
-        action={
-          <Button
-            variant="contained"
-            color="error"
-            onClick={() => {
-              handleDeleteRows();
-              confirm.onFalse();
-            }}
-          >
-            Delete
-          </Button>
-        }
       />
     </>
   );

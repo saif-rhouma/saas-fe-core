@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { useState, useEffect, useCallback } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
@@ -21,7 +22,6 @@ import { DashboardContent } from 'src/layouts/dashboard';
 import { toast } from 'src/components/snackbar';
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
-import { ConfirmDialog } from 'src/components/custom-dialog';
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 import {
   useTable,
@@ -39,6 +39,7 @@ import CustomersTableRow from '../customers-table-row';
 import CustomerEditDialog from '../customers-edit-dialog';
 import CustomerCreateDialog from '../customers-create-dialog';
 import { CustomersTableToolbar } from '../customers-table-toolbar';
+import { CustomersTableFiltersResult } from '../customers-table-filters-result';
 
 // ----------------------------------------------------------------------
 
@@ -113,19 +114,6 @@ const CustomersListView = ({ customers }) => {
     [dataInPage.length, table, tableData]
   );
 
-  const handleDeleteRows = useCallback(() => {
-    const deleteRows = tableData.filter((row) => !table.selected.includes(row.id));
-
-    toast.success('Delete success!');
-
-    setTableData(deleteRows);
-
-    table.onUpdatePageDeleteRows({
-      totalRowsInPage: dataInPage.length,
-      totalRowsFiltered: dataFiltered.length,
-    });
-  }, [dataFiltered.length, dataInPage.length, table, tableData]);
-
   const queryClient = useQueryClient();
 
   const { mutate: handleCreateCustomer } = useMutation({
@@ -159,6 +147,7 @@ const CustomersListView = ({ customers }) => {
   const { mutate: deleteCustomer } = useMutation({
     mutationFn: (id) => axios.delete(endpoints.customers.delete + id),
     onSuccess: async () => {
+      // eslint-disable-next-line no-undef
       const deleteRow = tableData.filter((row) => row.id !== id);
 
       toast.success('Delete success!');
@@ -200,6 +189,15 @@ const CustomersListView = ({ customers }) => {
               onResetPage={table.onResetPage}
               dateError={dateError}
             />
+
+            {canReset && (
+              <CustomersTableFiltersResult
+                filters={filters}
+                totalResults={dataFiltered.length}
+                onResetPage={table.onResetPage}
+                sx={{ p: 2.5, pt: 0 }}
+              />
+            )}
 
             <Box sx={{ position: 'relative' }}>
               <TableSelectedAction
@@ -266,28 +264,6 @@ const CustomersListView = ({ customers }) => {
         onClose={dialogEdit.onFalse}
         handler={handleEditCustomer}
         customer={selectedCustomer}
-      />
-      <ConfirmDialog
-        open={confirm.value}
-        onClose={confirm.onFalse}
-        title="Delete"
-        content={
-          <>
-            Are you sure want to delete <strong> {table.selected.length} </strong> items?
-          </>
-        }
-        action={
-          <Button
-            variant="contained"
-            color="error"
-            onClick={() => {
-              handleDeleteRows();
-              confirm.onFalse();
-            }}
-          >
-            Delete
-          </Button>
-        }
       />
     </>
   );

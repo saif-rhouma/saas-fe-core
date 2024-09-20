@@ -16,6 +16,8 @@ import { useBoolean } from 'src/hooks/use-boolean';
 import axios, { endpoints } from 'src/utils/axios';
 import { fCurrency } from 'src/utils/format-number';
 
+import { CONFIG } from 'src/config-global';
+
 import { toast } from 'src/components/snackbar';
 import { Iconify } from 'src/components/iconify';
 import ProductItemButton from 'src/components/product/product-Item-button';
@@ -31,8 +33,6 @@ export function OrderNewEditForm({ products, customers }) {
   const [selectedDate, setSelectedDate] = useState(dayjs(new Date()));
   const [selectedProducts, setSelectedProducts] = useState([]);
   const [filterProducts, setfilterProducts] = useState(products);
-
-  const storageHost = 'http://localhost:3000/api/files/show/';
 
   const queryClient = useQueryClient();
 
@@ -119,7 +119,10 @@ export function OrderNewEditForm({ products, customers }) {
     [selectedProducts]
   );
 
-  const getTotal = useCallback(() => selectedProducts.reduce((total, product) => total + product.price * product.quantity, 0), [selectedProducts]);
+  const getTotal = useCallback(
+    () => selectedProducts.reduce((total, product) => total + product.price * product.quantity, 0),
+    [selectedProducts]
+  );
 
   const renderOrderList = (
     <Card>
@@ -154,7 +157,7 @@ export function OrderNewEditForm({ products, customers }) {
               handleClick={handleAddProducts}
               key={product?.id}
               productName={product?.name}
-              image={storageHost + product?.image}
+              image={CONFIG.site.serverFileHost + product?.image}
             />
           ))}
         </Box>
@@ -252,7 +255,10 @@ export function OrderNewEditForm({ products, customers }) {
                 if (!isNaN(parseInt(selectedCustomer)) && selectedProducts.length) {
                   const payload = {
                     orderDate: selectedDate.format('YYYY-MM-DD'),
-                    products: selectedProducts.map((prod) => ({ id: prod.id, quantity: prod.quantity })),
+                    products: selectedProducts.map((prod) => ({
+                      id: prod.id,
+                      quantity: prod.quantity,
+                    })),
                     customer: selectedCustomer,
                   };
                   createOrder(payload);

@@ -1,23 +1,15 @@
-import TableRow from '@mui/material/TableRow';
 import TableCell from '@mui/material/TableCell';
+import TableRow from '@mui/material/TableRow';
 
 import { useBoolean } from 'src/hooks/use-boolean';
 
-import { fDate } from 'src/utils/format-time';
-
 import { usePopover } from 'src/components/custom-popover';
 
-const ReportsDailyTableRow = ({ row, selected, onViewRow, onSelectRow, onDeleteRow }) => {
-  const confirm = useBoolean();
-
-  const collapse = useBoolean();
-
-  const popover = usePopover();
-
+const ReportsDailyTableRow = ({ row, selected }) => {
   const renderPrimary = (
     <TableRow hover selected={selected}>
-      <TableCell>{row.orderNumber}</TableCell>
-      <TableCell>{fDate(row.createdAt)}</TableCell>
+      <TableCell>{row?.label}</TableCell>
+      <TableCell>{row?.value}</TableCell>
     </TableRow>
   );
 

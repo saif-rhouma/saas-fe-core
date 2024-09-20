@@ -4,7 +4,6 @@ import Paper from '@mui/material/Paper';
 import Stack from '@mui/material/Stack';
 import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
-import Checkbox from '@mui/material/Checkbox';
 import Collapse from '@mui/material/Collapse';
 import MenuItem from '@mui/material/MenuItem';
 import MenuList from '@mui/material/MenuList';
@@ -34,14 +33,6 @@ export function OrderTableRow({ row, selected, onViewRow, onSelectRow, onDeleteR
 
   const renderPrimary = (
     <TableRow hover selected={selected}>
-      <TableCell padding="checkbox">
-        <Checkbox
-          checked={selected}
-          onClick={onSelectRow}
-          inputProps={{ id: `row-checkbox-${row.id}`, 'aria-label': `Row checkbox` }}
-        />
-      </TableCell>
-
       <TableCell>
         <Link color="inherit" onClick={onViewRow} underline="always" sx={{ cursor: 'pointer' }}>
           {row.id}
@@ -88,9 +79,9 @@ export function OrderTableRow({ row, selected, onViewRow, onSelectRow, onDeleteR
         <Label
           variant="soft"
           color={
-            (row.status === 'completed' && 'success') ||
+            (row.status === 'Ready' && 'info') ||
             (row.status === 'InProcess' && 'warning') ||
-            (row.status === 'cancelled' && 'error') ||
+            (row.status === 'Delivered' && 'success') ||
             'default'
           }
         >

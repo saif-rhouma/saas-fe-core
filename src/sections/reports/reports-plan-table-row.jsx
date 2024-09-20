@@ -1,26 +1,17 @@
-import TableRow from '@mui/material/TableRow';
 import TableCell from '@mui/material/TableCell';
-
-import { useBoolean } from 'src/hooks/use-boolean';
+import TableRow from '@mui/material/TableRow';
 
 import { fDate } from 'src/utils/format-time';
 
-import { usePopover } from 'src/components/custom-popover';
-
-const ReportsPlanTableRow = ({ row, selected, onViewRow, onSelectRow, onDeleteRow }) => {
-  const confirm = useBoolean();
-
-  const collapse = useBoolean();
-
-  const popover = usePopover();
-
+const ReportsPlanTableRow = ({ row, selected }) => {
+  console.log('----------> row', row);
   const renderPrimary = (
     <TableRow hover selected={selected}>
-      <TableCell>{fDate(row.createdAt)}</TableCell>
-      <TableCell>{row.orderNumber}</TableCell>
-      <TableCell>{row.orderNumber}</TableCell>
-      <TableCell>{row.orderNumber}</TableCell>
-      <TableCell>{row.orderNumber}</TableCell>
+      <TableCell>{fDate(row?.planDate)}</TableCell>
+      <TableCell>PLN-{row?.id}</TableCell>
+      <TableCell>{row?.product?.name}</TableCell>
+      <TableCell>{row?.quantity}</TableCell>
+      <TableCell>{row?.status}</TableCell>
     </TableRow>
   );
 

@@ -1,3 +1,4 @@
+/* eslint-disable react/no-unknown-property */
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import Stack from '@mui/material/Stack';
@@ -6,6 +7,7 @@ import CardHeader from '@mui/material/CardHeader';
 import { fDate } from 'src/utils/format-time';
 import { fCurrency } from 'src/utils/format-number';
 
+import { Label } from 'src/components/label';
 import { Scrollbar } from 'src/components/scrollbar';
 
 import OrderProductTable from './order-product-table';
@@ -56,7 +58,25 @@ export function OrderDetailsItems({
 
   return (
     <Card>
-      <CardHeader title="Details" />
+      <Stack justifyContent="center" alignItems="center">
+        <h1 className="print-title">Order REF: #ORD-{order.id}</h1>
+      </Stack>
+      {/* Add some CSS to hide the title on screen and show it only in print */}
+      <style jsx>{`
+        .print-title {
+          display: none; /* Hide on screen */
+        }
+
+        @media print {
+          .print-title {
+            display: block; /* Show only when printing */
+          }
+          .print-hide {
+            display: none; /* Hide on screen */
+          }
+        }
+      `}</style>
+      <CardHeader className="print-hide" title="Details" />
       <Stack
         direction="row"
         justifyContent="space-between"
@@ -101,7 +121,20 @@ export function OrderDetailsItems({
           >
             <div>NFCAC</div>
           </Stack>
-          <Box sx={{ color: 'text.secondary' }}>Status : {order.status}</Box>
+          <Box sx={{ color: 'text.secondary' }}>
+            Status :{' '}
+            <Label
+              variant="soft"
+              color={
+                (order?.status === 'Ready' && 'info') ||
+                (order?.status === 'InProcess' && 'warning') ||
+                (order?.status === 'Delivered' && 'success') ||
+                'default'
+              }
+            >
+              {order?.status}
+            </Label>
+          </Box>
 
           <Box sx={{ color: 'text.secondary' }}>TAX: {customer?.taxNumber}</Box>
         </Box>

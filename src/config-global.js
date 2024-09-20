@@ -8,6 +8,7 @@ export const CONFIG = {
   site: {
     name: 'Minimals',
     serverUrl: import.meta.env.VITE_SERVER_URL ?? '',
+    serverFileHost: import.meta.env.VITE_SERVER_FILE_HOST ?? '',
     assetURL: import.meta.env.VITE_ASSET_URL ?? '',
     basePath: import.meta.env.VITE_BASE_PATH ?? '',
     version: packageJson.version,

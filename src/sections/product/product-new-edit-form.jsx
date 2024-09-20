@@ -50,7 +50,7 @@ export function ProductNewEditForm({ currentProduct, productsImages }) {
       name: currentProduct?.name || '',
       price: currentProduct?.price || 0,
       images: currentProduct?.images || [],
-      isActive: currentProduct?.isActive || true,
+      isActive: currentProduct?.isActive,
     }),
     [currentProduct]
   );
@@ -73,6 +73,7 @@ export function ProductNewEditForm({ currentProduct, productsImages }) {
   useEffect(() => {
     if (currentProduct) {
       reset(defaultValues);
+      setSelectedImage(currentProduct?.image);
     }
   }, [currentProduct, defaultValues, reset]);
 
@@ -81,7 +82,12 @@ export function ProductNewEditForm({ currentProduct, productsImages }) {
       if (selectedImage) {
         payload.image = selectedImage;
       }
-      await handleCreateProduct(payload);
+      if (currentProduct?.id) {
+        const { id } = currentProduct;
+        await handleEditProduct({ id, payload });
+      } else {
+        await handleCreateProduct(payload);
+      }
     } catch (error) {
       console.error(error);
     }
@@ -121,12 +127,14 @@ export function ProductNewEditForm({ currentProduct, productsImages }) {
   };
 
   const { mutate: handleUploadProductImage } = useMutation({
+    // eslint-disable-next-line no-shadow
     mutationFn: (file) => axios.post(endpoints.files.upload, file, uploadConfig),
     onSuccess: async () => {
       toast.success('New Image Has Been Uploaded!');
     },
     onSettled: async () => {
       await queryClient.invalidateQueries({ queryKey: ['products-images'] });
+      setFile(null);
       dialog.onFalse();
     },
     onError: (err) => {
@@ -150,6 +158,35 @@ export function ProductNewEditForm({ currentProduct, productsImages }) {
     },
   });
 
+  const { mutate: handleEditProduct } = useMutation({
+    mutationFn: ({ id, payload }) => axios.patch(endpoints.products.edit + id, payload),
+    onSuccess: async () => {
+      toast.success('Product Has Been Modified!');
+      reset();
+      router.push(paths.dashboard.product.root);
+    },
+    onSettled: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['products'] });
+      dialog.onFalse();
+    },
+    onError: (err) => {
+      console.log(err);
+    },
+  });
+
+  const { mutate: handleDeleteImage } = useMutation({
+    mutationFn: (payload) => axios.delete(endpoints.files.delete + payload),
+    onSuccess: async () => {
+      toast.success('Image Has been Deleted!');
+    },
+    onSettled: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['products-images'] });
+    },
+    onError: (err) => {
+      console.log(err);
+    },
+  });
+
   return (
     <>
       <Card>
@@ -164,6 +201,21 @@ export function ProductNewEditForm({ currentProduct, productsImages }) {
               <Field.Text fullWidth label="Product Name" name="name" />
               <Field.Text fullWidth type="number" label="Product Price" name="price" />
             </Box>
+            {currentProduct && currentProduct.image === selectedImage && (
+              <Box
+                spacing={2}
+                gap={3}
+                display="grid"
+                gridTemplateColumns={{ xs: 'repeat(2, 1fr)', md: 'repeat(12, 1fr)' }}
+              >
+                <ProductItemButton
+                  image={CONFIG.site.serverFileHost + currentProduct.image}
+                  handleClick={handleSelectedImage}
+                  selected={currentProduct.image === selectedImage}
+                />
+              </Box>
+            )}
+
             <Box
               sx={{
                 borderRadius: 1,
@@ -175,6 +227,7 @@ export function ProductNewEditForm({ currentProduct, productsImages }) {
                 <AccordionSummary expandIcon={<Iconify icon="eva:arrow-ios-downward-fill" />}>
                   <Typography>Select Icon</Typography>
                 </AccordionSummary>
+
                 <Divider />
                 <AccordionDetails>
                   <Box
@@ -183,19 +236,17 @@ export function ProductNewEditForm({ currentProduct, productsImages }) {
                     display="grid"
                     gridTemplateColumns={{ xs: 'repeat(2, 1fr)', md: 'repeat(12, 1fr)' }}
                   >
-                    {productsImages.map((img) => {
-                      const storageHost = 'http://localhost:3000/api/files/show/';
-                      return (
-                        <ProductItemButton
-                          image={storageHost + img.name}
-                          handleClick={handleSelectedImage}
-                          payload={img.name}
-                          selected={img.name === selectedImage}
-                        />
-                      );
-                    })}
+                    {productsImages.map((img) => (
+                      <ProductItemButton
+                        image={CONFIG.site.serverFileHost + img.name}
+                        handleClick={handleSelectedImage}
+                        handleDelete={handleDeleteImage}
+                        payload={img.name}
+                        selected={img.name === selectedImage}
+                      />
+                    ))}
                     <ProductItemButton
-                      image={`${CONFIG.site.basePath}/logo/logo-single.svg`}
+                      image={`${CONFIG.site.basePath}/assets/upload-img.png`}
                       handleClick={() => dialog.onToggle()}
                     />
                   </Box>

@@ -1,4 +1,5 @@
-import { useCallback } from 'react';
+import dayjs from 'dayjs';
+import { useState, useCallback } from 'react';
 
 import Stack from '@mui/material/Stack';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
@@ -8,7 +9,13 @@ import { Iconify } from 'src/components/iconify';
 
 // ----------------------------------------------------------------------
 
-export function ReportsOrderTableToolbar({ filters, onResetPage, options }) {
+export function ReportsOrderTableToolbar({ filters, onResetPage }) {
+  const [selectedStatus, setSelectedStatus] = useState('all');
+
+  const [endDate, setEndDate] = useState(dayjs());
+
+  const [startDate, setStartDate] = useState(dayjs());
+
   const handleFilterName = useCallback(
     (event) => {
       onResetPage();
@@ -16,6 +23,32 @@ export function ReportsOrderTableToolbar({ filters, onResetPage, options }) {
     },
     [filters, onResetPage]
   );
+
+  const handleFilterStatus = useCallback(
+    (newValue) => {
+      onResetPage();
+      filters.setState({ status: newValue.target.value });
+      setSelectedStatus(newValue.target.value);
+    },
+    [filters, onResetPage]
+  );
+
+  const handleFilterStartDate = useCallback(
+    (newValue) => {
+      onResetPage();
+      filters.setState({ startDate: newValue });
+    },
+    [filters, onResetPage]
+  );
+
+  const onChangeEndDate = useCallback(
+    (newValue) => {
+      onResetPage();
+      filters.setState({ endDate: newValue });
+    },
+    [filters, onResetPage]
+  );
+
   return (
     <Stack
       spacing={2}
@@ -37,19 +70,29 @@ export function ReportsOrderTableToolbar({ filters, onResetPage, options }) {
           ),
         }}
       />
-      <DatePicker label="Start Date" sx={{ flexGrow: 1 }} />
-      <DatePicker label="End Date" sx={{ flexGrow: 1 }} />
+      <DatePicker
+        label="Start Date"
+        sx={{ flexGrow: 1 }}
+        format="DD/MM/YYYY"
+        value={filters.state.startDate}
+        onChange={handleFilterStartDate}
+      />
+      <DatePicker
+        label="End Date"
+        sx={{ flexGrow: 1 }}
+        value={filters.state.endDate}
+        onChange={onChangeEndDate}
+        format="DD/MM/YYYY"
+      />
       <Select
         sx={{ flexGrow: 1, textTransform: 'capitalize' }}
-        value="All Orders"
-        renderValue={(selected) => selected}
-        // onChange={handleChangeRowsPerPage}
+        value={selectedStatus}
+        onChange={handleFilterStatus}
       >
-        <MenuItem value={8}>All Plans</MenuItem>
-        <MenuItem value={12}>Pending</MenuItem>
-        <MenuItem value={24}>Processing-A</MenuItem>
-        <MenuItem value={24}>Processing-B</MenuItem>
-        <MenuItem value={24}>Ready</MenuItem>
+        <MenuItem value="all">All Orders</MenuItem>
+        <MenuItem value="InProcess">Processing</MenuItem>
+        <MenuItem value="Ready">Ready To Deliver</MenuItem>
+        <MenuItem value="Delivered">Delivered</MenuItem>
       </Select>
     </Stack>
   );

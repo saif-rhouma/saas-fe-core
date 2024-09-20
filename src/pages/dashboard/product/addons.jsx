@@ -1,11 +1,15 @@
 import { Helmet } from 'react-helmet-async';
+import { useQuery } from '@tanstack/react-query';
+
+import { paths } from 'src/routes/paths';
+
+import axios, { endpoints } from 'src/utils/axios';
 
 import { CONFIG } from 'src/config-global';
 
-import { useQuery } from '@tanstack/react-query';
 import { LoadingScreen } from 'src/components/loading-screen';
 
-import axios, { endpoints } from 'src/utils/axios';
+import { ErrorBlock } from 'src/sections/error/error-block';
 import { ProductAddonsView } from 'src/sections/product/view/product-addons-view';
 // ----------------------------------------------------------------------
 
@@ -22,6 +26,9 @@ export default function Page() {
 
   if (response.isPending || response.isLoading) {
     return <LoadingScreen />;
+  }
+  if (response.isError) {
+    return <ErrorBlock route={paths.dashboard.product.root} />;
   }
   return (
     <>

@@ -1,18 +1,23 @@
-import { Box, Button, Card, InputAdornment, Stack, TextField, Typography } from '@mui/material';
-import { Form, Field, schemaHelper } from 'src/components/hook-form';
-import { useForm } from 'react-hook-form';
 import { z as zod } from 'zod';
-import { toast } from 'src/components/snackbar';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { isValidPhoneNumber } from 'react-phone-number-input';
-import { Iconify } from 'src/components/iconify';
-import { useBoolean } from 'src/hooks/use-boolean';
+import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { isValidPhoneNumber } from 'react-phone-number-input';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useRef, useMemo, useState, useEffect, useCallback } from 'react';
+
 import IconButton from '@mui/material/IconButton';
-import { UploadAvatar } from 'src/components/upload';
+import { Box, Card, Stack, Button, Typography, InputAdornment } from '@mui/material';
+
+import { useBoolean } from 'src/hooks/use-boolean';
+
 import { fData } from 'src/utils/format-number';
 import axios, { endpoints } from 'src/utils/axios';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+
+import { toast } from 'src/components/snackbar';
+import { Iconify } from 'src/components/iconify';
+import { UploadAvatar } from 'src/components/upload';
+import { Form, Field, schemaHelper } from 'src/components/hook-form';
+import { useAuthContext } from 'src/auth/hooks';
 
 // Schema definition for form validation
 export const UserAccountSchema = zod.object({
@@ -32,6 +37,9 @@ export const UserAccountSchema = zod.object({
 const AccountSettingEditForm = ({ userAccount }) => {
   const store = useRef(userAccount);
   const password = useBoolean();
+
+  const context = useAuthContext();
+  console.log('---------> ctx', context);
 
   const [avatarUrl, setAvatarUrl] = useState(null);
 
@@ -80,6 +88,7 @@ const AccountSettingEditForm = ({ userAccount }) => {
     if (userAccount) {
       reset(defaultValues);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userAccount]);
 
   const handleDropAvatar = useCallback((acceptedFiles) => {
@@ -108,6 +117,7 @@ const AccountSettingEditForm = ({ userAccount }) => {
     },
     onSettled: async () => {
       await queryClient.invalidateQueries({ queryKey: ['avatar-images'] });
+      await queryClient.invalidateQueries({ queryKey: ['account-user'] });
     },
     onError: (err) => {
       console.log(err);
@@ -116,7 +126,10 @@ const AccountSettingEditForm = ({ userAccount }) => {
 
   const { mutate: handleEditAccount } = useMutation({
     mutationFn: (payload) => axios.patch(endpoints.account.edit, payload),
-    onSuccess: async () => {
+    onSuccess: async ({ data }) => {
+      const { user, setState } = context;
+      context.user = { ...user, ...data };
+      setState(context);
       toast.success('Account Has Been Modified!');
     },
     onSettled: async () => {

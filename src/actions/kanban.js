@@ -1,13 +1,14 @@
 import { useMemo } from 'react';
 import useSWR, { mutate } from 'swr';
 
-import axios, { fetcher, endpoints } from 'src/utils/axios';
+import axios, { fetcher } from 'src/utils/axios';
+import { CONFIG } from 'src/config-global';
 
 // ----------------------------------------------------------------------
 
 const enableServer = false;
 
-const KANBAN_ENDPOINT = endpoints.order.list;
+const KANBAN_ENDPOINT = `${CONFIG.site.serverUrl}/api/orders-status`;
 
 const swrOptions = {
   revalidateIfStale: enableServer,
@@ -266,12 +267,11 @@ export async function moveTask(updateTasks) {
   /**
    * Work in local
    */
-  console.log('*****************');
+
   mutate(
     KANBAN_ENDPOINT,
     (currentData) => {
       const { board } = currentData;
-      console.log('---------->> currentData', currentData);
       // update board.tasks
       const tasks = updateTasks;
       return { ...currentData, board: { ...board, tasks } };

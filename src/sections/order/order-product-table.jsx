@@ -17,7 +17,7 @@ const OrderProductTable = ({ products, isDetail, onDecrease, onIncrease, removeI
     {
       id: 'rate',
       label: 'Rate',
-      width: 80,
+      width: 120,
     },
     { id: 'totalAmount', label: 'Qty', width: 100 },
     { id: 'status', label: 'Total', width: 140 },
@@ -61,7 +61,7 @@ const OrderProductTable = ({ products, isDetail, onDecrease, onIncrease, removeI
                   <Stack
                     sx={{
                       p: 0.5,
-                      width: 88,
+
                       borderRadius: 1,
                       typography: 'subtitle2',
                       border: (theme) =>

@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { useState, useEffect, useCallback } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
@@ -22,6 +23,7 @@ import { DashboardContent } from 'src/layouts/dashboard';
 import { toast } from 'src/components/snackbar';
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
+import { LoadingScreen } from 'src/components/loading-screen';
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 import {
   useTable,
@@ -36,11 +38,11 @@ import {
 } from 'src/components/table';
 
 import { AppWidgetSummary } from 'src/sections/overview/app/app-widget-summary';
-import { OrderTableFiltersResult } from 'src/sections/order/order-table-filters-result';
 
 import TicketsTableRow from '../tickets-table-row';
 import TicketsCreateDialog from '../tickets-create-dialog';
 import { TicketsTableToolbar } from '../tickets-table-toolbar';
+import { TicketsTableFiltersResult } from '../tickets-table-filters-result';
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
@@ -112,6 +114,7 @@ const TicketsListView = ({ tickets, analytics }) => {
   const { mutate: deleteTicket } = useMutation({
     mutationFn: (id) => axios.delete(endpoints.tickets.delete + id),
     onSuccess: async () => {
+      // eslint-disable-next-line no-undef
       const deleteRow = tableData.filter((row) => row.id !== id);
 
       toast.success('Delete success!');
@@ -134,29 +137,24 @@ const TicketsListView = ({ tickets, analytics }) => {
           <LoadingScreen />
         </Grid>
       );
-    } 
-      return (
-        <>
-          <Grid xs={12} md={4}>
-            <AppWidgetSummary title="All Tickets" total={tickets.length} chart={{}} />
-          </Grid>
-          <Grid xs={12} md={4}>
-            <AppWidgetSummary
-              title="Open Tickets"
-              total={analytics.data.analytics.Open}
-              chart={{}}
-            />
-          </Grid>
-          <Grid xs={12} md={4}>
-            <AppWidgetSummary
-              title="Close Tickets"
-              total={analytics.data.analytics.Closed}
-              chart={{}}
-            />
-          </Grid>
-        </>
-      );
-    
+    }
+    return (
+      <>
+        <Grid xs={12} md={4}>
+          <AppWidgetSummary title="All Tickets" total={tickets.length} chart={{}} />
+        </Grid>
+        <Grid xs={12} md={4}>
+          <AppWidgetSummary title="Open Tickets" total={analytics.data.analytics.Open} chart={{}} />
+        </Grid>
+        <Grid xs={12} md={4}>
+          <AppWidgetSummary
+            title="Close Tickets"
+            total={analytics.data.analytics.Closed}
+            chart={{}}
+          />
+        </Grid>
+      </>
+    );
   };
 
   return (
@@ -190,7 +188,7 @@ const TicketsListView = ({ tickets, analytics }) => {
               />
 
               {canReset && (
-                <OrderTableFiltersResult
+                <TicketsTableFiltersResult
                   filters={filters}
                   totalResults={dataFiltered.length}
                   onResetPage={table.onResetPage}

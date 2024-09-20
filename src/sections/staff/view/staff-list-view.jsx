@@ -1,45 +1,47 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 
-import { Stack, useTheme } from '@mui/material';
 import Box from '@mui/material/Box';
-import Button from '@mui/material/Button';
 import Card from '@mui/material/Card';
 import Table from '@mui/material/Table';
+import Button from '@mui/material/Button';
+import { Stack, useTheme } from '@mui/material';
 import TableBody from '@mui/material/TableBody';
-import { RouterLink } from 'src/routes/components';
 
-import { useRouter } from 'src/routes/hooks';
 import { paths } from 'src/routes/paths';
+import { useRouter } from 'src/routes/hooks';
+import { RouterLink } from 'src/routes/components';
 
 import { useBoolean } from 'src/hooks/use-boolean';
 import { useSetState } from 'src/hooks/use-set-state';
 
+import axios, { endpoints } from 'src/utils/axios';
 import { fIsAfter, fIsBetween } from 'src/utils/format-time';
 
 import { DashboardContent } from 'src/layouts/dashboard';
 
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
+import { toast } from 'src/components/snackbar';
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
-import { toast } from 'src/components/snackbar';
+import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 import {
+  useTable,
   emptyRows,
-  getComparator,
   rowInPage,
+  TableNoData,
+  getComparator,
   TableEmptyRows,
   TableHeadCustom,
-  TableNoData,
-  TablePaginationCustom,
   TableSelectedAction,
-  useTable,
+  TablePaginationCustom,
 } from 'src/components/table';
+
 import StaffTableRow from '../staff-table-row';
 import { StaffTableToolbar } from '../staff-table-toolbar';
+import { StaffTableFiltersResult } from '../staff-table-filters-result';
 // import PaymentDetailsDialog from '../reminders-details-dialog';
 // import PaymentEditDialog from '../reminder-create-dialog';
 // import ReminderCreateDialog from '../reminder-create-dialog';
-import axios, { endpoints } from 'src/utils/axios';
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
@@ -166,6 +168,15 @@ const StaffListView = ({ staffs }) => {
               onResetPage={table.onResetPage}
               dateError={dateError}
             />
+
+            {canReset && (
+              <StaffTableFiltersResult
+                filters={filters}
+                totalResults={dataFiltered.length}
+                onResetPage={table.onResetPage}
+                sx={{ p: 2.5, pt: 0 }}
+              />
+            )}
 
             <Box sx={{ position: 'relative' }}>
               <TableSelectedAction

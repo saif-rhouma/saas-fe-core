@@ -123,3 +123,6 @@ export const merge = (target, ...sources) => {
 
   return merge(target, ...sources);
 };
+
+export const sortByDateDesc = (array, key) =>
+  array.sort((a, b) => new Date(a[key]) - new Date(b[key]));

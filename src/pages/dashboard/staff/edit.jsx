@@ -3,10 +3,9 @@ import { Helmet } from 'react-helmet-async';
 import { useParams } from 'src/routes/hooks';
 
 import { CONFIG } from 'src/config-global';
-import { useGetProduct } from 'src/actions/product';
+import { _staffList } from 'src/_mock/_staffList';
 
 import { StaffCreateView } from 'src/sections/staff/view/staff-create-view';
-import { _staffList } from 'src/_mock/_staffList';
 
 // ----------------------------------------------------------------------
 

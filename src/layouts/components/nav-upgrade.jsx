@@ -20,13 +20,13 @@ import { useAuthContext } from 'src/auth/hooks';
 
 export function NavUpgrade({ sx, ...other }) {
   const { user } = useAuthContext();
-  console.log('----> USER', user);
   return (
     <Stack sx={{ px: 2, py: 5, textAlign: 'center', ...sx }} {...other}>
       <Stack alignItems="center">
         <Box sx={{ position: 'relative' }}>
           <Avatar
-            src={user?.photoURL}
+            // eslint-disable-next-line no-unsafe-optional-chaining
+            src={CONFIG.site.serverFileHost + user?.avatar}
             alt={`${user?.firstName} ${user?.lastName}`}
             sx={{ width: 48, height: 48 }}
           >

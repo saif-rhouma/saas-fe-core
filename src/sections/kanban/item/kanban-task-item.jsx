@@ -21,30 +21,20 @@ export function KanbanTaskItem({ task, disabled, columnId, sx }) {
   const mountedWhileDragging = isDragging && !mounted;
 
   return (
-    <>
-      <ItemBase
-        ref={disabled ? undefined : setNodeRef}
-        task={task}
-        onClick={openDetails.onTrue}
-        stateProps={{
-          transform,
-          listeners,
-          transition,
-          sorting: isSorting,
-          dragging: isDragging,
-          fadeIn: mountedWhileDragging,
-        }}
-        sx={{ ...(openDetails.value && { [`& .${imageClasses.root}`]: { opacity: 0.8 } }), ...sx }}
-      />
-
-      {/* <KanbanDetails
-        task={task}
-        openDetails={openDetails.value}
-        onCloseDetails={openDetails.onFalse}
-        onUpdateTask={handleUpdateTask}
-        onDeleteTask={handleDeleteTask}
-      /> */}
-    </>
+    <ItemBase
+      ref={disabled ? undefined : setNodeRef}
+      task={task}
+      onClick={openDetails.onTrue}
+      stateProps={{
+        transform,
+        listeners,
+        transition,
+        sorting: isSorting,
+        dragging: isDragging,
+        fadeIn: mountedWhileDragging,
+      }}
+      sx={{ ...(openDetails.value && { [`& .${imageClasses.root}`]: { opacity: 0.8 } }), ...sx }}
+    />
   );
 }
 
