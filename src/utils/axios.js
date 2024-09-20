@@ -121,6 +121,9 @@ export const endpoints = {
     create: '/api/users/staff',
     edit: '/api/users/staff',
   },
+  permissions: {
+    list: '/api/permissions/',
+  },
   files: {
     upload: '/api/files/upload',
     delete: '/api/files/delete/',

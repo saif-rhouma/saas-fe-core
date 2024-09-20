@@ -1,7 +1,8 @@
 import { z as zod } from 'zod';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm, Controller } from 'react-hook-form';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
@@ -17,35 +18,34 @@ import FormControlLabel from '@mui/material/FormControlLabel';
 import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hooks';
 
+import axios, { endpoints } from 'src/utils/axios';
+
 import { toast } from 'src/components/snackbar';
 import { Form } from 'src/components/hook-form';
-import { paths } from 'src/routes/paths';
-import axios, { endpoints } from 'src/utils/axios';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 // List of permissions for the checkbox
-const permissions = [
-  'Order List',
-  'View Order',
-  'Download Order Attachment',
-  'Add Plan',
-  'Delete Plan',
-  'Add Customer',
-  'Add Service',
-  'Edit Service',
-  'Order Report',
-  'Order Due Report',
-  'Financial List',
-  'Master Settings',
-  'Add Staff',
-  'Edit Staff',
-  'Add Payment',
-  'Delete Payment',
-  'Edit Reminder',
-  'Create Ticket',
-  'Reply Ticket',
-  // Add more permissions based on your needs
-];
+// const permissions = [
+//   'Order List',
+//   'View Order',
+//   'Download Order Attachment',
+//   'Add Plan',
+//   'Delete Plan',
+//   'Add Customer',
+//   'Add Service',
+//   'Edit Service',
+//   'Order Report',
+//   'Order Due Report',
+//   'Financial List',
+//   'Master Settings',
+//   'Add Staff',
+//   'Edit Staff',
+//   'Add Payment',
+//   'Delete Payment',
+//   'Edit Reminder',
+//   'Create Ticket',
+//   'Reply Ticket',
+//   // Add more permissions based on your needs
+// ];
 
 // Schema definition for form validation
 export const NewStaffSchema = zod.object({
@@ -58,9 +58,10 @@ export const NewStaffSchema = zod.object({
   permissions: zod.array(zod.string()).min(1, { message: 'At least one permission is required!' }),
 });
 
-export function StaffNewEditForm({ currentStaff }) {
+export function StaffNewEditForm({ currentStaff, appPermissions }) {
   const queryClient = useQueryClient();
   const router = useRouter();
+  const [permissions, setPermissions] = useState(appPermissions);
 
   const defaultValues = useMemo(
     () => ({
@@ -139,7 +140,7 @@ export function StaffNewEditForm({ currentStaff }) {
           </Typography>
           <Grid container spacing={2}>
             {permissions.map((permission) => (
-              <Grid item xs={12} md={4} key={permission}>
+              <Grid item xs={12} md={4} key={permission.id}>
                 <Controller
                   name="permissions"
                   control={control}
@@ -156,7 +157,7 @@ export function StaffNewEditForm({ currentStaff }) {
                           }}
                         />
                       }
-                      label={permission}
+                      label={permission.name}
                     />
                   )}
                 />
