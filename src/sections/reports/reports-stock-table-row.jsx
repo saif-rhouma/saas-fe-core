@@ -19,7 +19,6 @@ const ReportsStockTableRow = ({ row, selected }) => {
       <TableCell>{row?.processing_a_quantity}</TableCell>
       <TableCell>{row?.processing_b_quantity}</TableCell>
       <TableCell>{row?.ready_quantity}</TableCell>
-      {/* <TableCell>-</TableCell> */}
       <TableCell>{row?.in_stock}</TableCell>
     </TableRow>
   );

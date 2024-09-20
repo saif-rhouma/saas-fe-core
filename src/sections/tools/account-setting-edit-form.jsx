@@ -17,6 +17,7 @@ import { toast } from 'src/components/snackbar';
 import { Iconify } from 'src/components/iconify';
 import { UploadAvatar } from 'src/components/upload';
 import { Form, Field, schemaHelper } from 'src/components/hook-form';
+import { useAuthContext } from 'src/auth/hooks';
 
 // Schema definition for form validation
 export const UserAccountSchema = zod.object({
@@ -36,6 +37,9 @@ export const UserAccountSchema = zod.object({
 const AccountSettingEditForm = ({ userAccount }) => {
   const store = useRef(userAccount);
   const password = useBoolean();
+
+  const context = useAuthContext();
+  console.log('---------> ctx', context);
 
   const [avatarUrl, setAvatarUrl] = useState(null);
 
@@ -84,6 +88,7 @@ const AccountSettingEditForm = ({ userAccount }) => {
     if (userAccount) {
       reset(defaultValues);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userAccount]);
 
   const handleDropAvatar = useCallback((acceptedFiles) => {
@@ -112,6 +117,7 @@ const AccountSettingEditForm = ({ userAccount }) => {
     },
     onSettled: async () => {
       await queryClient.invalidateQueries({ queryKey: ['avatar-images'] });
+      await queryClient.invalidateQueries({ queryKey: ['account-user'] });
     },
     onError: (err) => {
       console.log(err);
@@ -120,7 +126,10 @@ const AccountSettingEditForm = ({ userAccount }) => {
 
   const { mutate: handleEditAccount } = useMutation({
     mutationFn: (payload) => axios.patch(endpoints.account.edit, payload),
-    onSuccess: async () => {
+    onSuccess: async ({ data }) => {
+      const { user, setState } = context;
+      context.user = { ...user, ...data };
+      setState(context);
       toast.success('Account Has Been Modified!');
     },
     onSettled: async () => {

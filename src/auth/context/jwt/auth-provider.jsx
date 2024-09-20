@@ -59,8 +59,9 @@ export function AuthProvider({ children }) {
       loading: status === 'loading',
       authenticated: status === 'authenticated',
       unauthenticated: status === 'unauthenticated',
+      setState,
     }),
-    [checkUserSession, state.user, status]
+    [checkUserSession, state.user, status, setState]
   );
 
   return <AuthContext.Provider value={memoizedValue}>{children}</AuthContext.Provider>;
