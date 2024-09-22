@@ -128,19 +128,19 @@ export function ProductStockView({ stocks }) {
               { name: 'Products', href: paths.dashboard.product.root },
               { name: 'Product Stock' },
             ]}
-            action={
-              productsList.data.filter((prod) => prod.stock === null).length ? (
-                <Button
-                  onClick={() => dialog.onToggle()}
-                  variant="contained"
-                  startIcon={<Iconify icon="mingcute:add-line" />}
-                >
-                  Add Stock
-                </Button>
-              ) : (
-                ''
-              )
-            }
+            // action={
+            //   productsList.data.filter((prod) => prod.stock === null).length ? (
+            //     <Button
+            //       onClick={() => dialog.onToggle()}
+            //       variant="contained"
+            //       startIcon={<Iconify icon="mingcute:add-line" />}
+            //     >
+            //       Add Stock
+            //     </Button>
+            //   ) : (
+            //     ''
+            //   )
+            // }
           />
           <Card>
             <ProductStockTableToolbar

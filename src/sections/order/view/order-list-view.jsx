@@ -132,7 +132,7 @@ export function OrderListView({ orders, analytics }) {
 
   const handleViewRow = useCallback(
     (id) => {
-      router.push(paths.dashboard.order.details(id));
+      router.replace(paths.dashboard.order.details(id));
     },
     [router]
   );
@@ -159,7 +159,7 @@ export function OrderListView({ orders, analytics }) {
             }
           />
         </Grid>
-        <Grid xs={12} md={4}>
+        <Grid xs={12} md={3}>
           <AppWidgetSummary
             title="All Orders"
             total={orders.length}
@@ -170,12 +170,12 @@ export function OrderListView({ orders, analytics }) {
           />
         </Grid>
 
-        <Grid xs={12} md={4}>
+        <Grid xs={12} md={3}>
           <AppWidgetSummary
             title="Processing Order"
             total={analytics.data.analytics.InProcess}
             chart={{
-              colors: [theme.vars.palette.info.main],
+              colors: [theme.vars.palette.warning.light],
               categories: analytics.data.inProcessLastSixMonth.map((item) =>
                 monthName(item?.inMonth)
               ),
@@ -184,12 +184,24 @@ export function OrderListView({ orders, analytics }) {
           />
         </Grid>
 
-        <Grid xs={12} md={4}>
+        <Grid xs={12} md={3}>
+          <AppWidgetSummary
+            title="Ready To Deliver Order"
+            total={analytics.data.analytics.Ready}
+            chart={{
+              colors: [theme.vars.palette.info.main],
+              categories: analytics.data.readyLastSixMonth.map((item) => monthName(item?.inMonth)),
+              series: analytics.data.readyLastSixMonth.map((item) => item?.ClaimsPerMonth),
+            }}
+          />
+        </Grid>
+
+        <Grid xs={12} md={3}>
           <AppWidgetSummary
             title="Delivered"
             total={analytics.data.analytics.Delivered}
             chart={{
-              colors: [theme.vars.palette.error.main],
+              colors: [theme.vars.palette.success.main],
               categories: analytics.data.deliveredLastSixMonth.map((item) =>
                 monthName(item?.inMonth)
               ),

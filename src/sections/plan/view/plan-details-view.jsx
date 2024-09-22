@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import { Button } from '@mui/material';
@@ -18,8 +18,16 @@ import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 import { PlanDetailsItems } from '../plan-details-item';
 // ----------------------------------------------------------------------
 
-export function PlanDetailsView({ plan }) {
-  const [hideBtn, setHideBtn] = useState(!plan?.isTransferred && plan?.status === 'Ready');
+export function PlanDetailsView({ currentPlan }) {
+  const [plan, setPlan] = useState(currentPlan);
+  useEffect(() => {
+    setPlan(currentPlan);
+    setHideBtn(!currentPlan?.isTransferred && currentPlan?.status === 'Ready');
+  }, [currentPlan]);
+
+  const [hideBtn, setHideBtn] = useState(
+    !currentPlan?.isTransferred && currentPlan?.status === 'Ready'
+  );
   const queryClient = useQueryClient();
   const { mutate: transferToStock } = useMutation({
     mutationFn: (id) => axios.post(endpoints.plan.transferToStock + id),

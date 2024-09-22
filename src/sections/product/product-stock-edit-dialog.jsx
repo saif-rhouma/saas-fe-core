@@ -19,12 +19,12 @@ import { toast } from 'src/components/snackbar';
 import { Form, Field } from 'src/components/hook-form';
 
 const StockProductEditSchema = zod.object({
-  quantity: zod.number().min(1, { message: 'Quantity number is required!' }),
+  quantity: zod.number().min(0, { message: 'Quantity number is required!' }),
 });
 
 const ProductStockEditDialog = ({ stock, open, onClose }) => {
   const defaultValues = {
-    quantity: stock?.quantity || 1,
+    quantity: stock?.quantity || 0,
   };
 
   const methods = useForm({
@@ -59,7 +59,6 @@ const ProductStockEditDialog = ({ stock, open, onClose }) => {
     mutationFn: ({ id, payload }) => axios.patch(endpoints.stock.edit + id, payload),
     onSuccess: async () => {
       toast.success('Stock Has Been Modified!');
-      reset();
       onClose();
     },
     onSettled: async () => {

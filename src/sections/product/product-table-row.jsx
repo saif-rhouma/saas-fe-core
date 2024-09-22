@@ -5,7 +5,7 @@ import MenuList from '@mui/material/MenuList';
 import TableRow from '@mui/material/TableRow';
 import TableCell from '@mui/material/TableCell';
 import IconButton from '@mui/material/IconButton';
-import { Box, Stack, Avatar } from '@mui/material';
+import { Box, Stack, Avatar, ListItemText, Paper, Collapse } from '@mui/material';
 
 import { useBoolean } from 'src/hooks/use-boolean';
 
@@ -17,10 +17,14 @@ import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
 import { ConfirmDialog } from 'src/components/custom-dialog';
 import { usePopover, CustomPopover } from 'src/components/custom-popover';
+import { useState } from 'react';
 
 const ProductTableRow = ({ row, selected, onDeleteRow, onEditRow }) => {
+  const [hasOrders, setHasOrders] = useState(
+    row?.productToOrder.filter((item) => item?.order?.status === 'Delivered').length > 0
+  );
   const confirm = useBoolean();
-
+  const collapse = useBoolean();
   const popover = usePopover();
   const renderPrimary = (
     <TableRow hover selected={selected}>
@@ -47,6 +51,16 @@ const ProductTableRow = ({ row, selected, onDeleteRow, onEditRow }) => {
       </TableCell>
 
       <TableCell align="right" sx={{ px: 1, whiteSpace: 'nowrap' }}>
+        {hasOrders && (
+          <IconButton
+            color={collapse.value ? 'inherit' : 'default'}
+            onClick={collapse.onToggle}
+            sx={{ ...(collapse.value && { bgcolor: 'action.hover' }) }}
+          >
+            <Iconify icon="eva:arrow-ios-downward-fill" />
+          </IconButton>
+        )}
+
         <IconButton color={popover.open ? 'inherit' : 'default'} onClick={popover.onOpen}>
           <Iconify icon="eva:more-vertical-fill" />
         </IconButton>
@@ -54,9 +68,59 @@ const ProductTableRow = ({ row, selected, onDeleteRow, onEditRow }) => {
     </TableRow>
   );
 
+  const renderSecondary = (
+    <TableRow>
+      <TableCell sx={{ p: 0, border: 'none' }} colSpan={8}>
+        <Collapse
+          in={collapse.value}
+          timeout="auto"
+          unmountOnExit
+          sx={{ bgcolor: 'background.neutral' }}
+        >
+          {}
+          <Paper sx={{ m: 1.5 }}>
+            {row?.productToOrder
+              .filter((item) => item?.order?.status === 'Delivered')
+              .map((item) => (
+                <Stack
+                  key={item.id}
+                  direction="row"
+                  alignItems="center"
+                  sx={{
+                    p: (theme) => theme.spacing(1.5, 2, 1.5, 1.5),
+                    '&:not(:last-of-type)': {
+                      borderBottom: (theme) => `solid 2px ${theme.vars.palette.background.neutral}`,
+                    },
+                  }}
+                >
+                  <ListItemText
+                    primary={`ORD-${item?.order?.id}`}
+                    secondary={item.sku}
+                    primaryTypographyProps={{ typography: 'body2' }}
+                    secondaryTypographyProps={{
+                      component: 'span',
+                      color: 'text.disabled',
+                      mt: 0.5,
+                    }}
+                  />
+
+                  <div>x{item.quantity} </div>
+
+                  <Box sx={{ width: 110, textAlign: 'right' }}>{item.order?.status}</Box>
+                </Stack>
+              ))}
+          </Paper>
+        </Collapse>
+      </TableCell>
+    </TableRow>
+  );
+
   return (
     <>
       {renderPrimary}
+
+      {renderSecondary}
+
       <CustomPopover
         open={popover.open}
         anchorEl={popover.anchorEl}

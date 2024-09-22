@@ -30,6 +30,10 @@ export function OrderDetailsView({ currentOrder }) {
   const [paymentsList, setPaymentsList] = useState([]);
 
   useEffect(() => {
+    setOrder(currentOrder);
+  }, [currentOrder]);
+
+  useEffect(() => {
     const payments = sortByDateDesc(order?.payments, 'paymentDate');
     setPaymentsList(payments);
   }, [order?.payments]);
@@ -63,6 +67,7 @@ export function OrderDetailsView({ currentOrder }) {
     onSettled: async () => {
       const { id } = order;
       await queryClient.invalidateQueries({ queryKey: ['orders'] });
+      await queryClient.invalidateQueries({ queryKey: ['orders', 'analytics'] });
       await queryClient.invalidateQueries({ queryKey: ['order', id] });
     },
     onError: (err) => {

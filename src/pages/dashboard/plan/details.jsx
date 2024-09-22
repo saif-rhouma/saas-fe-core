@@ -42,7 +42,7 @@ export default function Page() {
         <title> {metadata.title}</title>
       </Helmet>
 
-      <PlanDetailsView plan={response.data} />
+      <PlanDetailsView currentPlan={response.data} />
     </>
   );
 }

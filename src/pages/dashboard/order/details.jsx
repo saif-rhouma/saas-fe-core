@@ -34,7 +34,6 @@ export default function Page() {
   if (response.isError) {
     return <ErrorBlock route={paths.dashboard.order.root} />;
   }
-
   return (
     <>
       <Helmet>
