@@ -58,7 +58,6 @@ export function PlanDetailsItems({ plan, products }) {
             <div>Laundry Saas POS</div>
           </Stack>
           <Box sx={{ color: 'text.secondary' }}>Quantity : {plan?.quantity}</Box>
-          {/* <Box sx={{ color: 'text.secondary' }}>{plan?.id}</Box> */}
         </Box>
         <Box
           flexDirection="column"
@@ -77,7 +76,16 @@ export function PlanDetailsItems({ plan, products }) {
           >
             <div>Plan Status</div>
           </Stack>
-          <Label variant="soft" color="warning">
+          <Label
+            variant="soft"
+            color={
+              (plan?.status === 'Ready' && 'success') ||
+              (plan?.status === 'Pending' && 'info') ||
+              (plan?.status === 'ProcessingA' && 'warning') ||
+              (plan?.status === 'ProcessingB' && 'error') ||
+              'default'
+            }
+          >
             {plan?.status}
           </Label>
         </Box>

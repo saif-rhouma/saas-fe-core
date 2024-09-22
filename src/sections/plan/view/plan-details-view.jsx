@@ -19,13 +19,13 @@ import { PlanDetailsItems } from '../plan-details-item';
 // ----------------------------------------------------------------------
 
 export function PlanDetailsView({ plan }) {
-  const [hideBtn, setHideBtn] = useState(false);
+  const [hideBtn, setHideBtn] = useState(!plan?.isTransferred && plan?.status === 'Ready');
   const queryClient = useQueryClient();
   const { mutate: transferToStock } = useMutation({
     mutationFn: (id) => axios.post(endpoints.plan.transferToStock + id),
     onSuccess: async () => {
-      toast.success('Delete success!');
-      setHideBtn(() => true);
+      toast.success('Product has been transferred successfully to Stock!');
+      setHideBtn(() => !hideBtn);
     },
     onSettled: async () => {
       const { id } = plan;
@@ -44,8 +44,7 @@ export function PlanDetailsView({ plan }) {
         ]}
         sx={{ mb: { xs: 3, md: 5 } }}
         action={
-          !plan?.isTransferred &&
-          plan?.status === 'Ready' && (
+          hideBtn && (
             <Button
               onClick={async () => {
                 transferToStock(plan.id);

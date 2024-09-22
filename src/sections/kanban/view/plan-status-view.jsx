@@ -36,10 +36,9 @@ import { EmptyContent } from 'src/components/empty-content';
 import { kanbanClasses } from '../classes';
 import { coordinateGetter } from '../utils';
 import { KanbanColumn } from '../column/kanban-column';
-import { KanbanTaskItem } from '../item/kanban-task-item';
+import { KanbanTaskPlanItem } from '../item/kanban-task-Plan-item';
 import { KanbanColumnSkeleton } from '../components/kanban-skeleton';
 import { KanbanDragOverlay } from '../components/kanban-drag-overlay';
-import { KanbanTaskPlanItem } from '../item/kanban-task-Plan-item';
 // ----------------------------------------------------------------------
 
 const cssVars = {
@@ -373,10 +372,12 @@ export function PlanStatusView() {
 
   const { mutate: handlePlanStatus } = useMutation({
     mutationFn: ({ id, payload }) => axios.patch(endpoints.planStatus.edit + id, payload),
-    onSuccess: async () => {
+    onSuccess: async ({ data }) => {
+      const { id } = data;
       await queryClient.invalidateQueries({ queryKey: ['plans'] });
       await queryClient.invalidateQueries({ queryKey: ['plans', 'analytics'] });
       await queryClient.invalidateQueries({ queryKey: ['plans-status'] });
+      await queryClient.invalidateQueries({ queryKey: ['plan', id] });
     },
     onSettled: async () => {},
     onError: (err) => {
