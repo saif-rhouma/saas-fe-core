@@ -195,12 +195,7 @@ export const paths = {
     staff: {
       root: `${ROOTS.DASHBOARD}/staff`,
       new: `${ROOTS.DASHBOARD}/staff/new`,
-      // details: (id) => `${ROOTS.DASHBOARD}/plan/${id}`,
       edit: (id) => `${ROOTS.DASHBOARD}/staff/${id}/edit`,
-      // demo: {
-      //   details: `${ROOTS.DASHBOARD}/plan/${MOCK_ID}`,
-      //   edit: `${ROOTS.DASHBOARD}/plan/${MOCK_ID}/edit`,
-      // },
     },
     reports: {
       root: `${ROOTS.DASHBOARD}/reports`,

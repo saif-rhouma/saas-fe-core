@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import { Button } from '@mui/material';
@@ -6,6 +6,7 @@ import Stack from '@mui/material/Stack';
 import Grid from '@mui/material/Unstable_Grid2';
 
 import { paths } from 'src/routes/paths';
+import { useRouter } from 'src/routes/hooks';
 
 import axios, { endpoints } from 'src/utils/axios';
 
@@ -20,6 +21,9 @@ import { PlanDetailsItems } from '../plan-details-item';
 
 export function PlanDetailsView({ currentPlan }) {
   const [plan, setPlan] = useState(currentPlan);
+
+  const router = useRouter();
+
   useEffect(() => {
     setPlan(currentPlan);
     setHideBtn(!currentPlan?.isTransferred && currentPlan?.status === 'Ready');
@@ -42,6 +46,14 @@ export function PlanDetailsView({ currentPlan }) {
     },
     onError: () => {},
   });
+
+  const handleViewOrder = useCallback(
+    (id) => {
+      router.push(paths.dashboard.order.details(id));
+    },
+    [router]
+  );
+
   return (
     <DashboardContent>
       <CustomBreadcrumbs
@@ -76,6 +88,7 @@ export function PlanDetailsView({ currentPlan }) {
               discount={plan?.discount}
               subtotal={plan?.subtotal}
               totalAmount={plan?.totalAmount}
+              handleViewOrder={handleViewOrder}
             />
           </Stack>
         </Grid>

@@ -14,37 +14,31 @@ import { Iconify } from 'src/components/iconify';
 import { ConfirmDialog } from 'src/components/custom-dialog';
 import { usePopover, CustomPopover } from 'src/components/custom-popover';
 
-const StaffTableRow = ({ row, selected, onViewRow, onDeleteRow,handler }) => {
+const StaffTableRow = ({ row, selected, onEditRow, onDeleteRow, handler }) => {
   const confirm = useBoolean();
 
   const popover = usePopover();
-  const [isChecked, setIsChecked] = useState(row?.isActive)
+  const [isChecked, setIsChecked] = useState(row?.isActive);
 
   useEffect(() => {
     setIsChecked(row?.isActive);
-  },[row])
+  }, [row]);
 
   const handleStatusChange = (id) => () => {
     setIsChecked(!isChecked);
-    handler({id, isActive: !isChecked});
-  }
-
+    handler({ id, isActive: !isChecked });
+  };
 
   const renderPrimary = (
     <TableRow hover selected={selected}>
       <TableCell>{row?.id}</TableCell>
-      <TableCell>{`${row?.firstName} ${row?.lastName}` }</TableCell>
+      <TableCell>{`${row?.firstName} ${row?.lastName}`}</TableCell>
       <TableCell>{row?.phoneNumber}</TableCell>
       <TableCell>{row?.email}</TableCell>
-      {/* <TableCell>{row.status}</TableCell> */}
 
       <TableCell>
-              <Switch
-                checked={isChecked}
-                onChange={handleStatusChange(row.id)}
-                color="primary"
-              />
-            </TableCell>
+        <Switch checked={isChecked} onChange={handleStatusChange(row.id)} color="primary" />
+      </TableCell>
       <TableCell align="right" sx={{ px: 1, whiteSpace: 'nowrap' }}>
         <IconButton color={popover.open ? 'inherit' : 'default'} onClick={popover.onOpen}>
           <Iconify icon="eva:more-vertical-fill" />
@@ -65,6 +59,15 @@ const StaffTableRow = ({ row, selected, onViewRow, onDeleteRow,handler }) => {
         <MenuList>
           <MenuItem
             onClick={() => {
+              onEditRow();
+            }}
+          >
+            <Iconify icon="solar:pen-bold" />
+            Edit
+          </MenuItem>
+
+          <MenuItem
+            onClick={() => {
               confirm.onTrue();
               popover.onClose();
             }}
@@ -72,26 +75,6 @@ const StaffTableRow = ({ row, selected, onViewRow, onDeleteRow,handler }) => {
           >
             <Iconify icon="solar:trash-bin-trash-bold" />
             Delete
-          </MenuItem>
-
-          <MenuItem
-            onClick={() => {
-              onViewRow();
-              popover.onClose();
-            }}
-          >
-            <Iconify icon="solar:eye-bold" />
-            View
-          </MenuItem>
-
-          <MenuItem
-            onClick={() => {
-              onViewRow();
-              popover.onClose();
-            }}
-          >
-            <Iconify icon="solar:eye-bold" />
-            Edit
           </MenuItem>
         </MenuList>
       </CustomPopover>

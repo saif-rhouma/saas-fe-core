@@ -1,17 +1,19 @@
-import { Box, Button, Card, MenuItem, Stack, Typography } from '@mui/material';
-import { Upload, UploadAvatar } from 'src/components/upload';
-import { fData } from 'src/utils/format-number';
-
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { isValidPhoneNumber } from 'react-phone-number-input';
 import { z as zod } from 'zod';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { isValidPhoneNumber } from 'react-phone-number-input';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useRef, useMemo, useState, useEffect, useCallback } from 'react';
 
-import { Field, Form, schemaHelper } from 'src/components/hook-form';
-import { toast } from 'src/components/snackbar';
+import { Box, Card, Stack, Button, MenuItem, Typography } from '@mui/material';
+
+import { fData } from 'src/utils/format-number';
 import axios, { endpoints } from 'src/utils/axios';
+
+import { toast } from 'src/components/snackbar';
+import { Upload, UploadAvatar } from 'src/components/upload';
+import { Form, Field, schemaHelper } from 'src/components/hook-form';
+
 import { CURRENCY_SYMBOL_KEY } from 'src/auth/context/jwt';
 
 export const MasterAccountSchema = zod.object({
@@ -144,6 +146,7 @@ const MasterSettingEditForm = ({ applicationAccount, financial }) => {
   const queryClient = useQueryClient();
 
   const { mutate: handleUploadFile } = useMutation({
+    // eslint-disable-next-line no-shadow
     mutationFn: (file) => axios.post(endpoints.files.upload, file, uploadConfig),
     onSuccess: async ({ data }) => {
       const { name: filename } = data;
@@ -178,7 +181,6 @@ const MasterSettingEditForm = ({ applicationAccount, financial }) => {
       if (avatarFilename) {
         payload.favicon = avatarFilename;
       }
-      console.log('----> payload', payload);
       await handleEditAccount(payload);
     },
     onSettled: async () => {
@@ -205,139 +207,137 @@ const MasterSettingEditForm = ({ applicationAccount, financial }) => {
   });
 
   return (
-    <>
-      <Form methods={methods} onSubmit={onSubmit}>
-        <Card sx={{ mb: 4 }}>
-          <Stack spacing={2} sx={{ p: 3 }}>
-            <Typography variant="h6" gutterBottom>
-              Application Details
-            </Typography>
-            <Box
-              columnGap={2}
-              rowGap={3}
-              display="grid"
-              gridTemplateColumns={{ xs: 'repeat(1, 1fr)', md: 'repeat(2, 1fr)' }}
-            >
-              <Field.Text name="name" label="Application Name" />
-              <Field.Phone name="phoneNumber" label="Phone number" />
-              <Field.Text name="email" label="Email address" />
-              <Field.Text name="description" label="Description" />
-              <Stack spacing={1.5}>
-                <Typography variant="subtitle2">Attachments</Typography>
-                <Upload value={file} onDrop={handleDropSingleFile} onDelete={handleDelete} />
-              </Stack>
-              <Stack spacing={1.5}>
-                <Typography variant="subtitle2">Favicon</Typography>
-                <UploadAvatar
-                  value={avatarUrl}
-                  onDrop={handleDropAvatar}
-                  validator={(fileData) => {
-                    if (fileData.size > 1000000) {
-                      return {
-                        code: 'file-too-large',
-                        message: `File is larger than ${fData(1000000)}`,
-                      };
-                    }
-                    return null;
-                  }}
-                  helperText={
-                    <Typography
-                      variant="caption"
-                      sx={{
-                        mt: 3,
-                        mx: 'auto',
-                        display: 'block',
-                        textAlign: 'center',
-                        color: 'text.disabled',
-                      }}
-                    >
-                      Allowed *.jpeg, *.jpg, *.png, *.gif
-                      <br /> max size of {fData(3145728)}
-                    </Typography>
+    <Form methods={methods} onSubmit={onSubmit}>
+      <Card sx={{ mb: 4 }}>
+        <Stack spacing={2} sx={{ p: 3 }}>
+          <Typography variant="h6" gutterBottom>
+            Application Details
+          </Typography>
+          <Box
+            columnGap={2}
+            rowGap={3}
+            display="grid"
+            gridTemplateColumns={{ xs: 'repeat(1, 1fr)', md: 'repeat(2, 1fr)' }}
+          >
+            <Field.Text name="name" label="Application Name" />
+            <Field.Phone name="phoneNumber" label="Phone number" />
+            <Field.Text name="email" label="Email address" />
+            <Field.Text name="description" label="Description" />
+            <Stack spacing={1.5}>
+              <Typography variant="subtitle2">Attachments</Typography>
+              <Upload value={file} onDrop={handleDropSingleFile} onDelete={handleDelete} />
+            </Stack>
+            <Stack spacing={1.5}>
+              <Typography variant="subtitle2">Favicon</Typography>
+              <UploadAvatar
+                value={avatarUrl}
+                onDrop={handleDropAvatar}
+                validator={(fileData) => {
+                  if (fileData.size > 1000000) {
+                    return {
+                      code: 'file-too-large',
+                      message: `File is larger than ${fData(1000000)}`,
+                    };
                   }
-                />
-              </Stack>
-            </Box>
-          </Stack>
-        </Card>
-        <Card sx={{ mb: 4 }}>
-          <Stack spacing={2} sx={{ p: 3 }}>
-            <Typography variant="h6" gutterBottom>
-              Finance Setting
-            </Typography>
-            <Box
-              columnGap={2}
-              rowGap={3}
-              display="grid"
-              gridTemplateColumns={{ xs: 'repeat(1, 1fr)', md: 'repeat(3, 1fr)' }}
+                  return null;
+                }}
+                helperText={
+                  <Typography
+                    variant="caption"
+                    sx={{
+                      mt: 3,
+                      mx: 'auto',
+                      display: 'block',
+                      textAlign: 'center',
+                      color: 'text.disabled',
+                    }}
+                  >
+                    Allowed *.jpeg, *.jpg, *.png, *.gif
+                    <br /> max size of {fData(3145728)}
+                  </Typography>
+                }
+              />
+            </Stack>
+          </Box>
+        </Stack>
+      </Card>
+      <Card sx={{ mb: 4 }}>
+        <Stack spacing={2} sx={{ p: 3 }}>
+          <Typography variant="h6" gutterBottom>
+            Finance Setting
+          </Typography>
+          <Box
+            columnGap={2}
+            rowGap={3}
+            display="grid"
+            gridTemplateColumns={{ xs: 'repeat(1, 1fr)', md: 'repeat(3, 1fr)' }}
+          >
+            <Field.Text name="currencySymbol" label="Currency Symbol" />
+            <Field.Text name="taxPercentage" label="Tax Percentage" />
+            <Field.Select
+              name="financialYear"
+              label="Select a Financial Year"
+              sx={{ width: 420, textTransform: 'capitalize' }}
             >
-              <Field.Text name="currencySymbol" label="Currency Symbol" />
-              <Field.Text name="taxPercentage" label="Tax Percentage" />
-              <Field.Select
-                name="financialYear"
-                label="Select a Financial Year"
-                sx={{ width: 420, textTransform: 'capitalize' }}
-              >
-                {financial.map((fYear) => (
-                  <MenuItem key={fYear?.id} value={fYear?.id}>
-                    {fYear?.year}
-                  </MenuItem>
-                ))}
-              </Field.Select>
-            </Box>
-          </Stack>
-        </Card>
-        <Card sx={{ mb: 4 }}>
-          <Stack spacing={2} sx={{ p: 3 }}>
-            <Typography variant="h6" gutterBottom>
-              Firm Address
-            </Typography>
-            <Box
-              columnGap={2}
-              rowGap={3}
-              display="grid"
-              gridTemplateColumns={{ xs: 'repeat(1, 1fr)', md: 'repeat(2, 1fr)' }}
+              {financial.map((fYear) => (
+                <MenuItem key={fYear?.id} value={fYear?.id}>
+                  {fYear?.year}
+                </MenuItem>
+              ))}
+            </Field.Select>
+          </Box>
+        </Stack>
+      </Card>
+      <Card sx={{ mb: 4 }}>
+        <Stack spacing={2} sx={{ p: 3 }}>
+          <Typography variant="h6" gutterBottom>
+            Firm Address
+          </Typography>
+          <Box
+            columnGap={2}
+            rowGap={3}
+            display="grid"
+            gridTemplateColumns={{ xs: 'repeat(1, 1fr)', md: 'repeat(2, 1fr)' }}
+          >
+            <Field.CountrySelect name="country" label="Country" placeholder="Choose a country" />
+            <Field.Text name="state" label="State/region" />
+            <Field.Text name="city" label="City" />
+            <Field.Text name="district" label="District" />
+            <Field.Text name="zipCode" label="Zip/code" />
+            <Field.Text name="street" label="Address" />
+            <Field.Text type="number" name="taxNumber" label="Store Tax Number" />
+          </Box>
+        </Stack>
+      </Card>
+      <Card sx={{ mb: 4 }}>
+        <Stack spacing={2} sx={{ p: 3 }}>
+          <Typography variant="h6" gutterBottom>
+            Other Settings
+          </Typography>
+          <Box
+            columnGap={2}
+            rowGap={3}
+            display="grid"
+            gridTemplateColumns={{ xs: 'repeat(1, 1fr)', md: 'repeat(2, 1fr)' }}
+          >
+            <Field.Select
+              name="printerPOS"
+              label="Printer POS"
+              sx={{ width: 420, textTransform: 'capitalize' }}
             >
-              <Field.CountrySelect name="country" label="Country" placeholder="Choose a country" />
-              <Field.Text name="state" label="State/region" />
-              <Field.Text name="city" label="City" />
-              <Field.Text name="district" label="District" />
-              <Field.Text name="zipCode" label="Zip/code" />
-              <Field.Text name="street" label="Address" />
-              <Field.Text type="number" name="taxNumber" label="Store Tax Number" />
-            </Box>
-          </Stack>
-        </Card>
-        <Card sx={{ mb: 4 }}>
-          <Stack spacing={2} sx={{ p: 3 }}>
-            <Typography variant="h6" gutterBottom>
-              Other Settings
-            </Typography>
-            <Box
-              columnGap={2}
-              rowGap={3}
-              display="grid"
-              gridTemplateColumns={{ xs: 'repeat(1, 1fr)', md: 'repeat(2, 1fr)' }}
-            >
-              <Field.Select
-                name="printerPOS"
-                label="Printer POS"
-                sx={{ width: 420, textTransform: 'capitalize' }}
-              >
-                <MenuItem value="A4">A4</MenuItem>
-                <MenuItem value="Thermal">Thermal</MenuItem>
-              </Field.Select>
-            </Box>
-          </Stack>
-        </Card>
-        <Box display="flex" justifyContent="flex-end" gap={2} mt={2}>
-          <Button type="submit" variant="contained">
-            Save Changes
-          </Button>
-          <Button variant="outlined">Cancel</Button>
-        </Box>
-      </Form>
-    </>
+              <MenuItem value="A4">A4</MenuItem>
+              <MenuItem value="Thermal">Thermal</MenuItem>
+            </Field.Select>
+          </Box>
+        </Stack>
+      </Card>
+      <Box display="flex" justifyContent="flex-end" gap={2} mt={2}>
+        <Button type="submit" variant="contained">
+          Save Changes
+        </Button>
+        <Button variant="outlined">Cancel</Button>
+      </Box>
+    </Form>
   );
 };
 export default MasterSettingEditForm;

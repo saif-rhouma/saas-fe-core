@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
@@ -11,13 +12,14 @@ import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hooks';
 import { RouterLink } from 'src/routes/components';
 
-import { useBoolean } from 'src/hooks/use-boolean';
 import { useSetState } from 'src/hooks/use-set-state';
 
+import axios, { endpoints } from 'src/utils/axios';
 import { fIsAfter, fIsBetween } from 'src/utils/format-time';
 
 import { DashboardContent } from 'src/layouts/dashboard';
 
+import { toast } from 'src/components/snackbar';
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
@@ -36,9 +38,6 @@ import {
 import { PlanTableRow } from '../plan-table-row';
 import { PlanTableToolbar } from '../plan-table-toolbar';
 import { PlanTableFiltersResult } from '../plan-table-filters-result';
-import { toast } from 'src/components/snackbar';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import axios, { endpoints } from 'src/utils/axios';
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
@@ -113,6 +112,7 @@ export function PlanListView({ plans }) {
   const { mutate: deletePlan } = useMutation({
     mutationFn: (id) => axios.delete(endpoints.plan.delete + id),
     onSuccess: async () => {
+      // eslint-disable-next-line no-undef
       const deleteRow = tableData.filter((row) => row.id !== id);
 
       toast.success('Delete success!');

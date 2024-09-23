@@ -17,7 +17,7 @@ const metadata = { title: `Create a new staff | Dashboard - ${CONFIG.site.name}`
 
 export default function Page() {
   const response = useQuery({
-    queryKey: ['staffs'],
+    queryKey: ['permissions'],
     queryFn: async () => {
       const { data } = await axios.get(endpoints.permissions.list);
       return data;

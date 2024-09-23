@@ -8,7 +8,7 @@ import { StaffNewEditForm } from '../staff-new-edit-form';
 
 // ----------------------------------------------------------------------
 
-export function StaffCreateView({ staff, appPermissions }) {
+export function StaffCreateView({ currentStaff, appPermissions }) {
   return (
     <DashboardContent>
       <CustomBreadcrumbs
@@ -20,7 +20,7 @@ export function StaffCreateView({ staff, appPermissions }) {
         sx={{ mb: { xs: 3, md: 5 } }}
       />
 
-      <StaffNewEditForm currentStaff={staff} appPermissions={appPermissions} />
+      <StaffNewEditForm currentStaff={currentStaff} appPermissions={appPermissions} />
     </DashboardContent>
   );
 }

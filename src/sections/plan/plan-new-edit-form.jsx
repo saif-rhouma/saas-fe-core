@@ -1,3 +1,5 @@
+/* eslint-disable react-hooks/exhaustive-deps */
+/* eslint-disable no-unsafe-optional-chaining */
 import dayjs from 'dayjs';
 import { useState, useEffect, useCallback } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -94,8 +96,7 @@ export function PlanNewEditForm({ products, plan }) {
           payload.quantity = 1;
           prev.push(payload);
         }
-        const products = [...prev];
-        return products;
+        return [...prev];
       });
     },
     [selectedProducts]
@@ -108,8 +109,7 @@ export function PlanNewEditForm({ products, plan }) {
         if (prev[idx].quantity === 0) {
           prev.splice(idx, 1);
         }
-        const products = [...prev];
-        return products;
+        return [...prev];
       });
     },
     [selectedProducts]
@@ -118,8 +118,7 @@ export function PlanNewEditForm({ products, plan }) {
     (idx) => {
       setSelectedProducts((prev) => {
         prev[idx].quantity += 1;
-        const products = [...prev];
-        return products;
+        return [...prev];
       });
     },
     [selectedProducts]
@@ -129,8 +128,7 @@ export function PlanNewEditForm({ products, plan }) {
     (idx) => {
       setSelectedProducts((prev) => {
         prev.splice(idx, 1);
-        const products = [...prev];
-        return products;
+        return [...prev];
       });
     },
     [selectedProducts]

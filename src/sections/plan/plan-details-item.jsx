@@ -1,18 +1,20 @@
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
+import { Button } from '@mui/material';
 import Stack from '@mui/material/Stack';
 import CardHeader from '@mui/material/CardHeader';
 
 import { fDate } from 'src/utils/format-time';
 
 import { Label } from 'src/components/label';
+import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
 
 import PlanProductTable from './plan-product-table';
 
 // ----------------------------------------------------------------------
 
-export function PlanDetailsItems({ plan, products }) {
+export function PlanDetailsItems({ plan, handleViewOrder }) {
   return (
     <Card>
       <CardHeader title="Details" />
@@ -75,19 +77,37 @@ export function PlanDetailsItems({ plan, products }) {
             sx={{ typography: 'subtitle2', width: '100%', marginBottom: 1 }}
           >
             <div>Plan Status</div>
+            <Label
+              variant="soft"
+              color={
+                (plan?.status === 'Ready' && 'success') ||
+                (plan?.status === 'Pending' && 'info') ||
+                (plan?.status === 'ProcessingA' && 'warning') ||
+                (plan?.status === 'ProcessingB' && 'error') ||
+                'default'
+              }
+            >
+              {plan?.status}
+            </Label>
           </Stack>
-          <Label
-            variant="soft"
-            color={
-              (plan?.status === 'Ready' && 'success') ||
-              (plan?.status === 'Pending' && 'info') ||
-              (plan?.status === 'ProcessingA' && 'warning') ||
-              (plan?.status === 'ProcessingB' && 'error') ||
-              'default'
-            }
-          >
-            {plan?.status}
-          </Label>
+          {plan?.order?.id && (
+            <Stack>
+              <Button
+                variant="contained"
+                size="small"
+                startIcon={<Iconify icon="heroicons-outline:external-link" />}
+                onClick={() => {
+                  // eslint-disable-next-line no-unsafe-optional-chaining
+                  const { id } = plan?.order;
+                  if (id) {
+                    handleViewOrder(id);
+                  }
+                }}
+              >
+                Related to Order: #ORD-{plan?.order?.id}
+              </Button>
+            </Stack>
+          )}
         </Box>
       </Stack>
 

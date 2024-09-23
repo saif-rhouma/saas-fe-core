@@ -64,6 +64,7 @@ export const endpoints = {
     details: '/api/orders/',
     analytics: '/api/orders/analytics',
     approve: '/api/orders/approve/',
+    createPlans: '/api/orders/approve/plans/',
   },
   plan: {
     list: '/api/plans/',
@@ -119,7 +120,9 @@ export const endpoints = {
   staff: {
     list: '/api/users/staff',
     create: '/api/users/staff',
-    edit: '/api/users/staff',
+    edit: '/api/users/staff/',
+    details: '/api/users/staff/',
+    delete: '/api/users/staff/',
   },
   permissions: {
     list: '/api/permissions/',

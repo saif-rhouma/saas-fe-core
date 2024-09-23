@@ -17,6 +17,7 @@ import { toast } from 'src/components/snackbar';
 import { Iconify } from 'src/components/iconify';
 import { UploadAvatar } from 'src/components/upload';
 import { Form, Field, schemaHelper } from 'src/components/hook-form';
+
 import { useAuthContext } from 'src/auth/hooks';
 
 // Schema definition for form validation
@@ -26,7 +27,7 @@ export const UserAccountSchema = zod.object({
   password: zod
     .string()
     .min(1, { message: 'Password is required!' })
-    .min(8, { message: 'Password must be at least 6 characters!' }),
+    .min(8, { message: 'Password must be at least 8 characters!' }),
   email: zod
     .string()
     .min(1, { message: 'Email is required!' })
@@ -39,7 +40,6 @@ const AccountSettingEditForm = ({ userAccount }) => {
   const password = useBoolean();
 
   const context = useAuthContext();
-  console.log('---------> ctx', context);
 
   const [avatarUrl, setAvatarUrl] = useState(null);
 

@@ -1,67 +1,47 @@
 import { z as zod } from 'zod';
-import { useMemo, useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { useMemo, useState, useEffect } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm, Controller } from 'react-hook-form';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
-import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
-import Grid from '@mui/material/Grid';
 import Stack from '@mui/material/Stack';
-import Switch from '@mui/material/Switch';
-import Button from '@mui/material/Button';
-import Checkbox from '@mui/material/Checkbox';
-import TextField from '@mui/material/TextField';
+import { Box, Button } from '@mui/material';
 import Typography from '@mui/material/Typography';
-import FormControlLabel from '@mui/material/FormControlLabel';
+import IconButton from '@mui/material/IconButton';
+import InputAdornment from '@mui/material/InputAdornment';
 
 import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hooks';
 
+import { useBoolean } from 'src/hooks/use-boolean';
+
 import axios, { endpoints } from 'src/utils/axios';
 
 import { toast } from 'src/components/snackbar';
-import { Form } from 'src/components/hook-form';
-
-// List of permissions for the checkbox
-// const permissions = [
-//   'Order List',
-//   'View Order',
-//   'Download Order Attachment',
-//   'Add Plan',
-//   'Delete Plan',
-//   'Add Customer',
-//   'Add Service',
-//   'Edit Service',
-//   'Order Report',
-//   'Order Due Report',
-//   'Financial List',
-//   'Master Settings',
-//   'Add Staff',
-//   'Edit Staff',
-//   'Add Payment',
-//   'Delete Payment',
-//   'Edit Reminder',
-//   'Create Ticket',
-//   'Reply Ticket',
-//   // Add more permissions based on your needs
-// ];
+import { Iconify } from 'src/components/iconify';
+import { Form, Field } from 'src/components/hook-form';
 
 // Schema definition for form validation
 export const NewStaffSchema = zod.object({
   firstName: zod.string().min(1, { message: 'Staff firstName is required!' }),
   lastName: zod.string().min(1, { message: 'Staff lastName is required!' }),
-  password: zod.string().min(1, { message: 'Password is required!' }),
+  password: zod
+    .string()
+    .min(1, { message: 'Password is required!' })
+    .min(8, { message: 'Password must be at least 8 characters!' }),
   email: zod.string().min(1, { message: 'Email is required!' }),
   phoneNumber: zod.string().min(1, { message: 'Phone Number is required!' }),
+  permissions: zod.string().array().nonempty({ message: 'At least one permission is required!' }),
   isActive: zod.boolean(),
-  permissions: zod.array(zod.string()).min(1, { message: 'At least one permission is required!' }),
 });
 
 export function StaffNewEditForm({ currentStaff, appPermissions }) {
   const queryClient = useQueryClient();
   const router = useRouter();
   const [permissions, setPermissions] = useState(appPermissions);
+
+  const password = useBoolean();
 
   const defaultValues = useMemo(
     () => ({
@@ -71,7 +51,7 @@ export function StaffNewEditForm({ currentStaff, appPermissions }) {
       email: currentStaff?.email || '',
       password: currentStaff?.password || '',
       isActive: currentStaff?.isActive || true,
-      permissions: currentStaff?.permissions || [],
+      permissions: currentStaff?.permissions.map((per) => per.slug) || [],
     }),
     [currentStaff]
   );
@@ -90,12 +70,22 @@ export function StaffNewEditForm({ currentStaff, appPermissions }) {
     formState: { isSubmitting },
   } = methods;
 
+  useEffect(() => {
+    if (currentStaff) {
+      reset(defaultValues);
+    }
+    if (appPermissions) {
+      setPermissions(appPermissions);
+    }
+  }, [currentStaff, appPermissions, defaultValues, reset]);
+
   const { mutate: handleCreateStaff } = useMutation({
     mutationFn: (payload) => axios.post(endpoints.staff.create, payload),
     onSuccess: () => {
-      toast.success(
-        currentStaff ? 'Staff updated successfully!' : 'New Staff created successfully!'
-      );
+      toast.success('New Staff has been created successfully!');
+      // toast.success(
+      //   currentStaff ? 'Staff updated successfully!' : 'New Staff created successfully!'
+      // );
       queryClient.invalidateQueries(['staff']);
       reset();
       router.push(paths.dashboard.staff.root);
@@ -106,9 +96,32 @@ export function StaffNewEditForm({ currentStaff, appPermissions }) {
     },
   });
 
-  const onSubmit = handleSubmit((data) => {
-    console.info('DATA Staff', data);
-    handleCreateStaff(data);
+  const { mutate: handleEditStaff } = useMutation({
+    mutationFn: ({ id, payload }) => axios.patch(endpoints.staff.edit + id, payload),
+    onSuccess: () => {
+      toast.success('Staff updated successfully!');
+      const { id } = currentStaff;
+      queryClient.invalidateQueries(['staff', id]);
+      reset();
+      router.push(paths.dashboard.staff.root);
+    },
+    onError: (err) => {
+      console.error(err);
+      toast.error('Failed to edit staff. Please try again.');
+    },
+  });
+
+  const onSubmit = handleSubmit(async (payload) => {
+    try {
+      if (currentStaff?.id) {
+        const { id } = currentStaff;
+        await handleEditStaff({ id, payload });
+      } else {
+        await handleCreateStaff(payload);
+      }
+    } catch (error) {
+      console.error(error);
+    }
   });
 
   return (
@@ -124,59 +137,54 @@ export function StaffNewEditForm({ currentStaff, appPermissions }) {
             display="grid"
             gridTemplateColumns={{ xs: 'repeat(1, 1fr)', md: 'repeat(3, 1fr)' }}
           >
-            <TextField label="First Name" {...methods.register('firstName')} />
-            <TextField label="Last Name" {...methods.register('lastName')} />
-            <TextField label="Phone Number" {...methods.register('phoneNumber')} />
-            <TextField label="Email" {...methods.register('email')} />
-            <TextField label="Password" type="password" {...methods.register('password')} />
+            <Field.Text label="First Name" name="firstName" />
+            <Field.Text label="Last Name" name="lastName" />
+            <Field.Phone name="phoneNumber" label="Phone number" />
+            <Field.Text label="Email" name="email" />
+            <Field.Text
+              name="password"
+              label="Password"
+              placeholder="8+ characters"
+              type={password.value ? 'text' : 'password'}
+              InputLabelProps={{ shrink: true }}
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton onClick={password.onToggle} edge="end">
+                      <Iconify icon={password.value ? 'solar:eye-bold' : 'solar:eye-closed-bold'} />
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              }}
+            />
           </Box>
         </Stack>
       </Card>
-
-      <Card>
-        <Stack spacing={4} sx={{ p: 3 }}>
-          <Typography variant="h6" gutterBottom>
-            Permissions
-          </Typography>
-          <Grid container spacing={2}>
-            {permissions.map((permission) => (
-              <Grid item xs={12} md={4} key={permission.id}>
-                <Controller
-                  name="permissions"
-                  control={control}
-                  render={({ field }) => (
-                    <FormControlLabel
-                      control={
-                        <Checkbox
-                          checked={field.value.includes(permission)}
-                          onChange={(e) => {
-                            const newValue = e.target.checked
-                              ? [...field.value, permission]
-                              : field.value.filter((p) => p !== permission);
-                            field.onChange(newValue);
-                          }}
-                        />
-                      }
-                      label={permission.name}
-                    />
-                  )}
-                />
-              </Grid>
-            ))}
-          </Grid>
-          <FormControlLabel
-            control={<Switch {...methods.register('isActive')} />}
-            label="Is Active?"
+      <Card sx={{ p: 4 }}>
+        <Typography variant="h6" gutterBottom sx={{ mb: 4 }}>
+          Permissions
+        </Typography>
+        <Box display="flex" justifyContent="center" alignItems="center" sx={{ mb: 4 }}>
+          <Field.MultiCheckbox
+            name="permissions"
+            options={appPermissions.map((per) => ({ label: per.name, value: per.slug }))}
+            sx={{
+              display: 'grid',
+              columnGap: 4,
+              rowGap: 4,
+              gridTemplateColumns: 'repeat(4, 1fr)',
+            }}
           />
-          <Box display="flex" justifyContent="flex-end" mt={2}>
-            <Button type="submit" variant="contained" disabled={isSubmitting}>
-              Submit
-            </Button>
-            <Button variant="outlined" onClick={() => reset()} sx={{ ml: 2 }}>
-              Cancel
-            </Button>
-          </Box>
-        </Stack>
+        </Box>
+        <Field.Switch name="isActive" label="Is Active?" />
+        <Box display="flex" justifyContent="flex-end" mt={2}>
+          <Button type="submit" variant="contained" disabled={isSubmitting}>
+            Submit
+          </Button>
+          <Button variant="outlined" onClick={() => reset()} sx={{ ml: 2 }}>
+            Cancel
+          </Button>
+        </Box>
       </Card>
     </Form>
   );
