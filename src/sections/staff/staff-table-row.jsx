@@ -26,7 +26,7 @@ const StaffTableRow = ({ row, selected, onEditRow, onDeleteRow, handler }) => {
 
   const handleStatusChange = (id) => () => {
     setIsChecked(!isChecked);
-    handler({ id, isActive: !isChecked });
+    handler({ id, payload: { isActive: !isChecked } });
   };
 
   const renderPrimary = (

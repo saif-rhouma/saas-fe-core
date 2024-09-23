@@ -50,7 +50,7 @@ export function StaffNewEditForm({ currentStaff, appPermissions }) {
       phoneNumber: currentStaff?.phoneNumber || '',
       email: currentStaff?.email || '',
       password: currentStaff?.password || '',
-      isActive: currentStaff?.isActive || true,
+      isActive: currentStaff?.isActive,
       permissions: currentStaff?.permissions.map((per) => per.slug) || [],
     }),
     [currentStaff]

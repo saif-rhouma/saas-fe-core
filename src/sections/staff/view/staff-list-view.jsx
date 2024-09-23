@@ -100,9 +100,13 @@ const StaffListView = ({ staffs }) => {
 
   const queryClient = useQueryClient();
   const { mutate: handleChangeStatusStaff } = useMutation({
-    mutationFn: (payload) => axios.patch(endpoints.staff.edit, payload),
-    onSuccess: async () => {
+    mutationFn: async ({ id, payload }) => {
+      await axios.patch(endpoints.staff.edit + id, payload);
+      return id;
+    },
+    onSuccess: async (id) => {
       toast.success('Staff Has Been Modified!');
+      await queryClient.invalidateQueries({ queryKey: ['staff', id] });
     },
     onSettled: async () => {
       await queryClient.invalidateQueries({ queryKey: ['staffs'] });

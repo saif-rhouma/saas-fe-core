@@ -21,11 +21,15 @@ import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
 import { ConfirmDialog } from 'src/components/custom-dialog';
 import { usePopover, CustomPopover } from 'src/components/custom-popover';
+import AvatarGroup, { avatarGroupClasses } from '@mui/material/AvatarGroup';
+import { CONFIG } from 'src/config-global';
+import { Tooltip } from '@mui/material';
 
 // ----------------------------------------------------------------------
 
 export function OrderTableRow({ row, selected, onViewRow, onSelectRow, onDeleteRow }) {
   const confirm = useBoolean();
+  console.log('---> row', row);
 
   const collapse = useBoolean();
 
@@ -61,7 +65,6 @@ export function OrderTableRow({ row, selected, onViewRow, onSelectRow, onDeleteR
       <TableCell>
         <ListItemText
           primary={fDate(row.orderDate)}
-          // secondary={fTime(row.createTime)}
           primaryTypographyProps={{ typography: 'body2', noWrap: true }}
           secondaryTypographyProps={{
             mt: 0.5,
@@ -71,7 +74,19 @@ export function OrderTableRow({ row, selected, onViewRow, onSelectRow, onDeleteR
         />
       </TableCell>
 
-      <TableCell align="center"> {row.totalOrderAmount} </TableCell>
+      <TableCell align="center">
+        <AvatarGroup sx={{ [`& .${avatarGroupClasses.avatar}`]: { width: 24, height: 24 } }}>
+          {row?.productToOrder?.map((op) => (
+            <Tooltip title={`${op?.product?.name} | Quantity : ${op.quantity}`}>
+              <Avatar
+                key={op?.id}
+                alt={op?.product?.name}
+                src={`${CONFIG.site.serverFileHost}${op?.product?.image}`}
+              />
+            </Tooltip>
+          ))}
+        </AvatarGroup>
+      </TableCell>
 
       <TableCell> {fCurrency(row.totalOrderAmount)} </TableCell>
 
