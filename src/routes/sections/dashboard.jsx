@@ -55,16 +55,6 @@ const ToolsMasterPage = lazy(() => import('src/pages/dashboard/tools/master'));
 const OrderStatus = lazy(() => import('src/pages/dashboard/order/status'));
 // Plan Status
 const PlanStatus = lazy(() => import('src/pages/dashboard/plan/status'));
-// User
-const UserProfilePage = lazy(() => import('src/pages/dashboard/user/profile'));
-const UserCardsPage = lazy(() => import('src/pages/dashboard/user/cards'));
-const UserListPage = lazy(() => import('src/pages/dashboard/user/list'));
-const UserAccountPage = lazy(() => import('src/pages/dashboard/user/account'));
-const UserCreatePage = lazy(() => import('src/pages/dashboard/user/new'));
-const UserEditPage = lazy(() => import('src/pages/dashboard/user/edit'));
-
-// App
-const KanbanPage = lazy(() => import('src/pages/dashboard/kanban'));
 
 // ----------------------------------------------------------------------
 
@@ -83,15 +73,12 @@ export const dashboardRoutes = [
     children: [
       { element: <IndexPage />, index: true },
       {
-        path: 'user',
+        path: 'order',
         children: [
-          { element: <UserProfilePage />, index: true },
-          { path: 'profile', element: <UserProfilePage /> },
-          { path: 'cards', element: <UserCardsPage /> },
-          { path: 'list', element: <UserListPage /> },
-          { path: 'new', element: <UserCreatePage /> },
-          { path: ':id/edit', element: <UserEditPage /> },
-          { path: 'account', element: <UserAccountPage /> },
+          { element: <OrderListPage />, index: true },
+          { path: 'list', element: <OrderListPage /> },
+          { path: ':id', element: <OrderDetailsPage /> },
+          { path: 'new', element: <OrderCreatePage /> },
         ],
       },
       { path: 'order-status', element: <OrderStatus /> },
@@ -106,15 +93,6 @@ export const dashboardRoutes = [
           { path: 'stock', element: <ProductStockPage /> },
           { path: 'new', element: <ProductCreatePage /> },
           { path: ':id/edit', element: <ProductEditPage /> },
-        ],
-      },
-      {
-        path: 'order',
-        children: [
-          { element: <OrderListPage />, index: true },
-          { path: 'list', element: <OrderListPage /> },
-          { path: ':id', element: <OrderDetailsPage /> },
-          { path: 'new', element: <OrderCreatePage /> },
         ],
       },
       {
@@ -185,7 +163,6 @@ export const dashboardRoutes = [
           { path: 'master-setting', element: <ToolsMasterPage /> },
         ],
       },
-      { path: 'kanban', element: <KanbanPage /> },
     ],
   },
 ];

@@ -36,6 +36,7 @@ export const endpoints = {
   calendar: '/api/calendar',
   auth: {
     me: '/api/auth/me',
+    permissions: '/api/auth/permissions',
     application: '/api/auth/application',
     // signIn: '/api/auth/sign-in',
     signIn: '/api/auth/login',

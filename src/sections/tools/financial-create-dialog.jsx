@@ -1,3 +1,4 @@
+import dayjs from 'dayjs';
 import { z as zod } from 'zod';
 import { useForm } from 'react-hook-form';
 import { useState, useEffect } from 'react';
@@ -10,7 +11,6 @@ import DialogContent from '@mui/material/DialogContent';
 import { Button, Divider, DialogTitle, DialogActions } from '@mui/material';
 
 import { Form, Field, schemaHelper } from 'src/components/hook-form';
-import dayjs from 'dayjs';
 
 const ProductAddonCreationSchema = zod.object({
   year: schemaHelper.date({ message: { required_error: 'Year is required!' } }),
@@ -83,7 +83,7 @@ const FinancialCreateDialog = ({ financial, open, onClose, handler }) => {
           >
             <Field.DatePicker
               views={['year']}
-              format={'YYYY'}
+              format="YYYY"
               label="Year"
               name="year"
               sx={{ mt: 2 }}

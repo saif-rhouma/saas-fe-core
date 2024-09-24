@@ -1,25 +1,25 @@
-import { useState, useCallback } from 'react';
+import { useState } from 'react';
 
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
+import { Stack } from '@mui/material';
 import Table from '@mui/material/Table';
 import Button from '@mui/material/Button';
-import { Stack, useTheme } from '@mui/material';
 import TableBody from '@mui/material/TableBody';
 
 import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hooks';
 
-import { useBoolean } from 'src/hooks/use-boolean';
 import { useSetState } from 'src/hooks/use-set-state';
 
+import { PermissionsType } from 'src/utils/constant';
 import { fIsAfter, fIsBetween } from 'src/utils/format-time';
 
 import { DashboardContent } from 'src/layouts/dashboard';
 
-import { toast } from 'src/components/snackbar';
 import { Iconify } from 'src/components/iconify';
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
+import PermissionAccessController from 'src/components/permission-access-controller/permission-access-controller';
 import {
   useTable,
   emptyRows,
@@ -144,15 +144,20 @@ const ReportsPlanListView = ({ plans }) => {
             >
               <Box>
                 <Stack direction="row" spacing={1}>
-                  <Button
-                    variant="contained"
-                    startIcon={<Iconify icon="carbon:checkmark-filled" />}
-                  >
-                    Download Report
-                  </Button>
-                  <Button variant="outlined" startIcon={<Iconify icon="carbon:checkmark-filled" />}>
-                    Print Report
-                  </Button>
+                  <PermissionAccessController permission={PermissionsType.DOWNLOAD_REPORT}>
+                    <Button variant="contained" startIcon={<Iconify icon="mdi:microsoft-excel" />}>
+                      Download Report
+                    </Button>
+                  </PermissionAccessController>
+                  <PermissionAccessController permission={PermissionsType.PRINT_REPORT}>
+                    <Button
+                      variant="outlined"
+                      // onClick={() => handlePrint()}
+                      startIcon={<Iconify icon="solar:printer-minimalistic-bold" />}
+                    >
+                      Print Report
+                    </Button>
+                  </PermissionAccessController>
                 </Stack>
               </Box>
             </Stack>

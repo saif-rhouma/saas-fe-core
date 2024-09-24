@@ -61,7 +61,6 @@ export const navData = [
       { title: 'Orders Status', path: paths.dashboard.order.status, icon: ICONS.menuItem },
       { title: 'Plans', path: paths.dashboard.plan.root, icon: ICONS.booking },
       { title: 'Plans Status', path: paths.dashboard.plan.status, icon: ICONS.menuItem },
-
       { title: 'Customers', path: paths.dashboard.customers.root, icon: ICONS.course },
       { title: 'Payments', path: paths.dashboard.payments.root, icon: ICONS.invoice },
       { title: 'Reminders', path: paths.dashboard.reminders.root, icon: ICONS.calendar },
@@ -76,7 +75,6 @@ export const navData = [
           { title: 'Order Report', path: paths.dashboard.reports.order },
           { title: 'Plan Report', path: paths.dashboard.reports.plan },
           { title: 'Stock Report', path: paths.dashboard.reports.stock },
-          // { title: 'Custom Report', path: paths.dashboard.reports.custom },
         ],
       },
       {
@@ -89,6 +87,19 @@ export const navData = [
           { title: 'Master Setting', path: paths.dashboard.tools.master },
         ],
       },
+      { title: 'Logout', path: paths.dashboard.general.course, icon: ICONS.course },
+    ],
+  },
+];
+
+export const navDataInit = [
+  /**
+   * Overview
+   */
+  {
+    // subheader: 'Overview',
+    items: [
+      { title: 'Dashboard', path: paths.dashboard.root, icon: ICONS.dashboard },
       { title: 'Logout', path: paths.dashboard.general.course, icon: ICONS.course },
     ],
   },

@@ -14,6 +14,7 @@ import { useBoolean } from 'src/hooks/use-boolean';
 import { useSetState } from 'src/hooks/use-set-state';
 
 import axios, { endpoints } from 'src/utils/axios';
+import { PermissionsType } from 'src/utils/constant';
 import { fIsAfter, fIsBetween } from 'src/utils/format-time';
 
 import { DashboardContent } from 'src/layouts/dashboard';
@@ -22,6 +23,7 @@ import { toast } from 'src/components/snackbar';
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
+import PermissionAccessController from 'src/components/permission-access-controller/permission-access-controller';
 import {
   useTable,
   emptyRows,
@@ -93,6 +95,7 @@ const RemindersListView = ({ reminders }) => {
     (id) => {
       deleteReminder(id);
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [dataInPage.length, table, tableData]
   );
 
@@ -103,6 +106,7 @@ const RemindersListView = ({ reminders }) => {
       setSelectedReminder(row);
       dialogEdit.onToggle();
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [dataInPage.length, table, tableData]
   );
 
@@ -165,85 +169,89 @@ const RemindersListView = ({ reminders }) => {
               { name: 'Reminders', href: paths.dashboard.reminders.root },
             ]}
             action={
-              <Button
-                onClick={() => dialog.onToggle()}
-                variant="contained"
-                startIcon={<Iconify icon="mingcute:add-line" />}
-              >
-                Add Reminder
-              </Button>
+              <PermissionAccessController permission={PermissionsType.ADD_REMINDER}>
+                <Button
+                  onClick={() => dialog.onToggle()}
+                  variant="contained"
+                  startIcon={<Iconify icon="mingcute:add-line" />}
+                >
+                  Add Reminder
+                </Button>
+              </PermissionAccessController>
             }
           />
-          <Card>
-            <RemindersTableToolbar
-              filters={filters}
-              onResetPage={table.onResetPage}
-              dateError={dateError}
-            />
-
-            {canReset && (
-              <ReminderTableFiltersResult
+          <PermissionAccessController permission={PermissionsType.REMINDER_LIST}>
+            <Card>
+              <RemindersTableToolbar
                 filters={filters}
-                totalResults={dataFiltered.length}
                 onResetPage={table.onResetPage}
-                sx={{ p: 2.5, pt: 0 }}
-              />
-            )}
-
-            <Box sx={{ position: 'relative' }}>
-              <TableSelectedAction
-                dense={table.dense}
-                numSelected={table.selected.length}
-                rowCount={dataFiltered.length}
+                dateError={dateError}
               />
 
-              <Scrollbar sx={{ minHeight: 444 }}>
-                <Table size={table.dense ? 'small' : 'medium'} sx={{ minWidth: 960 }}>
-                  <TableHeadCustom
-                    order={table.order}
-                    orderBy={table.orderBy}
-                    headLabel={TABLE_HEAD}
-                    rowCount={dataFiltered.length}
-                  />
+              {canReset && (
+                <ReminderTableFiltersResult
+                  filters={filters}
+                  totalResults={dataFiltered.length}
+                  onResetPage={table.onResetPage}
+                  sx={{ p: 2.5, pt: 0 }}
+                />
+              )}
 
-                  <TableBody>
-                    {dataFiltered
-                      .slice(
-                        table.page * table.rowsPerPage,
-                        table.page * table.rowsPerPage + table.rowsPerPage
-                      )
-                      .map((row) => (
-                        <RemindersTableRow
-                          key={row.id}
-                          row={row}
-                          selected={table.selected.includes(row.id)}
-                          onEditRow={() => handleEditRow(row)}
-                          onDeleteRow={() => handleDeleteRow(row.id)}
-                          onViewRow={() => handleViewRow(row.id)}
-                        />
-                      ))}
+              <Box sx={{ position: 'relative' }}>
+                <TableSelectedAction
+                  dense={table.dense}
+                  numSelected={table.selected.length}
+                  rowCount={dataFiltered.length}
+                />
 
-                    <TableEmptyRows
-                      height={table.dense ? 56 : 56 + 20}
-                      emptyRows={emptyRows(table.page, table.rowsPerPage, dataFiltered.length)}
+                <Scrollbar sx={{ minHeight: 444 }}>
+                  <Table size={table.dense ? 'small' : 'medium'} sx={{ minWidth: 960 }}>
+                    <TableHeadCustom
+                      order={table.order}
+                      orderBy={table.orderBy}
+                      headLabel={TABLE_HEAD}
+                      rowCount={dataFiltered.length}
                     />
 
-                    <TableNoData notFound={notFound} />
-                  </TableBody>
-                </Table>
-              </Scrollbar>
-            </Box>
+                    <TableBody>
+                      {dataFiltered
+                        .slice(
+                          table.page * table.rowsPerPage,
+                          table.page * table.rowsPerPage + table.rowsPerPage
+                        )
+                        .map((row) => (
+                          <RemindersTableRow
+                            key={row.id}
+                            row={row}
+                            selected={table.selected.includes(row.id)}
+                            onEditRow={() => handleEditRow(row)}
+                            onDeleteRow={() => handleDeleteRow(row.id)}
+                            onViewRow={() => handleViewRow(row.id)}
+                          />
+                        ))}
 
-            <TablePaginationCustom
-              page={table.page}
-              dense={table.dense}
-              count={dataFiltered.length}
-              rowsPerPage={table.rowsPerPage}
-              onPageChange={table.onChangePage}
-              onChangeDense={table.onChangeDense}
-              onRowsPerPageChange={table.onChangeRowsPerPage}
-            />
-          </Card>
+                      <TableEmptyRows
+                        height={table.dense ? 56 : 56 + 20}
+                        emptyRows={emptyRows(table.page, table.rowsPerPage, dataFiltered.length)}
+                      />
+
+                      <TableNoData notFound={notFound} />
+                    </TableBody>
+                  </Table>
+                </Scrollbar>
+              </Box>
+
+              <TablePaginationCustom
+                page={table.page}
+                dense={table.dense}
+                count={dataFiltered.length}
+                rowsPerPage={table.rowsPerPage}
+                onPageChange={table.onChangePage}
+                onChangeDense={table.onChangeDense}
+                onRowsPerPageChange={table.onChangeRowsPerPage}
+              />
+            </Card>
+          </PermissionAccessController>
         </Stack>
       </DashboardContent>
       <ReminderCreateDialog

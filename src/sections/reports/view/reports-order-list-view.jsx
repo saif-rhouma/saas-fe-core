@@ -1,4 +1,6 @@
-import { useState } from 'react';
+/* eslint-disable react/no-unknown-property */
+import { useRef, useState } from 'react';
+import { useReactToPrint } from 'react-to-print';
 
 import Box from '@mui/material/Box';
 import { Stack } from '@mui/material';
@@ -12,12 +14,14 @@ import { paths } from 'src/routes/paths';
 import { useSetState } from 'src/hooks/use-set-state';
 
 import { fCurrency } from 'src/utils/format-number';
+import { PermissionsType } from 'src/utils/constant';
 import { fIsAfter, fIsBetween } from 'src/utils/format-time';
 
 import { DashboardContent } from 'src/layouts/dashboard';
 
 import { Iconify } from 'src/components/iconify';
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
+import PermissionAccessController from 'src/components/permission-access-controller/permission-access-controller';
 import {
   useTable,
   emptyRows,
@@ -34,7 +38,7 @@ import { ReportsOrderTableToolbar } from '../reports-order-table-toolbar';
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
-  { id: 'date', label: 'Date', width: 300 },
+  { id: 'date', label: 'Date', width: 140 },
   { id: 'orderId', label: 'Order Id' },
   { id: 'customer', label: 'Customer' },
   { id: 'orderAmount', label: 'Order Amount' },
@@ -45,7 +49,7 @@ const TABLE_HEAD = [
 
 const ReportsOrderListView = ({ orders }) => {
   const table = useTable({ defaultOrderBy: 'orderNumber' });
-
+  const contentToPrint = useRef();
   const [tableData, setTableData] = useState(orders);
 
   const filters = useSetState({
@@ -63,13 +67,17 @@ const ReportsOrderListView = ({ orders }) => {
     filters: filters.state,
     dateError,
   });
-  console.log('----------><> dataFiltered', dataFiltered);
+
   const canReset =
     !!filters.state.name ||
     filters.state.status !== 'all' ||
     (!!filters.state.startDate && !!filters.state.endDate);
 
   const notFound = (!dataFiltered.length && canReset) || !dataFiltered.length;
+
+  const handlePrint = useReactToPrint({
+    content: () => contentToPrint.current,
+  });
 
   return (
     <DashboardContent maxWidth="xl">
@@ -81,7 +89,28 @@ const ReportsOrderListView = ({ orders }) => {
             { name: 'Order Report', href: paths.dashboard.reports.order },
           ]}
         />
-        <Card>
+        <Card ref={contentToPrint} className="print-padding">
+          <Stack justifyContent="center" alignItems="center">
+            <h1 className="print-title">Order Reports</h1>
+          </Stack>
+          {/* Add some CSS to hide the title on screen and show it only in print */}
+          <style jsx>{`
+            .print-title {
+              display: none; /* Hide on screen */
+            }
+
+            @media print {
+              .print-title {
+                display: block; /* Show only when printing */
+              }
+              .print-hide {
+                display: none; /* Hide on screen */
+              }
+              .print-padding {
+                padding: 60px;
+              }
+            }
+          `}</style>
           <ReportsOrderTableToolbar
             filters={filters}
             onResetPage={table.onResetPage}
@@ -93,9 +122,10 @@ const ReportsOrderListView = ({ orders }) => {
               dense={table.dense}
               numSelected={table.selected.length}
               rowCount={dataFiltered.length}
+              className="print-hide"
             />
 
-            <Table size={table.dense ? 'small' : 'medium'} sx={{ minWidth: 960 }}>
+            <Table size={table.dense ? 'small' : 'medium'}>
               <TableHeadCustom
                 order={table.order}
                 orderBy={table.orderBy}
@@ -143,16 +173,21 @@ const ReportsOrderListView = ({ orders }) => {
                 </Box>
               </Stack>
               <Box>
-                <Stack direction="row" spacing={1}>
-                  <Button
-                    variant="contained"
-                    startIcon={<Iconify icon="carbon:checkmark-filled" />}
-                  >
-                    Download Report
-                  </Button>
-                  <Button variant="outlined" startIcon={<Iconify icon="carbon:checkmark-filled" />}>
-                    Print Report
-                  </Button>
+                <Stack direction="row" spacing={1} className="print-hide">
+                  <PermissionAccessController permission={PermissionsType.DOWNLOAD_REPORT}>
+                    <Button variant="contained" startIcon={<Iconify icon="mdi:microsoft-excel" />}>
+                      Download Report
+                    </Button>
+                  </PermissionAccessController>
+                  <PermissionAccessController permission={PermissionsType.PRINT_REPORT}>
+                    <Button
+                      variant="outlined"
+                      onClick={() => handlePrint()}
+                      startIcon={<Iconify icon="solar:printer-minimalistic-bold" />}
+                    >
+                      Print Report
+                    </Button>
+                  </PermissionAccessController>
                 </Stack>
               </Box>
             </Stack>

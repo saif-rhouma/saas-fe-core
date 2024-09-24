@@ -2,6 +2,7 @@ import Box from '@mui/material/Box';
 import Link from '@mui/material/Link';
 import Paper from '@mui/material/Paper';
 import Stack from '@mui/material/Stack';
+import { Tooltip } from '@mui/material';
 import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import Collapse from '@mui/material/Collapse';
@@ -11,19 +12,21 @@ import TableRow from '@mui/material/TableRow';
 import TableCell from '@mui/material/TableCell';
 import IconButton from '@mui/material/IconButton';
 import ListItemText from '@mui/material/ListItemText';
+import AvatarGroup, { avatarGroupClasses } from '@mui/material/AvatarGroup';
 
 import { useBoolean } from 'src/hooks/use-boolean';
 
 import { fDate } from 'src/utils/format-time';
 import { fCurrency } from 'src/utils/format-number';
+import { PermissionsType } from 'src/utils/constant';
+
+import { CONFIG } from 'src/config-global';
 
 import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
 import { ConfirmDialog } from 'src/components/custom-dialog';
 import { usePopover, CustomPopover } from 'src/components/custom-popover';
-import AvatarGroup, { avatarGroupClasses } from '@mui/material/AvatarGroup';
-import { CONFIG } from 'src/config-global';
-import { Tooltip } from '@mui/material';
+import PermissionAccessController from 'src/components/permission-access-controller/permission-access-controller';
 
 // ----------------------------------------------------------------------
 
@@ -177,25 +180,29 @@ export function OrderTableRow({ row, selected, onViewRow, onSelectRow, onDeleteR
         slotProps={{ arrow: { placement: 'right-top' } }}
       >
         <MenuList>
-          <MenuItem
-            onClick={() => {
-              onViewRow();
-              popover.onClose();
-            }}
-          >
-            <Iconify icon="solar:eye-bold" />
-            View
-          </MenuItem>
-          <MenuItem
-            onClick={() => {
-              confirm.onTrue();
-              popover.onClose();
-            }}
-            sx={{ color: 'error.main' }}
-          >
-            <Iconify icon="solar:trash-bin-trash-bold" />
-            Delete
-          </MenuItem>
+          <PermissionAccessController permission={PermissionsType.VIEW_ORDER}>
+            <MenuItem
+              onClick={() => {
+                onViewRow();
+                popover.onClose();
+              }}
+            >
+              <Iconify icon="solar:eye-bold" />
+              View
+            </MenuItem>
+          </PermissionAccessController>
+          <PermissionAccessController permission={PermissionsType.DELETE_ORDER}>
+            <MenuItem
+              onClick={() => {
+                confirm.onTrue();
+                popover.onClose();
+              }}
+              sx={{ color: 'error.main' }}
+            >
+              <Iconify icon="solar:trash-bin-trash-bold" />
+              Delete
+            </MenuItem>
+          </PermissionAccessController>
         </MenuList>
       </CustomPopover>
 

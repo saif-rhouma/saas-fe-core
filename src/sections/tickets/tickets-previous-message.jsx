@@ -53,7 +53,7 @@ const TicketsPreviousMessage = ({ ticket, messages }) => {
       reset();
     },
     onSettled: async () => {
-      const {id} = ticket;
+      const { id } = ticket;
       await queryClient.invalidateQueries({ queryKey: ['tickets'] });
       await queryClient.invalidateQueries({ queryKey: ['tickets', id] });
     },

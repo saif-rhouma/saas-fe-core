@@ -5,6 +5,7 @@ import Alert from '@mui/material/Alert';
 import { useTheme } from '@mui/material/styles';
 import { iconButtonClasses } from '@mui/material/IconButton';
 
+import useNavData from 'src/hooks/use-nav-data';
 import { useBoolean } from 'src/hooks/use-boolean';
 
 import { allLangs } from 'src/locales';
@@ -13,6 +14,8 @@ import { varAlpha, stylesMode } from 'src/theme/styles';
 
 import { bulletColor } from 'src/components/nav-section';
 import { useSettingsContext } from 'src/components/settings';
+
+import { useAuthContext, usePermissionsContext } from 'src/auth/hooks';
 
 import { Main } from './main';
 import { NavMobile } from './nav-mobile';
@@ -30,6 +33,11 @@ import { navData as dashboardNavData } from '../config-nav-dashboard';
 export function DashboardLayout({ sx, children, data }) {
   const theme = useTheme();
 
+  const { permissions } = usePermissionsContext();
+  const { user } = useAuthContext();
+
+  const navData = useNavData(dashboardNavData, permissions, user.roles[0]);
+
   const mobileNavOpen = useBoolean();
 
   const settings = useSettingsContext();
@@ -37,8 +45,6 @@ export function DashboardLayout({ sx, children, data }) {
   const navColorVars = useNavColorVars(theme, settings);
 
   const layoutQuery = 'lg';
-
-  const navData = data?.nav ?? dashboardNavData;
 
   const isNavMini = settings.navLayout === 'mini';
 

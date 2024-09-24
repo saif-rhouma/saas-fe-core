@@ -14,14 +14,15 @@ import { useBoolean } from 'src/hooks/use-boolean';
 import { useSetState } from 'src/hooks/use-set-state';
 
 import axios, { endpoints } from 'src/utils/axios';
+import { PermissionsType } from 'src/utils/constant';
 import { fIsAfter, fIsBetween } from 'src/utils/format-time';
 
-import { ORDER_STATUS_OPTIONS } from 'src/_mock';
 import { DashboardContent } from 'src/layouts/dashboard';
 
 import { toast } from 'src/components/snackbar';
 import { Scrollbar } from 'src/components/scrollbar';
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
+import PermissionAccessController from 'src/components/permission-access-controller/permission-access-controller';
 import {
   useTable,
   emptyRows,
@@ -40,8 +41,6 @@ import PaymentDetailsDialog from '../payments-details-dialog';
 import { PaymentsTableToolbar } from '../payments-table-toolbar';
 import { PaymentsTableFiltersResult } from '../payments-table-filters-result';
 // ----------------------------------------------------------------------
-
-const STATUS_OPTIONS = [{ value: 'all', label: 'All' }, ...ORDER_STATUS_OPTIONS];
 
 const TABLE_HEAD = [
   { id: 'paymentId', label: '#', width: 88 },
@@ -170,76 +169,78 @@ const PaymentsListView = ({ payments }) => {
               { name: 'Payments', href: paths.dashboard.payments.root },
             ]}
           />
-          <Card>
-            <PaymentsTableToolbar
-              filters={filters}
-              onResetPage={table.onResetPage}
-              dateError={dateError}
-            />
-
-            {canReset && (
-              <PaymentsTableFiltersResult
+          <PermissionAccessController permission={PermissionsType.PAYMENT_LIST}>
+            <Card>
+              <PaymentsTableToolbar
                 filters={filters}
-                totalResults={dataFiltered.length}
                 onResetPage={table.onResetPage}
-                sx={{ p: 2.5, pt: 0 }}
-              />
-            )}
-
-            <Box sx={{ position: 'relative' }}>
-              <TableSelectedAction
-                dense={table.dense}
-                numSelected={table.selected.length}
-                rowCount={dataFiltered.length}
+                dateError={dateError}
               />
 
-              <Scrollbar sx={{ minHeight: 444 }}>
-                <Table size={table.dense ? 'small' : 'medium'} sx={{ minWidth: 960 }}>
-                  <TableHeadCustom
-                    order={table.order}
-                    orderBy={table.orderBy}
-                    headLabel={TABLE_HEAD}
-                    rowCount={dataFiltered.length}
-                  />
+              {canReset && (
+                <PaymentsTableFiltersResult
+                  filters={filters}
+                  totalResults={dataFiltered.length}
+                  onResetPage={table.onResetPage}
+                  sx={{ p: 2.5, pt: 0 }}
+                />
+              )}
 
-                  <TableBody>
-                    {dataFiltered
-                      .slice(
-                        table.page * table.rowsPerPage,
-                        table.page * table.rowsPerPage + table.rowsPerPage
-                      )
-                      .map((row) => (
-                        <PaymentsTableRow
-                          key={row.id}
-                          row={row}
-                          selected={table.selected.includes(row.id)}
-                          onEditRow={() => handleEditRow(row)}
-                          onDeleteRow={() => handleDeleteRow(row.id)}
-                          onViewRow={() => handleViewRow(row)}
-                        />
-                      ))}
+              <Box sx={{ position: 'relative' }}>
+                <TableSelectedAction
+                  dense={table.dense}
+                  numSelected={table.selected.length}
+                  rowCount={dataFiltered.length}
+                />
 
-                    <TableEmptyRows
-                      height={table.dense ? 56 : 56 + 20}
-                      emptyRows={emptyRows(table.page, table.rowsPerPage, dataFiltered.length)}
+                <Scrollbar sx={{ minHeight: 444 }}>
+                  <Table size={table.dense ? 'small' : 'medium'} sx={{ minWidth: 960 }}>
+                    <TableHeadCustom
+                      order={table.order}
+                      orderBy={table.orderBy}
+                      headLabel={TABLE_HEAD}
+                      rowCount={dataFiltered.length}
                     />
 
-                    <TableNoData notFound={notFound} />
-                  </TableBody>
-                </Table>
-              </Scrollbar>
-            </Box>
+                    <TableBody>
+                      {dataFiltered
+                        .slice(
+                          table.page * table.rowsPerPage,
+                          table.page * table.rowsPerPage + table.rowsPerPage
+                        )
+                        .map((row) => (
+                          <PaymentsTableRow
+                            key={row.id}
+                            row={row}
+                            selected={table.selected.includes(row.id)}
+                            onEditRow={() => handleEditRow(row)}
+                            onDeleteRow={() => handleDeleteRow(row.id)}
+                            onViewRow={() => handleViewRow(row)}
+                          />
+                        ))}
 
-            <TablePaginationCustom
-              page={table.page}
-              dense={table.dense}
-              count={dataFiltered.length}
-              rowsPerPage={table.rowsPerPage}
-              onPageChange={table.onChangePage}
-              onChangeDense={table.onChangeDense}
-              onRowsPerPageChange={table.onChangeRowsPerPage}
-            />
-          </Card>
+                      <TableEmptyRows
+                        height={table.dense ? 56 : 56 + 20}
+                        emptyRows={emptyRows(table.page, table.rowsPerPage, dataFiltered.length)}
+                      />
+
+                      <TableNoData notFound={notFound} />
+                    </TableBody>
+                  </Table>
+                </Scrollbar>
+              </Box>
+
+              <TablePaginationCustom
+                page={table.page}
+                dense={table.dense}
+                count={dataFiltered.length}
+                rowsPerPage={table.rowsPerPage}
+                onPageChange={table.onChangePage}
+                onChangeDense={table.onChangeDense}
+                onRowsPerPageChange={table.onChangeRowsPerPage}
+              />
+            </Card>
+          </PermissionAccessController>
         </Stack>
       </DashboardContent>
       <PaymentDetailsDialog

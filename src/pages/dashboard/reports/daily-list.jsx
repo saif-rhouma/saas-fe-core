@@ -1,16 +1,16 @@
 import { Helmet } from 'react-helmet-async';
-
-import { CONFIG } from 'src/config-global';
 import { useQuery } from '@tanstack/react-query';
 
 import { paths } from 'src/routes/paths';
 
 import axios, { endpoints } from 'src/utils/axios';
 
-import ReportsDailyListView from 'src/sections/reports/view/reports-daily-list-view';
+import { CONFIG } from 'src/config-global';
+
 import { LoadingScreen } from 'src/components/loading-screen';
 
 import { ErrorBlock } from 'src/sections/error/error-block';
+import ReportsDailyListView from 'src/sections/reports/view/reports-daily-list-view';
 // ----------------------------------------------------------------------
 
 const metadata = { title: `Reports list | Dashboard - ${CONFIG.site.name}` };

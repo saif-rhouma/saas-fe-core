@@ -14,9 +14,11 @@ import TimelineItem, { timelineItemClasses } from '@mui/lab/TimelineItem';
 
 import { fDateTime } from 'src/utils/format-time';
 import { fCurrency } from 'src/utils/format-number';
+import { PermissionsType } from 'src/utils/constant';
 
 import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
+import PermissionAccessController from 'src/components/permission-access-controller/permission-access-controller';
 
 const OrderProductAddons = ({ order, payments, dialog, handleApproveOrder, handlePrint }) => {
   const renderTimeline = (
@@ -66,9 +68,11 @@ const OrderProductAddons = ({ order, payments, dialog, handleApproveOrder, handl
         })}
       </Timeline>
       <Stack justifyContent="flex-end" spacing={1.5} sx={{ marginTop: 2 }}>
-        <Button variant="contained" onClick={() => dialog.onTrue()}>
-          Add Payment
-        </Button>
+        <PermissionAccessController permission={PermissionsType.ADD_PAYMENT}>
+          <Button variant="contained" onClick={() => dialog.onTrue()}>
+            Add Payment
+          </Button>
+        </PermissionAccessController>
         {order?.status === 'Draft' && (
           <Button
             variant="outlined"
@@ -79,10 +83,12 @@ const OrderProductAddons = ({ order, payments, dialog, handleApproveOrder, handl
             Approve
           </Button>
         )}
-        <Button variant="outlined" color="info" onClick={() => handlePrint()}>
-          <Iconify icon="solar:printer-minimalistic-bold" />
-          <span style={{ margin: 4 }}>Print Invoice</span>
-        </Button>
+        <PermissionAccessController permission={PermissionsType.PRINT_ORDER}>
+          <Button variant="outlined" color="info" onClick={() => handlePrint()}>
+            <Iconify icon="solar:printer-minimalistic-bold" />
+            <span style={{ margin: 4 }}>Print Invoice</span>
+          </Button>
+        </PermissionAccessController>
       </Stack>
     </Box>
   );

@@ -1,3 +1,4 @@
+import { useTheme } from '@emotion/react';
 import { useReactToPrint } from 'react-to-print';
 import { useRef, useState, useEffect } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -22,7 +23,6 @@ import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 import OrderProductAddons from '../order-product-addons';
 import { OrderDetailsItems } from '../order-details-item';
 import OrderPaymentDetailsDialog from '../order-payment-details-dialog';
-import { useTheme } from '@emotion/react';
 // ----------------------------------------------------------------------
 
 export function OrderDetailsView({ currentOrder }) {

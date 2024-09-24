@@ -1,44 +1,45 @@
-import {
-  closestCenter,
-  DndContext,
-  getFirstCollision,
-  KeyboardSensor,
-  MeasuringStrategy,
-  MouseSensor,
-  pointerWithin,
-  rectIntersection,
-  TouchSensor,
-  useSensor,
-  useSensors,
-} from '@dnd-kit/core';
+import dayjs from 'dayjs';
+import { useRef, useState, useEffect, useCallback } from 'react';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   arrayMove,
-  horizontalListSortingStrategy,
   SortableContext,
   verticalListSortingStrategy,
+  horizontalListSortingStrategy,
 } from '@dnd-kit/sortable';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import {
+  useSensor,
+  DndContext,
+  useSensors,
+  MouseSensor,
+  TouchSensor,
+  closestCenter,
+  pointerWithin,
+  KeyboardSensor,
+  rectIntersection,
+  getFirstCollision,
+  MeasuringStrategy,
+} from '@dnd-kit/core';
 
-import FormControlLabel from '@mui/material/FormControlLabel';
 import Stack from '@mui/material/Stack';
 import Switch from '@mui/material/Switch';
 import Typography from '@mui/material/Typography';
+import FormControlLabel from '@mui/material/FormControlLabel';
 
-import { moveColumn, moveTask, useGetOrderBoard } from 'src/actions/kanbanOrder';
-import { DashboardContent } from 'src/layouts/dashboard';
+import axios, { endpoints } from 'src/utils/axios';
+
 import { hideScrollY } from 'src/theme/styles';
+import { DashboardContent } from 'src/layouts/dashboard';
+import { moveTask, moveColumn, useGetOrderBoard } from 'src/actions/kanbanOrder';
 
 import { EmptyContent } from 'src/components/empty-content';
 
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import dayjs from 'dayjs';
-import axios, { endpoints } from 'src/utils/axios';
 import { kanbanClasses } from '../classes';
-import { KanbanColumn } from '../column/kanban-column';
-import { KanbanDragOverlay } from '../components/kanban-drag-overlay';
-import { KanbanColumnSkeleton } from '../components/kanban-skeleton';
-import { KanbanTaskItem } from '../item/kanban-task-item';
 import { coordinateGetter } from '../utils';
+import { KanbanColumn } from '../column/kanban-column';
+import { KanbanTaskItem } from '../item/kanban-task-item';
+import { KanbanColumnSkeleton } from '../components/kanban-skeleton';
+import { KanbanDragOverlay } from '../components/kanban-drag-overlay';
 // ----------------------------------------------------------------------
 
 const cssVars = {

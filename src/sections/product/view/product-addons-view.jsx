@@ -17,6 +17,7 @@ import { useBoolean } from 'src/hooks/use-boolean';
 import { useSetState } from 'src/hooks/use-set-state';
 
 import axios, { endpoints } from 'src/utils/axios';
+import { PermissionsType } from 'src/utils/constant';
 import { fIsAfter, fIsBetween } from 'src/utils/format-time';
 
 import { DashboardContent } from 'src/layouts/dashboard';
@@ -25,6 +26,7 @@ import { toast } from 'src/components/snackbar';
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
+import PermissionAccessController from 'src/components/permission-access-controller/permission-access-controller';
 import {
   useTable,
   emptyRows,
@@ -171,91 +173,95 @@ export function ProductAddonsView({ productAddons }) {
               { name: 'Product Addons' },
             ]}
             action={
-              <Button
-                onClick={() => dialog.onToggle()}
-                variant="contained"
-                startIcon={<Iconify icon="mingcute:add-line" />}
-              >
-                Add New Addon
-              </Button>
+              <PermissionAccessController permission={PermissionsType.ADD_ADDON}>
+                <Button
+                  onClick={() => dialog.onToggle()}
+                  variant="contained"
+                  startIcon={<Iconify icon="mingcute:add-line" />}
+                >
+                  Add New Addon
+                </Button>
+              </PermissionAccessController>
             }
           />
-          <Card>
-            <ProductAddonTableToolbar
-              filters={filters}
-              onResetPage={table.onResetPage}
-              dateError={dateError}
-            />
-            {canReset && (
-              <ProductTableFiltersResult
+          <PermissionAccessController permission={PermissionsType.LIST_ADDON}>
+            <Card>
+              <ProductAddonTableToolbar
                 filters={filters}
-                totalResults={dataFiltered.length}
                 onResetPage={table.onResetPage}
-                sx={{ p: 2.5, pt: 0 }}
+                dateError={dateError}
               />
-            )}
-            <Box sx={{ position: 'relative' }}>
-              <TableSelectedAction
-                dense={table.dense}
-                numSelected={table.selected.length}
-                rowCount={dataFiltered.length}
-                onSelectAllRows={(checked) =>
-                  table.onSelectAllRows(
-                    checked,
-                    dataFiltered.map((row) => row.id)
-                  )
-                }
-                action={
-                  <Tooltip title="Delete">
-                    <IconButton color="primary" onClick={confirm.onTrue}>
-                      <Iconify icon="solar:trash-bin-trash-bold" />
-                    </IconButton>
-                  </Tooltip>
-                }
-              />
-              <Scrollbar sx={{ minHeight: 200 }}>
-                <Table size={table.dense ? 'small' : 'medium'} sx={{ minWidth: 960 }}>
-                  <TableHeadCustom
-                    order={table.order}
-                    orderBy={table.orderBy}
-                    headLabel={TABLE_HEAD}
-                    rowCount={dataFiltered.length}
-                  />
-                  {dataFiltered
-                    .slice(
-                      table.page * table.rowsPerPage,
-                      table.page * table.rowsPerPage + table.rowsPerPage
+              {canReset && (
+                <ProductTableFiltersResult
+                  filters={filters}
+                  totalResults={dataFiltered.length}
+                  onResetPage={table.onResetPage}
+                  sx={{ p: 2.5, pt: 0 }}
+                />
+              )}
+              <Box sx={{ position: 'relative' }}>
+                <TableSelectedAction
+                  dense={table.dense}
+                  numSelected={table.selected.length}
+                  rowCount={dataFiltered.length}
+                  onSelectAllRows={(checked) =>
+                    table.onSelectAllRows(
+                      checked,
+                      dataFiltered.map((row) => row.id)
                     )
-                    .map((row) => (
-                      <ProductAddonTableRow
-                        key={row.id}
-                        row={row}
-                        selected={table.selected.includes(row.id)}
-                        onEditRow={() => handleEditRow(row)}
-                        onDeleteRow={() => handleDeleteRow(row.id)}
-                      />
-                    ))}
-                  <TableBody>
-                    <TableEmptyRows
-                      height={table.dense ? 56 : 56 + 20}
-                      emptyRows={emptyRows(table.page, table.rowsPerPage, dataFiltered.length)}
+                  }
+                  action={
+                    <Tooltip title="Delete">
+                      <IconButton color="primary" onClick={confirm.onTrue}>
+                        <Iconify icon="solar:trash-bin-trash-bold" />
+                      </IconButton>
+                    </Tooltip>
+                  }
+                />
+                <Scrollbar sx={{ minHeight: 200 }}>
+                  <Table size={table.dense ? 'small' : 'medium'} sx={{ minWidth: 960 }}>
+                    <TableHeadCustom
+                      order={table.order}
+                      orderBy={table.orderBy}
+                      headLabel={TABLE_HEAD}
+                      rowCount={dataFiltered.length}
                     />
+                    {dataFiltered
+                      .slice(
+                        table.page * table.rowsPerPage,
+                        table.page * table.rowsPerPage + table.rowsPerPage
+                      )
+                      .map((row) => (
+                        <ProductAddonTableRow
+                          key={row.id}
+                          row={row}
+                          selected={table.selected.includes(row.id)}
+                          onEditRow={() => handleEditRow(row)}
+                          onDeleteRow={() => handleDeleteRow(row.id)}
+                        />
+                      ))}
+                    <TableBody>
+                      <TableEmptyRows
+                        height={table.dense ? 56 : 56 + 20}
+                        emptyRows={emptyRows(table.page, table.rowsPerPage, dataFiltered.length)}
+                      />
 
-                    <TableNoData notFound={notFound} />
-                  </TableBody>
-                </Table>
-              </Scrollbar>
-            </Box>
-            <TablePaginationCustom
-              page={table.page}
-              dense={table.dense}
-              count={dataFiltered.length}
-              rowsPerPage={table.rowsPerPage}
-              onPageChange={table.onChangePage}
-              onChangeDense={table.onChangeDense}
-              onRowsPerPageChange={table.onChangeRowsPerPage}
-            />
-          </Card>
+                      <TableNoData notFound={notFound} />
+                    </TableBody>
+                  </Table>
+                </Scrollbar>
+              </Box>
+              <TablePaginationCustom
+                page={table.page}
+                dense={table.dense}
+                count={dataFiltered.length}
+                rowsPerPage={table.rowsPerPage}
+                onPageChange={table.onChangePage}
+                onChangeDense={table.onChangeDense}
+                onRowsPerPageChange={table.onChangeRowsPerPage}
+              />
+            </Card>
+          </PermissionAccessController>
         </Stack>
       </DashboardContent>
       <ProductAddonCreateDialog

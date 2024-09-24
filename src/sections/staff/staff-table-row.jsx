@@ -10,9 +10,12 @@ import IconButton from '@mui/material/IconButton';
 
 import { useBoolean } from 'src/hooks/use-boolean';
 
+import { PermissionsType } from 'src/utils/constant';
+
 import { Iconify } from 'src/components/iconify';
 import { ConfirmDialog } from 'src/components/custom-dialog';
 import { usePopover, CustomPopover } from 'src/components/custom-popover';
+import PermissionAccessController from 'src/components/permission-access-controller/permission-access-controller';
 
 const StaffTableRow = ({ row, selected, onEditRow, onDeleteRow, handler }) => {
   const confirm = useBoolean();
@@ -57,25 +60,28 @@ const StaffTableRow = ({ row, selected, onEditRow, onDeleteRow, handler }) => {
         slotProps={{ arrow: { placement: 'right-top' } }}
       >
         <MenuList>
-          <MenuItem
-            onClick={() => {
-              onEditRow();
-            }}
-          >
-            <Iconify icon="solar:pen-bold" />
-            Edit
-          </MenuItem>
-
-          <MenuItem
-            onClick={() => {
-              confirm.onTrue();
-              popover.onClose();
-            }}
-            sx={{ color: 'error.main' }}
-          >
-            <Iconify icon="solar:trash-bin-trash-bold" />
-            Delete
-          </MenuItem>
+          <PermissionAccessController permission={PermissionsType.EDIT_STAFF}>
+            <MenuItem
+              onClick={() => {
+                onEditRow();
+              }}
+            >
+              <Iconify icon="solar:pen-bold" />
+              Edit
+            </MenuItem>
+          </PermissionAccessController>
+          <PermissionAccessController permission={PermissionsType.DELETE_STAFF}>
+            <MenuItem
+              onClick={() => {
+                confirm.onTrue();
+                popover.onClose();
+              }}
+              sx={{ color: 'error.main' }}
+            >
+              <Iconify icon="solar:trash-bin-trash-bold" />
+              Delete
+            </MenuItem>
+          </PermissionAccessController>
         </MenuList>
       </CustomPopover>
 

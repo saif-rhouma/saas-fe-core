@@ -14,7 +14,14 @@ export const signInWithPassword = async ({ email, password }) => {
 
     const { accessToken } = res.data;
 
-    const { currencySymbol } = res.data?.userOwnedApps;
+    console.log(res.data);
+
+    // eslint-disable-next-line no-unsafe-optional-chaining
+    let { currencySymbol } = res.data?.userOwnedApps;
+
+    if (currencySymbol === undefined) {
+      currencySymbol = res.data?.applications?.currencySymbol;
+    }
 
     if (!accessToken) {
       throw new Error('Access token not found in response');

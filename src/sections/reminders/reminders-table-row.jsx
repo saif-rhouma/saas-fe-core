@@ -8,10 +8,12 @@ import IconButton from '@mui/material/IconButton';
 import { useBoolean } from 'src/hooks/use-boolean';
 
 import { fDate } from 'src/utils/format-time';
+import { PermissionsType } from 'src/utils/constant';
 
 import { Iconify } from 'src/components/iconify';
 import { ConfirmDialog } from 'src/components/custom-dialog';
 import { usePopover, CustomPopover } from 'src/components/custom-popover';
+import PermissionAccessController from 'src/components/permission-access-controller/permission-access-controller';
 
 const RemindersTableRow = ({ row, selected, onViewRow, onDeleteRow, onEditRow }) => {
   const confirm = useBoolean();
@@ -52,26 +54,29 @@ const RemindersTableRow = ({ row, selected, onViewRow, onDeleteRow, onEditRow })
               Download
             </MenuItem>
           )}
-
-          <MenuItem
-            onClick={() => {
-              onEditRow();
-              popover.onClose();
-            }}
-          >
-            <Iconify icon="solar:pen-bold" />
-            Edit
-          </MenuItem>
-          <MenuItem
-            onClick={() => {
-              confirm.onTrue();
-              popover.onClose();
-            }}
-            sx={{ color: 'error.main' }}
-          >
-            <Iconify icon="solar:trash-bin-trash-bold" />
-            Delete
-          </MenuItem>
+          <PermissionAccessController permission={PermissionsType.ADD_REMINDER}>
+            <MenuItem
+              onClick={() => {
+                onEditRow();
+                popover.onClose();
+              }}
+            >
+              <Iconify icon="solar:pen-bold" />
+              Edit
+            </MenuItem>
+          </PermissionAccessController>
+          <PermissionAccessController permission={PermissionsType.ADD_REMINDER}>
+            <MenuItem
+              onClick={() => {
+                confirm.onTrue();
+                popover.onClose();
+              }}
+              sx={{ color: 'error.main' }}
+            >
+              <Iconify icon="solar:trash-bin-trash-bold" />
+              Delete
+            </MenuItem>
+          </PermissionAccessController>
         </MenuList>
       </CustomPopover>
 

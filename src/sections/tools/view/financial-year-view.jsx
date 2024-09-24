@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import Box from '@mui/material/Box';
 import { Stack } from '@mui/material';
@@ -13,12 +14,16 @@ import { useBoolean } from 'src/hooks/use-boolean';
 import { useSetState } from 'src/hooks/use-set-state';
 
 import { fIsAfter } from 'src/utils/format-time';
+import axios, { endpoints } from 'src/utils/axios';
+import { PermissionsType } from 'src/utils/constant';
 
 import { DashboardContent } from 'src/layouts/dashboard';
 
+import { toast } from 'src/components/snackbar';
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
+import PermissionAccessController from 'src/components/permission-access-controller/permission-access-controller';
 import {
   useTable,
   emptyRows,
@@ -32,13 +37,9 @@ import {
 } from 'src/components/table';
 
 import FinancialTableRow from '../financial-table-row';
-import { FinancialTableToolbar } from '../financial-table-toolbar';
-import FinancialCreateDialog from '../financial-create-dialog';
-
-import axios, { endpoints } from 'src/utils/axios';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { toast } from 'src/components/snackbar';
 import FinancialEditDialog from '../financial-edit-dialog';
+import FinancialCreateDialog from '../financial-create-dialog';
+import { FinancialTableToolbar } from '../financial-table-toolbar';
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
@@ -89,6 +90,7 @@ function FinancialYearView({ financialYears }) {
     (id) => {
       deleteFinancial(id);
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [dataInPage.length, table, tableData]
   );
 
@@ -99,6 +101,7 @@ function FinancialYearView({ financialYears }) {
       setSelectedFinancial(row);
       dialogEdit.onToggle();
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [dataInPage.length, table, tableData]
   );
 
@@ -161,76 +164,79 @@ function FinancialYearView({ financialYears }) {
           ]}
           sx={{ mb: { xs: 3, md: 5 } }}
           action={
-            <Button
-              onClick={() => dialog.onToggle()}
-              variant="contained"
-              startIcon={<Iconify icon="mingcute:add-line" />}
-            >
-              Add Financial Year
-            </Button>
+            <PermissionAccessController permission={PermissionsType.ADD_FINANCIAL_YEAR}>
+              <Button
+                onClick={() => dialog.onToggle()}
+                variant="contained"
+                startIcon={<Iconify icon="mingcute:add-line" />}
+              >
+                Add Financial Year
+              </Button>
+            </PermissionAccessController>
           }
         />
-
-        <Card>
-          <FinancialTableToolbar
-            filters={filters}
-            onResetPage={table.onResetPage}
-            dateError={dateError}
-          />
-
-          <Box sx={{ position: 'relative' }}>
-            <TableSelectedAction
-              dense={table.dense}
-              numSelected={table.selected.length}
-              rowCount={dataFiltered.length}
+        <PermissionAccessController permission={PermissionsType.FINANCIAL_LIST}>
+          <Card>
+            <FinancialTableToolbar
+              filters={filters}
+              onResetPage={table.onResetPage}
+              dateError={dateError}
             />
 
-            <Scrollbar sx={{ minHeight: 444 }}>
-              <Table size={table.dense ? 'small' : 'medium'} sx={{ minWidth: 960 }}>
-                <TableHeadCustom
-                  order={table.order}
-                  orderBy={table.orderBy}
-                  headLabel={TABLE_HEAD}
-                  rowCount={dataFiltered.length}
-                />
+            <Box sx={{ position: 'relative' }}>
+              <TableSelectedAction
+                dense={table.dense}
+                numSelected={table.selected.length}
+                rowCount={dataFiltered.length}
+              />
 
-                <TableBody>
-                  {dataFiltered
-                    .slice(
-                      table.page * table.rowsPerPage,
-                      table.page * table.rowsPerPage + table.rowsPerPage
-                    )
-                    .map((row) => (
-                      <FinancialTableRow
-                        key={row.id}
-                        row={row}
-                        selected={table.selected.includes(row.id)}
-                        onEditRow={() => handleEditRow(row)}
-                        onDeleteRow={() => handleDeleteRow(row.id)}
-                      />
-                    ))}
-
-                  <TableEmptyRows
-                    height={table.dense ? 56 : 56 + 20}
-                    emptyRows={emptyRows(table.page, table.rowsPerPage, dataFiltered.length)}
+              <Scrollbar sx={{ minHeight: 444 }}>
+                <Table size={table.dense ? 'small' : 'medium'} sx={{ minWidth: 960 }}>
+                  <TableHeadCustom
+                    order={table.order}
+                    orderBy={table.orderBy}
+                    headLabel={TABLE_HEAD}
+                    rowCount={dataFiltered.length}
                   />
 
-                  <TableNoData notFound={notFound} />
-                </TableBody>
-              </Table>
-            </Scrollbar>
-          </Box>
+                  <TableBody>
+                    {dataFiltered
+                      .slice(
+                        table.page * table.rowsPerPage,
+                        table.page * table.rowsPerPage + table.rowsPerPage
+                      )
+                      .map((row) => (
+                        <FinancialTableRow
+                          key={row.id}
+                          row={row}
+                          selected={table.selected.includes(row.id)}
+                          onEditRow={() => handleEditRow(row)}
+                          onDeleteRow={() => handleDeleteRow(row.id)}
+                        />
+                      ))}
 
-          <TablePaginationCustom
-            page={table.page}
-            dense={table.dense}
-            count={dataFiltered.length}
-            rowsPerPage={table.rowsPerPage}
-            onPageChange={table.onChangePage}
-            onChangeDense={table.onChangeDense}
-            onRowsPerPageChange={table.onChangeRowsPerPage}
-          />
-        </Card>
+                    <TableEmptyRows
+                      height={table.dense ? 56 : 56 + 20}
+                      emptyRows={emptyRows(table.page, table.rowsPerPage, dataFiltered.length)}
+                    />
+
+                    <TableNoData notFound={notFound} />
+                  </TableBody>
+                </Table>
+              </Scrollbar>
+            </Box>
+
+            <TablePaginationCustom
+              page={table.page}
+              dense={table.dense}
+              count={dataFiltered.length}
+              rowsPerPage={table.rowsPerPage}
+              onPageChange={table.onChangePage}
+              onChangeDense={table.onChangeDense}
+              onRowsPerPageChange={table.onChangeRowsPerPage}
+            />
+          </Card>
+        </PermissionAccessController>
       </Stack>
       <FinancialCreateDialog
         open={dialog.value}

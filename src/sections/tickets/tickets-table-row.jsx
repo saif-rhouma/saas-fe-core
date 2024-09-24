@@ -8,11 +8,13 @@ import IconButton from '@mui/material/IconButton';
 import { useBoolean } from 'src/hooks/use-boolean';
 
 import { fDate } from 'src/utils/format-time';
+import { PermissionsType } from 'src/utils/constant';
 
 import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
 import { ConfirmDialog } from 'src/components/custom-dialog';
 import { usePopover, CustomPopover } from 'src/components/custom-popover';
+import PermissionAccessController from 'src/components/permission-access-controller/permission-access-controller';
 
 const TicketsTableRow = ({ row, selected, onViewRow, onDeleteRow }) => {
   const confirm = useBoolean();
@@ -77,17 +79,18 @@ const TicketsTableRow = ({ row, selected, onViewRow, onDeleteRow }) => {
             <Iconify icon="solar:eye-bold" />
             View
           </MenuItem>
-
-          <MenuItem
-            onClick={() => {
-              confirm.onTrue();
-              popover.onClose();
-            }}
-            sx={{ color: 'error.main' }}
-          >
-            <Iconify icon="solar:trash-bin-trash-bold" />
-            Delete
-          </MenuItem>
+          <PermissionAccessController permission={PermissionsType.DELETE_TICKET}>
+            <MenuItem
+              onClick={() => {
+                confirm.onTrue();
+                popover.onClose();
+              }}
+              sx={{ color: 'error.main' }}
+            >
+              <Iconify icon="solar:trash-bin-trash-bold" />
+              Delete
+            </MenuItem>
+          </PermissionAccessController>
         </MenuList>
       </CustomPopover>
 

@@ -1,15 +1,18 @@
 /* eslint-disable no-unsafe-optional-chaining */
+import { useState } from 'react';
+
 import Button from '@mui/material/Button';
 import MenuItem from '@mui/material/MenuItem';
 import MenuList from '@mui/material/MenuList';
 import TableRow from '@mui/material/TableRow';
 import TableCell from '@mui/material/TableCell';
 import IconButton from '@mui/material/IconButton';
-import { Box, Stack, Avatar, ListItemText, Paper, Collapse } from '@mui/material';
+import { Box, Stack, Paper, Avatar, Collapse, ListItemText } from '@mui/material';
 
 import { useBoolean } from 'src/hooks/use-boolean';
 
 import { fCurrency } from 'src/utils/format-number';
+import { PermissionsType } from 'src/utils/constant';
 
 import { CONFIG } from 'src/config-global';
 
@@ -17,7 +20,7 @@ import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
 import { ConfirmDialog } from 'src/components/custom-dialog';
 import { usePopover, CustomPopover } from 'src/components/custom-popover';
-import { useState } from 'react';
+import PermissionAccessController from 'src/components/permission-access-controller/permission-access-controller';
 
 const ProductTableRow = ({ row, selected, onDeleteRow, onEditRow }) => {
   const [hasOrders, setHasOrders] = useState(
@@ -128,25 +131,29 @@ const ProductTableRow = ({ row, selected, onDeleteRow, onEditRow }) => {
         slotProps={{ arrow: { placement: 'right-top' } }}
       >
         <MenuList>
-          <MenuItem
-            onClick={() => {
-              onEditRow(row.id);
-              popover.onClose();
-            }}
-          >
-            <Iconify icon="solar:pen-bold" />
-            Edit
-          </MenuItem>
-          <MenuItem
-            onClick={() => {
-              confirm.onTrue();
-              popover.onClose();
-            }}
-            sx={{ color: 'error.main' }}
-          >
-            <Iconify icon="solar:trash-bin-trash-bold" />
-            Delete
-          </MenuItem>
+          <PermissionAccessController permission={PermissionsType.EDIT_PRODUCT}>
+            <MenuItem
+              onClick={() => {
+                onEditRow(row.id);
+                popover.onClose();
+              }}
+            >
+              <Iconify icon="solar:pen-bold" />
+              Edit
+            </MenuItem>
+          </PermissionAccessController>
+          <PermissionAccessController permission={PermissionsType.DELETE_PRODUCT}>
+            <MenuItem
+              onClick={() => {
+                confirm.onTrue();
+                popover.onClose();
+              }}
+              sx={{ color: 'error.main' }}
+            >
+              <Iconify icon="solar:trash-bin-trash-bold" />
+              Delete
+            </MenuItem>
+          </PermissionAccessController>
         </MenuList>
       </CustomPopover>
 

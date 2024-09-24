@@ -11,12 +11,14 @@ import { paths } from 'src/routes/paths';
 
 import { useSetState } from 'src/hooks/use-set-state';
 
+import { PermissionsType } from 'src/utils/constant';
 import { fIsAfter, fIsBetween } from 'src/utils/format-time';
 
 import { DashboardContent } from 'src/layouts/dashboard';
 
 import { Iconify } from 'src/components/iconify';
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
+import PermissionAccessController from 'src/components/permission-access-controller/permission-access-controller';
 import {
   useTable,
   emptyRows,
@@ -91,14 +93,16 @@ const ReportsStockListView = ({ products }) => {
             { name: 'Stock Report', href: paths.dashboard.reports.stock },
           ]}
           action={
-            <Button
-              // // component={RouterLink}
-              // href={paths.dashboard.product.new}
-              variant="contained"
-              startIcon={<Iconify icon="mdi:microsoft-excel" />}
-            >
-              Export Excel
-            </Button>
+            <PermissionAccessController permission={PermissionsType.DOWNLOAD_REPORT}>
+              <Button
+                // // component={RouterLink}
+                // href={paths.dashboard.product.new}
+                variant="contained"
+                startIcon={<Iconify icon="mdi:microsoft-excel" />}
+              >
+                Export Excel
+              </Button>
+            </PermissionAccessController>
           }
         />
         <Card>

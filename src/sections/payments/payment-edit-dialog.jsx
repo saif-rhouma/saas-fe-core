@@ -12,12 +12,7 @@ import Dialog from '@mui/material/Dialog';
 import Divider from '@mui/material/Divider';
 import Typography from '@mui/material/Typography';
 import DialogContent from '@mui/material/DialogContent';
-import {
-  Button,
-  MenuItem,
-  DialogTitle,
-  DialogActions,
-} from '@mui/material';
+import { Button, MenuItem, DialogTitle, DialogActions } from '@mui/material';
 
 import { fDate } from 'src/utils/format-time';
 import axios, { endpoints } from 'src/utils/axios';

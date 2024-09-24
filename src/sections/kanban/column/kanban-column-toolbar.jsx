@@ -28,22 +28,22 @@ export function KanbanColumnToolBar({ columnName, totalTasks }) {
 
   return (
     <Stack direction="row" alignItems="center">
-        <Label
-          sx={{
-            borderRadius: '50%',
-            borderColor: (theme) => varAlpha(theme.vars.palette.grey['500Channel'], 0.24),
-          }}
-        >
-          {totalTasks}
-        </Label>
+      <Label
+        sx={{
+          borderRadius: '50%',
+          borderColor: (theme) => varAlpha(theme.vars.palette.grey['500Channel'], 0.24),
+        }}
+      >
+        {totalTasks}
+      </Label>
 
-        <KanbanInputName
-          inputRef={renameRef}
-          placeholder="Column name"
-          value={name}
-          inputProps={{ id: `input-column-${name}` }}
-          sx={{ mx: 1 }}
-        />
-      </Stack>
+      <KanbanInputName
+        inputRef={renameRef}
+        placeholder="Column name"
+        value={name}
+        inputProps={{ id: `input-column-${name}` }}
+        sx={{ mx: 1 }}
+      />
+    </Stack>
   );
 }

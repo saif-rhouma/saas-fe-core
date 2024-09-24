@@ -1,16 +1,17 @@
 import { Helmet } from 'react-helmet-async';
+import { useQuery } from '@tanstack/react-query';
 
+import { paths } from 'src/routes/paths';
 import { useParams } from 'src/routes/hooks';
+
+import axios, { endpoints } from 'src/utils/axios';
 
 import { CONFIG } from 'src/config-global';
 
-import { paths } from 'src/routes/paths';
-import { StaffCreateView } from 'src/sections/staff/view/staff-create-view';
-
 import { LoadingScreen } from 'src/components/loading-screen';
+
 import { ErrorBlock } from 'src/sections/error/error-block';
-import axios, { endpoints } from 'src/utils/axios';
-import { useQuery } from '@tanstack/react-query';
+import { StaffCreateView } from 'src/sections/staff/view/staff-create-view';
 // ----------------------------------------------------------------------
 
 const metadata = { title: `Staff edit | Dashboard - ${CONFIG.site.name}` };

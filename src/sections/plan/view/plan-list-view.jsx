@@ -15,6 +15,7 @@ import { RouterLink } from 'src/routes/components';
 import { useSetState } from 'src/hooks/use-set-state';
 
 import axios, { endpoints } from 'src/utils/axios';
+import { PermissionsType } from 'src/utils/constant';
 import { fIsAfter, fIsBetween } from 'src/utils/format-time';
 
 import { DashboardContent } from 'src/layouts/dashboard';
@@ -23,6 +24,7 @@ import { toast } from 'src/components/snackbar';
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
+import PermissionAccessController from 'src/components/permission-access-controller/permission-access-controller';
 import {
   useTable,
   emptyRows,
@@ -147,90 +149,94 @@ export function PlanListView({ plans }) {
               { name: 'List' },
             ]}
             action={
-              <Button
-                component={RouterLink}
-                href={paths.dashboard.plan.new}
-                variant="contained"
-                startIcon={<Iconify icon="mingcute:add-line" />}
-              >
-                Add New Plan
-              </Button>
+              <PermissionAccessController permission={PermissionsType.ADD_PLAN}>
+                <Button
+                  component={RouterLink}
+                  href={paths.dashboard.plan.new}
+                  variant="contained"
+                  startIcon={<Iconify icon="mingcute:add-line" />}
+                >
+                  Add New Plan
+                </Button>
+              </PermissionAccessController>
             }
           />
         </Grid>
-        <Grid xs={12} md={12}>
-          <Card>
-            <PlanTableToolbar
-              filters={filters}
-              onResetPage={table.onResetPage}
-              dateError={dateError}
-            />
-
-            {canReset && (
-              <PlanTableFiltersResult
+        <PermissionAccessController permission={PermissionsType.LIST_PLAN}>
+          <Grid xs={12} md={12}>
+            <Card>
+              <PlanTableToolbar
                 filters={filters}
-                totalResults={dataFiltered.length}
                 onResetPage={table.onResetPage}
-                sx={{ p: 2.5, pt: 0 }}
-              />
-            )}
-
-            <Box sx={{ position: 'relative' }}>
-              <TableSelectedAction
-                dense={table.dense}
-                numSelected={table.selected.length}
-                rowCount={dataFiltered.length}
+                dateError={dateError}
               />
 
-              <Scrollbar sx={{ minHeight: 444 }}>
-                <Table size={table.dense ? 'small' : 'medium'} sx={{ minWidth: 960 }}>
-                  <TableHeadCustom
-                    order={table.order}
-                    orderBy={table.orderBy}
-                    headLabel={TABLE_HEAD}
-                    rowCount={dataFiltered.length}
-                  />
+              {canReset && (
+                <PlanTableFiltersResult
+                  filters={filters}
+                  totalResults={dataFiltered.length}
+                  onResetPage={table.onResetPage}
+                  sx={{ p: 2.5, pt: 0 }}
+                />
+              )}
 
-                  <TableBody>
-                    {dataFiltered
-                      .slice(
-                        table.page * table.rowsPerPage,
-                        table.page * table.rowsPerPage + table.rowsPerPage
-                      )
-                      .map((row) => (
-                        <PlanTableRow
-                          key={row.id}
-                          row={row}
-                          selected={table.selected.includes(row.id)}
-                          onSelectRow={() => table.onSelectRow(row.id)}
-                          onDeleteRow={() => handleDeleteRow(row.id)}
-                          onViewRow={() => handleViewRow(row.id)}
-                          onEditRow={() => handleEditRow(row.id)}
-                        />
-                      ))}
+              <Box sx={{ position: 'relative' }}>
+                <TableSelectedAction
+                  dense={table.dense}
+                  numSelected={table.selected.length}
+                  rowCount={dataFiltered.length}
+                />
 
-                    <TableEmptyRows
-                      height={table.dense ? 56 : 56 + 20}
-                      emptyRows={emptyRows(table.page, table.rowsPerPage, dataFiltered.length)}
+                <Scrollbar sx={{ minHeight: 444 }}>
+                  <Table size={table.dense ? 'small' : 'medium'} sx={{ minWidth: 960 }}>
+                    <TableHeadCustom
+                      order={table.order}
+                      orderBy={table.orderBy}
+                      headLabel={TABLE_HEAD}
+                      rowCount={dataFiltered.length}
                     />
 
-                    <TableNoData notFound={notFound} />
-                  </TableBody>
-                </Table>
-              </Scrollbar>
-            </Box>
+                    <TableBody>
+                      {dataFiltered
+                        .slice(
+                          table.page * table.rowsPerPage,
+                          table.page * table.rowsPerPage + table.rowsPerPage
+                        )
+                        .map((row) => (
+                          <PlanTableRow
+                            key={row.id}
+                            row={row}
+                            selected={table.selected.includes(row.id)}
+                            onSelectRow={() => table.onSelectRow(row.id)}
+                            onDeleteRow={() => handleDeleteRow(row.id)}
+                            onViewRow={() => handleViewRow(row.id)}
+                            onEditRow={() => handleEditRow(row.id)}
+                          />
+                        ))}
 
-            <TablePaginationCustom
-              page={table.page}
-              dense={table.dense}
-              count={dataFiltered.length}
-              rowsPerPage={table.rowsPerPage}
-              onPageChange={table.onChangePage}
-              onChangeDense={table.onChangeDense}
-              onRowsPerPageChange={table.onChangeRowsPerPage}
-            />
-          </Card>
-        </Grid>
+                      <TableEmptyRows
+                        height={table.dense ? 56 : 56 + 20}
+                        emptyRows={emptyRows(table.page, table.rowsPerPage, dataFiltered.length)}
+                      />
+
+                      <TableNoData notFound={notFound} />
+                    </TableBody>
+                  </Table>
+                </Scrollbar>
+              </Box>
+
+              <TablePaginationCustom
+                page={table.page}
+                dense={table.dense}
+                count={dataFiltered.length}
+                rowsPerPage={table.rowsPerPage}
+                onPageChange={table.onChangePage}
+                onChangeDense={table.onChangeDense}
+                onRowsPerPageChange={table.onChangeRowsPerPage}
+              />
+            </Card>
+          </Grid>
+        </PermissionAccessController>
       </Grid>
     </DashboardContent>
   );

@@ -1,47 +1,46 @@
+import { useState, useEffect, useCallback } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { useCallback, useEffect, useState } from 'react';
 
-import { Stack, useTheme } from '@mui/material';
 import Box from '@mui/material/Box';
-import Button from '@mui/material/Button';
 import Card from '@mui/material/Card';
+import { Stack } from '@mui/material';
 import Table from '@mui/material/Table';
+import Button from '@mui/material/Button';
 import TableBody from '@mui/material/TableBody';
 
-import { RouterLink } from 'src/routes/components';
-import { useRouter } from 'src/routes/hooks';
 import { paths } from 'src/routes/paths';
+import { useRouter } from 'src/routes/hooks';
+import { RouterLink } from 'src/routes/components';
 
-import { useBoolean } from 'src/hooks/use-boolean';
 import { useSetState } from 'src/hooks/use-set-state';
 
 import axios, { endpoints } from 'src/utils/axios';
+import { PermissionsType } from 'src/utils/constant';
 import { fIsAfter, fIsBetween } from 'src/utils/format-time';
 
 import { DashboardContent } from 'src/layouts/dashboard';
 
-import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
+import { toast } from 'src/components/snackbar';
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
-import { toast } from 'src/components/snackbar';
+import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
+import PermissionAccessController from 'src/components/permission-access-controller/permission-access-controller';
 import {
+  useTable,
   emptyRows,
-  getComparator,
   rowInPage,
+  TableNoData,
+  getComparator,
   TableEmptyRows,
   TableHeadCustom,
-  TableNoData,
-  TablePaginationCustom,
   TableSelectedAction,
-  useTable,
+  TablePaginationCustom,
 } from 'src/components/table';
 
-import { StaffTableFiltersResult } from '../staff-table-filters-result';
 import StaffTableRow from '../staff-table-row';
 import { StaffTableToolbar } from '../staff-table-toolbar';
-// import PaymentDetailsDialog from '../reminders-details-dialog';
-// import PaymentEditDialog from '../reminder-create-dialog';
-// import ReminderCreateDialog from '../reminder-create-dialog';
+import { StaffTableFiltersResult } from '../staff-table-filters-result';
+
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
@@ -95,6 +94,7 @@ const StaffListView = ({ staffs }) => {
     (id) => {
       deleteStaff(id);
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [dataInPage.length, table, tableData]
   );
 
@@ -149,87 +149,91 @@ const StaffListView = ({ staffs }) => {
             { name: 'Staff', href: paths.dashboard.staff.root },
           ]}
           action={
-            <Button
-              component={RouterLink}
-              href={paths.dashboard.staff.new}
-              variant="contained"
-              startIcon={<Iconify icon="mingcute:add-line" />}
-            >
-              Add New Staff
-            </Button>
+            <PermissionAccessController permission={PermissionsType.ADD_STAFF}>
+              <Button
+                component={RouterLink}
+                href={paths.dashboard.staff.new}
+                variant="contained"
+                startIcon={<Iconify icon="mingcute:add-line" />}
+              >
+                Add New Staff
+              </Button>
+            </PermissionAccessController>
           }
         />
-        <Card>
-          <StaffTableToolbar
-            filters={filters}
-            onResetPage={table.onResetPage}
-            dateError={dateError}
-          />
-
-          {canReset && (
-            <StaffTableFiltersResult
+        <PermissionAccessController permission={PermissionsType.STAFF_LIST}>
+          <Card>
+            <StaffTableToolbar
               filters={filters}
-              totalResults={dataFiltered.length}
               onResetPage={table.onResetPage}
-              sx={{ p: 2.5, pt: 0 }}
-            />
-          )}
-
-          <Box sx={{ position: 'relative' }}>
-            <TableSelectedAction
-              dense={table.dense}
-              numSelected={table.selected.length}
-              rowCount={dataFiltered.length}
+              dateError={dateError}
             />
 
-            <Scrollbar sx={{ minHeight: 444 }}>
-              <Table size={table.dense ? 'small' : 'medium'} sx={{ minWidth: 960 }}>
-                <TableHeadCustom
-                  order={table.order}
-                  orderBy={table.orderBy}
-                  headLabel={TABLE_HEAD}
-                  rowCount={dataFiltered.length}
-                />
+            {canReset && (
+              <StaffTableFiltersResult
+                filters={filters}
+                totalResults={dataFiltered.length}
+                onResetPage={table.onResetPage}
+                sx={{ p: 2.5, pt: 0 }}
+              />
+            )}
 
-                <TableBody>
-                  {dataFiltered
-                    .slice(
-                      table.page * table.rowsPerPage,
-                      table.page * table.rowsPerPage + table.rowsPerPage
-                    )
-                    .map((row) => (
-                      <StaffTableRow
-                        key={row.id}
-                        row={row}
-                        selected={table.selected.includes(row.id)}
-                        onSelectRow={() => table.onSelectRow(row.id)}
-                        onDeleteRow={() => handleDeleteRow(row.id)}
-                        onEditRow={() => handleEditRow(row.id)}
-                        handler={handleChangeStatusStaff}
-                      />
-                    ))}
+            <Box sx={{ position: 'relative' }}>
+              <TableSelectedAction
+                dense={table.dense}
+                numSelected={table.selected.length}
+                rowCount={dataFiltered.length}
+              />
 
-                  <TableEmptyRows
-                    height={table.dense ? 56 : 56 + 20}
-                    emptyRows={emptyRows(table.page, table.rowsPerPage, dataFiltered.length)}
+              <Scrollbar sx={{ minHeight: 444 }}>
+                <Table size={table.dense ? 'small' : 'medium'} sx={{ minWidth: 960 }}>
+                  <TableHeadCustom
+                    order={table.order}
+                    orderBy={table.orderBy}
+                    headLabel={TABLE_HEAD}
+                    rowCount={dataFiltered.length}
                   />
 
-                  <TableNoData notFound={notFound} />
-                </TableBody>
-              </Table>
-            </Scrollbar>
-          </Box>
+                  <TableBody>
+                    {dataFiltered
+                      .slice(
+                        table.page * table.rowsPerPage,
+                        table.page * table.rowsPerPage + table.rowsPerPage
+                      )
+                      .map((row) => (
+                        <StaffTableRow
+                          key={row.id}
+                          row={row}
+                          selected={table.selected.includes(row.id)}
+                          onSelectRow={() => table.onSelectRow(row.id)}
+                          onDeleteRow={() => handleDeleteRow(row.id)}
+                          onEditRow={() => handleEditRow(row.id)}
+                          handler={handleChangeStatusStaff}
+                        />
+                      ))}
 
-          <TablePaginationCustom
-            page={table.page}
-            dense={table.dense}
-            count={dataFiltered.length}
-            rowsPerPage={table.rowsPerPage}
-            onPageChange={table.onChangePage}
-            onChangeDense={table.onChangeDense}
-            onRowsPerPageChange={table.onChangeRowsPerPage}
-          />
-        </Card>
+                    <TableEmptyRows
+                      height={table.dense ? 56 : 56 + 20}
+                      emptyRows={emptyRows(table.page, table.rowsPerPage, dataFiltered.length)}
+                    />
+
+                    <TableNoData notFound={notFound} />
+                  </TableBody>
+                </Table>
+              </Scrollbar>
+            </Box>
+
+            <TablePaginationCustom
+              page={table.page}
+              dense={table.dense}
+              count={dataFiltered.length}
+              rowsPerPage={table.rowsPerPage}
+              onPageChange={table.onChangePage}
+              onChangeDense={table.onChangeDense}
+              onRowsPerPageChange={table.onChangeRowsPerPage}
+            />
+          </Card>
+        </PermissionAccessController>
       </Stack>
     </DashboardContent>
   );

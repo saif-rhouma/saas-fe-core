@@ -1,5 +1,6 @@
-import { CURRENCY_SYMBOL_KEY } from 'src/auth/context/jwt';
 import { formatNumberLocale } from 'src/locales';
+
+import { CURRENCY_SYMBOL_KEY } from 'src/auth/context/jwt';
 
 // ----------------------------------------------------------------------
 

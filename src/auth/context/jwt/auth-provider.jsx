@@ -1,4 +1,4 @@
-import { useMemo, useEffect, useCallback } from 'react';
+import { useMemo, useState, useEffect, useCallback } from 'react';
 
 import { useSetState } from 'src/hooks/use-set-state';
 
@@ -7,12 +7,18 @@ import axios, { endpoints } from 'src/utils/axios';
 import { STORAGE_KEY } from './constant';
 import { AuthContext } from '../auth-context';
 import { setSession, isValidToken } from './utils';
+import { PermissionContext } from '../permission-context';
 
 // ----------------------------------------------------------------------
 
 export function AuthProvider({ children }) {
   const { state, setState } = useSetState({
     user: null,
+    loading: true,
+  });
+
+  const [permissions, setPermissions] = useState({
+    permissions: [],
     loading: true,
   });
 
@@ -36,10 +42,33 @@ export function AuthProvider({ children }) {
     }
   }, [setState]);
 
+  const checkUserPermissions = useCallback(async () => {
+    try {
+      const accessToken = sessionStorage.getItem(STORAGE_KEY);
+      if (accessToken && isValidToken(accessToken)) {
+        const res = await axios.get(endpoints.auth.permissions);
+        const permissionsList = res.data;
+
+        setPermissions({ permissions: permissionsList, loading: false });
+      } else {
+        setPermissions({ permissions: [], loading: false });
+      }
+    } catch (error) {
+      console.error(error);
+      setPermissions({ permissions: [], loading: false });
+    }
+  }, [setPermissions]);
+
   useEffect(() => {
     checkUserSession();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => {
+    if (state.user?.roles?.includes('STAFF')) {
+      checkUserPermissions();
+    }
+  }, [checkUserPermissions, state]);
 
   // ----------------------------------------------------------------------
 
@@ -64,5 +93,25 @@ export function AuthProvider({ children }) {
     [checkUserSession, state.user, status, setState]
   );
 
-  return <AuthContext.Provider value={memoizedValue}>{children}</AuthContext.Provider>;
+  const memoizedPermissionsValue = useMemo(
+    () => ({
+      permissions: permissions.permissions,
+      loading: permissions.loading,
+    }),
+    [permissions]
+  );
+
+  // if (permissions?.permissions.length > 0) {
+  //   return (
+  //     <PermissionContext.Provider value={memoizedPermissionsValue}>
+  //       <AuthContext.Provider value={memoizedValue}>{children}</AuthContext.Provider>
+  //     </PermissionContext.Provider>
+  //   );
+  // }
+  // return <AuthContext.Provider value={memoizedValue}>{children}</AuthContext.Provider>;
+  return (
+    <PermissionContext.Provider value={memoizedPermissionsValue}>
+      <AuthContext.Provider value={memoizedValue}>{children}</AuthContext.Provider>
+    </PermissionContext.Provider>
+  );
 }

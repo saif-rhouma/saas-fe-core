@@ -8,10 +8,12 @@ import IconButton from '@mui/material/IconButton';
 import { useBoolean } from 'src/hooks/use-boolean';
 
 import { fDate } from 'src/utils/format-time';
+import { PermissionsType } from 'src/utils/constant';
 
 import { Iconify } from 'src/components/iconify';
 import { ConfirmDialog } from 'src/components/custom-dialog';
 import { usePopover, CustomPopover } from 'src/components/custom-popover';
+import PermissionAccessController from 'src/components/permission-access-controller/permission-access-controller';
 
 const FinancialTableRow = ({ row, selected, onDeleteRow, onEditRow }) => {
   const confirm = useBoolean();
@@ -40,25 +42,29 @@ const FinancialTableRow = ({ row, selected, onDeleteRow, onEditRow }) => {
         slotProps={{ arrow: { placement: 'right-top' } }}
       >
         <MenuList>
-          <MenuItem
-            onClick={() => {
-              onEditRow();
-              popover.onClose();
-            }}
-          >
-            <Iconify icon="solar:pen-bold" />
-            Edit
-          </MenuItem>
-          <MenuItem
-            onClick={() => {
-              confirm.onTrue();
-              popover.onClose();
-            }}
-            sx={{ color: 'error.main' }}
-          >
-            <Iconify icon="solar:trash-bin-trash-bold" />
-            Delete
-          </MenuItem>
+          <PermissionAccessController permission={PermissionsType.EDIT_FINANCIAL_YEAR}>
+            <MenuItem
+              onClick={() => {
+                onEditRow();
+                popover.onClose();
+              }}
+            >
+              <Iconify icon="solar:pen-bold" />
+              Edit
+            </MenuItem>
+          </PermissionAccessController>
+          {/* <PermissionAccessController permission={PermissionsType.DE}>
+            <MenuItem
+              onClick={() => {
+                confirm.onTrue();
+                popover.onClose();
+              }}
+              sx={{ color: 'error.main' }}
+            >
+              <Iconify icon="solar:trash-bin-trash-bold" />
+              Delete
+            </MenuItem>
+          </PermissionAccessController> */}
         </MenuList>
       </CustomPopover>
 

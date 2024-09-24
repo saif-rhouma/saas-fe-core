@@ -18,6 +18,7 @@ import { useBoolean } from 'src/hooks/use-boolean';
 import { useSetState } from 'src/hooks/use-set-state';
 
 import axios, { endpoints } from 'src/utils/axios';
+import { PermissionsType } from 'src/utils/constant';
 import { fIsAfter, monthName, fIsBetween } from 'src/utils/format-time';
 
 import { DashboardContent } from 'src/layouts/dashboard';
@@ -26,6 +27,7 @@ import { toast } from 'src/components/snackbar';
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
+import PermissionAccessController from 'src/components/permission-access-controller/permission-access-controller';
 import {
   useTable,
   emptyRows,
@@ -148,139 +150,145 @@ export function OrderListView({ orders, analytics }) {
               { name: 'List' },
             ]}
             action={
-              <Button
-                component={RouterLink}
-                href={paths.dashboard.order.new}
-                variant="contained"
-                startIcon={<Iconify icon="mingcute:add-line" />}
-              >
-                New Order
-              </Button>
+              <PermissionAccessController permission={PermissionsType.ADD_ORDER}>
+                <Button
+                  component={RouterLink}
+                  href={paths.dashboard.order.new}
+                  variant="contained"
+                  startIcon={<Iconify icon="mingcute:add-line" />}
+                >
+                  New Order
+                </Button>
+              </PermissionAccessController>
             }
           />
         </Grid>
-        <Grid xs={12} md={3}>
-          <AppWidgetSummary
-            title="All Orders"
-            total={orders.length}
-            chart={{
-              categories: analytics.data.lastSixMonth.map((item) => monthName(item?.inMonth)),
-              series: analytics.data.lastSixMonth.map((item) => item?.ClaimsPerMonth),
-            }}
-          />
-        </Grid>
-
-        <Grid xs={12} md={3}>
-          <AppWidgetSummary
-            title="Processing Order"
-            total={analytics.data.analytics.InProcess}
-            chart={{
-              colors: [theme.vars.palette.warning.light],
-              categories: analytics.data.inProcessLastSixMonth.map((item) =>
-                monthName(item?.inMonth)
-              ),
-              series: analytics.data.inProcessLastSixMonth.map((item) => item?.ClaimsPerMonth),
-            }}
-          />
-        </Grid>
-
-        <Grid xs={12} md={3}>
-          <AppWidgetSummary
-            title="Ready To Deliver Order"
-            total={analytics.data.analytics.Ready}
-            chart={{
-              colors: [theme.vars.palette.info.main],
-              categories: analytics.data.readyLastSixMonth.map((item) => monthName(item?.inMonth)),
-              series: analytics.data.readyLastSixMonth.map((item) => item?.ClaimsPerMonth),
-            }}
-          />
-        </Grid>
-
-        <Grid xs={12} md={3}>
-          <AppWidgetSummary
-            title="Delivered"
-            total={analytics.data.analytics.Delivered}
-            chart={{
-              colors: [theme.vars.palette.success.main],
-              categories: analytics.data.deliveredLastSixMonth.map((item) =>
-                monthName(item?.inMonth)
-              ),
-              series: analytics.data.deliveredLastSixMonth.map((item) => item?.ClaimsPerMonth),
-            }}
-          />
-        </Grid>
-        <Grid xs={12} md={12}>
-          <Card>
-            <OrderTableToolbar
-              filters={filters}
-              onResetPage={table.onResetPage}
-              dateError={dateError}
+        <PermissionAccessController permission={PermissionsType.LIST_ORDER}>
+          <Grid xs={12} md={3}>
+            <AppWidgetSummary
+              title="All Orders"
+              total={orders.length}
+              chart={{
+                categories: analytics.data.lastSixMonth.map((item) => monthName(item?.inMonth)),
+                series: analytics.data.lastSixMonth.map((item) => item?.ClaimsPerMonth),
+              }}
             />
+          </Grid>
 
-            {canReset && (
-              <OrderTableFiltersResult
+          <Grid xs={12} md={3}>
+            <AppWidgetSummary
+              title="Processing Order"
+              total={analytics.data.analytics.InProcess}
+              chart={{
+                colors: [theme.vars.palette.warning.light],
+                categories: analytics.data.inProcessLastSixMonth.map((item) =>
+                  monthName(item?.inMonth)
+                ),
+                series: analytics.data.inProcessLastSixMonth.map((item) => item?.ClaimsPerMonth),
+              }}
+            />
+          </Grid>
+
+          <Grid xs={12} md={3}>
+            <AppWidgetSummary
+              title="Ready To Deliver Order"
+              total={analytics.data.analytics.Ready}
+              chart={{
+                colors: [theme.vars.palette.info.main],
+                categories: analytics.data.readyLastSixMonth.map((item) =>
+                  monthName(item?.inMonth)
+                ),
+                series: analytics.data.readyLastSixMonth.map((item) => item?.ClaimsPerMonth),
+              }}
+            />
+          </Grid>
+
+          <Grid xs={12} md={3}>
+            <AppWidgetSummary
+              title="Delivered"
+              total={analytics.data.analytics.Delivered}
+              chart={{
+                colors: [theme.vars.palette.success.main],
+                categories: analytics.data.deliveredLastSixMonth.map((item) =>
+                  monthName(item?.inMonth)
+                ),
+                series: analytics.data.deliveredLastSixMonth.map((item) => item?.ClaimsPerMonth),
+              }}
+            />
+          </Grid>
+          <Grid xs={12} md={12}>
+            <Card>
+              <OrderTableToolbar
                 filters={filters}
-                totalResults={dataFiltered.length}
                 onResetPage={table.onResetPage}
-                sx={{ p: 2.5, pt: 0 }}
-              />
-            )}
-
-            <Box sx={{ position: 'relative' }}>
-              <TableSelectedAction
-                dense={table.dense}
-                numSelected={table.selected.length}
-                rowCount={dataFiltered.length}
+                dateError={dateError}
               />
 
-              <Scrollbar sx={{ minHeight: 444 }}>
-                <Table size={table.dense ? 'small' : 'medium'} sx={{ minWidth: 960 }}>
-                  <TableHeadCustom
-                    order={table.order}
-                    orderBy={table.orderBy}
-                    headLabel={TABLE_HEAD}
-                    rowCount={dataFiltered.length}
-                  />
+              {canReset && (
+                <OrderTableFiltersResult
+                  filters={filters}
+                  totalResults={dataFiltered.length}
+                  onResetPage={table.onResetPage}
+                  sx={{ p: 2.5, pt: 0 }}
+                />
+              )}
 
-                  <TableBody>
-                    {dataFiltered
-                      .slice(
-                        table.page * table.rowsPerPage,
-                        table.page * table.rowsPerPage + table.rowsPerPage
-                      )
-                      .map((row) => (
-                        <OrderTableRow
-                          key={row.id}
-                          row={row}
-                          selected={table.selected.includes(row.id)}
-                          onSelectRow={() => table.onSelectRow(row.id)}
-                          onDeleteRow={() => handleDeleteRow(row.id)}
-                          onViewRow={() => handleViewRow(row.id)}
-                        />
-                      ))}
+              <Box sx={{ position: 'relative' }}>
+                <TableSelectedAction
+                  dense={table.dense}
+                  numSelected={table.selected.length}
+                  rowCount={dataFiltered.length}
+                />
 
-                    <TableEmptyRows
-                      height={table.dense ? 56 : 56 + 20}
-                      emptyRows={emptyRows(table.page, table.rowsPerPage, dataFiltered.length)}
+                <Scrollbar sx={{ minHeight: 444 }}>
+                  <Table size={table.dense ? 'small' : 'medium'} sx={{ minWidth: 960 }}>
+                    <TableHeadCustom
+                      order={table.order}
+                      orderBy={table.orderBy}
+                      headLabel={TABLE_HEAD}
+                      rowCount={dataFiltered.length}
                     />
 
-                    <TableNoData notFound={notFound} />
-                  </TableBody>
-                </Table>
-              </Scrollbar>
-            </Box>
+                    <TableBody>
+                      {dataFiltered
+                        .slice(
+                          table.page * table.rowsPerPage,
+                          table.page * table.rowsPerPage + table.rowsPerPage
+                        )
+                        .map((row) => (
+                          <OrderTableRow
+                            key={row.id}
+                            row={row}
+                            selected={table.selected.includes(row.id)}
+                            onSelectRow={() => table.onSelectRow(row.id)}
+                            onDeleteRow={() => handleDeleteRow(row.id)}
+                            onViewRow={() => handleViewRow(row.id)}
+                          />
+                        ))}
 
-            <TablePaginationCustom
-              page={table.page}
-              dense={table.dense}
-              count={dataFiltered.length}
-              rowsPerPage={table.rowsPerPage}
-              onPageChange={table.onChangePage}
-              onChangeDense={table.onChangeDense}
-              onRowsPerPageChange={table.onChangeRowsPerPage}
-            />
-          </Card>
-        </Grid>
+                      <TableEmptyRows
+                        height={table.dense ? 56 : 56 + 20}
+                        emptyRows={emptyRows(table.page, table.rowsPerPage, dataFiltered.length)}
+                      />
+
+                      <TableNoData notFound={notFound} />
+                    </TableBody>
+                  </Table>
+                </Scrollbar>
+              </Box>
+
+              <TablePaginationCustom
+                page={table.page}
+                dense={table.dense}
+                count={dataFiltered.length}
+                rowsPerPage={table.rowsPerPage}
+                onPageChange={table.onChangePage}
+                onChangeDense={table.onChangeDense}
+                onRowsPerPageChange={table.onChangeRowsPerPage}
+              />
+            </Card>
+          </Grid>
+        </PermissionAccessController>
       </Grid>
     </DashboardContent>
   );

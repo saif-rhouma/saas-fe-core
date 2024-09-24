@@ -56,6 +56,7 @@ export function ReportsOrderTableToolbar({ filters, onResetPage }) {
       alignItems={{ xs: 'flex-end', md: 'center' }}
       direction={{ xs: 'column', md: 'row' }}
       sx={{ p: 2.5 }}
+      className="print-hide"
     >
       <TextField
         sx={{ flexGrow: 1 }}

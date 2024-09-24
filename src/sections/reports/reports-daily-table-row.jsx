@@ -1,9 +1,5 @@
-import TableCell from '@mui/material/TableCell';
 import TableRow from '@mui/material/TableRow';
-
-import { useBoolean } from 'src/hooks/use-boolean';
-
-import { usePopover } from 'src/components/custom-popover';
+import TableCell from '@mui/material/TableCell';
 
 const ReportsDailyTableRow = ({ row, selected }) => {
   const renderPrimary = (

@@ -2,7 +2,7 @@
 import { z as zod } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import { LoadingButton } from '@mui/lab';
 import Dialog from '@mui/material/Dialog';
@@ -10,17 +10,12 @@ import DialogTitle from '@mui/material/DialogTitle';
 import DialogContent from '@mui/material/DialogContent';
 import { Box, Stack, Avatar, Button, Divider, MenuItem, DialogActions } from '@mui/material';
 
-import { paths } from 'src/routes/paths';
-
 import axios, { endpoints } from 'src/utils/axios';
 
 import { CONFIG } from 'src/config-global';
 
 import { toast } from 'src/components/snackbar';
 import { Form, Field } from 'src/components/hook-form';
-import { LoadingScreen } from 'src/components/loading-screen';
-
-import { ErrorBlock } from 'src/sections/error/error-block';
 
 const StockProductCreationSchema = zod.object({
   product: zod.number().min(1, { message: 'Product is required!' }),

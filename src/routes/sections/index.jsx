@@ -16,6 +16,35 @@ import { componentsRoutes } from './components';
 const HomePage = lazy(() => import('src/pages/home'));
 
 export function Router() {
+  // const { permissions } = usePermissionsContext();
+  // useEffect(() => {
+  //   console.log('------->> permissions', permissions.includes(PermissionsType.VIEW_ORDER));
+  //   if (permissions?.length) {
+  //     if (!permissions.includes(PermissionsType.LIST_ORDER)) {
+  //       console.log('---> Remove LIST_ORDER');
+  //       const indexToRemove = 1;
+  //       dashboardRoutes[0].children[1].children.splice(indexToRemove, 1);
+  //     }
+  //     if (!permissions.includes(PermissionsType.VIEW_ORDER)) {
+  //       console.log('---> Remove VIEW_ORDER');
+  //       const indexToRemove = 2;
+  //       dashboardRoutes[0].children[1].children.splice(indexToRemove, 1);
+  //     }
+  //     // if (!permissions.includes(PermissionsType.ADD_ORDER)) {
+  //     //   console.log('---> Remove ADD_ORDER');
+  //     //   const indexToRemove = 3;
+  //     //   dashboardRoutes[0].children[1].children.splice(indexToRemove, 1);
+  //     // }
+  //     // if (!permissions.includes(PermissionsType.EDIT_ORDER)) {
+  //     //   console.log('---> Remove EDIT_ORDER');
+  //     //   const indexToRemove = 4;
+  //     //   dashboardRoutes[0].children[1].children.splice(indexToRemove, 1);
+  //     // }
+  //   }
+
+  //   console.log("'---> dashboardRoutes'", dashboardRoutes);
+  // }, [permissions]);
+
   return useRoutes([
     {
       path: '/',

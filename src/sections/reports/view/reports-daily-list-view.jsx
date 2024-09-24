@@ -1,7 +1,7 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 
-import { Stack } from '@mui/material';
 import Box from '@mui/material/Box';
+import { Stack } from '@mui/material';
 import Card from '@mui/material/Card';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
@@ -10,24 +10,24 @@ import { paths } from 'src/routes/paths';
 
 import { useSetState } from 'src/hooks/use-set-state';
 
+import { fCurrency } from 'src/utils/format-number';
 import { fIsAfter, fIsBetween } from 'src/utils/format-time';
 
 import { DashboardContent } from 'src/layouts/dashboard';
 
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 import {
+  useTable,
   emptyRows,
+  TableNoData,
   getComparator,
   TableEmptyRows,
   TableHeadCustom,
-  TableNoData,
   TableSelectedAction,
-  useTable,
 } from 'src/components/table';
 
 import ReportsDailyTableRow from '../reports-daily-table-row';
 import { ReportsDailyTableToolbar } from '../reports-daily-table-toolbar';
-import { fCurrency } from 'src/utils/format-number';
 
 // ----------------------------------------------------------------------
 
@@ -90,6 +90,7 @@ const ReportsDailyListView = ({ orders }) => {
       { label: 'Total Payment', value: rowValues.totalPayments },
     ];
     setDailyData(tableRowValues);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dataFiltered.length, table, tableData]);
 
   const canReset =

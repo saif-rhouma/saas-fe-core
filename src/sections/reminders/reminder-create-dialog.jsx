@@ -118,10 +118,10 @@ const ReminderCreateDialog = ({ currentReminder, open, onClose, handler }) => {
         formData.append('category', 'Reminder');
         await handleUploadReminderFile(formData);
       } else if (currentReminder) {
-          await handler({ id: currentReminder.id, payload });
-        } else {
-          await handler(payload);
-        }
+        await handler({ id: currentReminder.id, payload });
+      } else {
+        await handler(payload);
+      }
       onClose();
       store.current = {};
       reset();
