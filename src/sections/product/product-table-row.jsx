@@ -23,7 +23,7 @@ import { ConfirmDialog } from 'src/components/custom-dialog';
 import { usePopover, CustomPopover } from 'src/components/custom-popover';
 import PermissionAccessController from 'src/components/permission-access-controller/permission-access-controller';
 
-const ProductTableRow = ({ row, taxPercentage, selected, onDeleteRow, onEditRow }) => {
+const ProductTableRow = ({ row, index, taxPercentage, selected, onDeleteRow, onEditRow }) => {
   const [hasOrders, setHasOrders] = useState(
     row?.productToOrder.filter((item) => item?.order?.status === 'Delivered').length > 0
   );
@@ -32,7 +32,7 @@ const ProductTableRow = ({ row, taxPercentage, selected, onDeleteRow, onEditRow 
   const popover = usePopover();
   const renderPrimary = (
     <TableRow hover selected={selected}>
-      <TableCell>{row?.id}</TableCell>
+      <TableCell>{index || row?.id}</TableCell>
       <TableCell>
         <Stack spacing={2} direction="row" alignItems="center">
           <Avatar alt={row?.name} src={CONFIG.site.serverFileHost + row?.image} />

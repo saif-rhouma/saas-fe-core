@@ -9,11 +9,11 @@ import { CONFIG } from 'src/config-global';
 import { Iconify } from 'src/components/iconify';
 import { usePopover, CustomPopover } from 'src/components/custom-popover';
 
-const ProductStockTableRow = ({ row, selected, onEditRow }) => {
+const ProductStockTableRow = ({ row, index, selected, onEditRow }) => {
   const popover = usePopover();
   const renderPrimary = (
     <TableRow hover selected={selected}>
-      <TableCell>{row?.id}</TableCell>
+      <TableCell>{index || row?.id}</TableCell>
       <TableCell>
         <Stack spacing={2} direction="row" alignItems="center">
           <Avatar alt={row?.name} src={CONFIG.site.serverFileHost + row?.image} />

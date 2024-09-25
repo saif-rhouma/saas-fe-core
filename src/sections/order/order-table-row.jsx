@@ -41,7 +41,7 @@ export function OrderTableRow({ row, selected, onViewRow, onSelectRow, onDeleteR
     <TableRow hover selected={selected}>
       <TableCell>
         <Link color="inherit" onClick={onViewRow} underline="always" sx={{ cursor: 'pointer' }}>
-          {row.id}
+          ORD-{row.id}
         </Link>
       </TableCell>
 

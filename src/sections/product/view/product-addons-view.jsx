@@ -231,10 +231,11 @@ export function ProductAddonsView({ productAddons }) {
                         table.page * table.rowsPerPage,
                         table.page * table.rowsPerPage + table.rowsPerPage
                       )
-                      .map((row) => (
+                      .map((row, index) => (
                         <ProductAddonTableRow
                           key={row.id}
                           row={row}
+                          index={table.page * table.rowsPerPage + index + 1}
                           selected={table.selected.includes(row.id)}
                           onEditRow={() => handleEditRow(row)}
                           onDeleteRow={() => handleDeleteRow(row.id)}

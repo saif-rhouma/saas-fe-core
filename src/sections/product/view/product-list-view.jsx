@@ -211,10 +211,11 @@ export function ProductListView({ products, taxPercentage }) {
                           table.page * table.rowsPerPage,
                           table.page * table.rowsPerPage + table.rowsPerPage
                         )
-                        .map((row) => (
+                        .map((row, index) => (
                           <ProductTableRow
                             key={row.id}
                             row={row}
+                            index={table.page * table.rowsPerPage + index + 1}
                             selected={table.selected.includes(row.id)}
                             onEditRow={() => handleEditRow(row.id)}
                             onDeleteRow={() => handleDeleteRow(row.id)}

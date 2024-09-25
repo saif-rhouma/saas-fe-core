@@ -189,9 +189,10 @@ export function ProductStockView({ stocks }) {
                       table.page * table.rowsPerPage,
                       table.page * table.rowsPerPage + table.rowsPerPage
                     )
-                    .map((row) => (
+                    .map((row, index) => (
                       <ProductStockTableRow
                         key={row.id}
+                        index={table.page * table.rowsPerPage + index + 1}
                         row={row}
                         onEditRow={() => handleEditRow(row)}
                         selected={table.selected.includes(row.id)}

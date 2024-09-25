@@ -45,7 +45,7 @@ const OrderProductTable = ({ products, isDetail, onDecrease, onIncrease, removeI
         <TableBody>
           {products?.map((product, idx) => (
             <TableRow key={isDetail ? `${product.productId}` : `${product.id}`}>
-              <TableCell align="center"> {product.productId} </TableCell>
+              <TableCell align="center"> {idx + 1 || product.productId} </TableCell>
               <TableCell> {isDetail ? `${product.product.name}` : product.name} </TableCell>
               {/* <TableCell>
                 <Stack spacing={2} direction="row" alignItems="center">

@@ -35,7 +35,7 @@ const PlanProductTable = ({ products, quantity, onDecrease, onIncrease, removeIt
           {products.length ? (
             products?.map((product, idx) => (
               <TableRow key={product?.id}>
-                <TableCell align="center"> {product?.id} </TableCell>
+                <TableCell align="center"> {idx + 1 || product?.id} </TableCell>
                 <TableCell> {product?.name} </TableCell>
                 <TableCell>
                   <Box sx={{ width: 88, textAlign: 'right' }}>

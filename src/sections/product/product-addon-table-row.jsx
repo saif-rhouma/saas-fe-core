@@ -16,7 +16,7 @@ import { ConfirmDialog } from 'src/components/custom-dialog';
 import { usePopover, CustomPopover } from 'src/components/custom-popover';
 import PermissionAccessController from 'src/components/permission-access-controller/permission-access-controller';
 
-const ProductAddonTableRow = ({ row, selected, onEditRow, onDeleteRow }) => {
+const ProductAddonTableRow = ({ row, index, selected, onEditRow, onDeleteRow }) => {
   const confirm = useBoolean();
 
   const popover = usePopover();
@@ -25,7 +25,7 @@ const ProductAddonTableRow = ({ row, selected, onEditRow, onDeleteRow }) => {
     <TableRow hover selected={selected}>
       <TableCell>{row?.id}</TableCell>
 
-      <TableCell>{row?.name}</TableCell>
+      <TableCell>{index || row?.name}</TableCell>
       <TableCell>{fCurrency(row?.price)}</TableCell>
 
       <TableCell>
