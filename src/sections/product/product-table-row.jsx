@@ -13,6 +13,7 @@ import { useBoolean } from 'src/hooks/use-boolean';
 
 import { fCurrency } from 'src/utils/format-number';
 import { PermissionsType } from 'src/utils/constant';
+import { calculateAfterTax } from 'src/utils/helper';
 
 import { CONFIG } from 'src/config-global';
 
@@ -22,7 +23,7 @@ import { ConfirmDialog } from 'src/components/custom-dialog';
 import { usePopover, CustomPopover } from 'src/components/custom-popover';
 import PermissionAccessController from 'src/components/permission-access-controller/permission-access-controller';
 
-const ProductTableRow = ({ row, selected, onDeleteRow, onEditRow }) => {
+const ProductTableRow = ({ row, taxPercentage, selected, onDeleteRow, onEditRow }) => {
   const [hasOrders, setHasOrders] = useState(
     row?.productToOrder.filter((item) => item?.order?.status === 'Delivered').length > 0
   );
@@ -107,9 +108,25 @@ const ProductTableRow = ({ row, selected, onDeleteRow, onEditRow }) => {
                     }}
                   />
 
-                  <div>x{item.quantity} </div>
+                  <Box sx={{ color: 'error.main', fontWeight: 'bold' }}>
+                    x{item.quantity}{' '}
+                    <span
+                      style={{
+                        color: '#000',
+                        fontWeight: '400',
+                      }}
+                    >{`(${fCurrency(item.quantity * row?.price)})`}</span>
+                  </Box>
 
-                  <Box sx={{ width: 110, textAlign: 'right' }}>{item.order?.status}</Box>
+                  <Box sx={{ width: 140, textAlign: 'right' }}>{item.order?.status}</Box>
+                  <Box sx={{ width: 140, textAlign: 'right' }}>
+                    {fCurrency(
+                      calculateAfterTax(
+                        item.order?.totalOrderAmount - item.order?.discount,
+                        taxPercentage
+                      )
+                    ) || '-'}
+                  </Box>
                 </Stack>
               ))}
           </Paper>

@@ -8,7 +8,6 @@ const PermissionAccessController = ({ permission, children }) => {
   const { user } = useAuthContext();
   const { permissions } = usePermissionsContext();
   const [hasPermission, setHasPermission] = useState(false);
-  console.log(permission);
   const permissionChecker = useCallback((per) => permissions.includes(per), [permissions]);
   useEffect(() => {
     if (user.roles[0] === RoleType.STAFF) {

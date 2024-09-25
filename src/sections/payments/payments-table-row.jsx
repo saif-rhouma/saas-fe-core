@@ -15,7 +15,7 @@ import { ConfirmDialog } from 'src/components/custom-dialog';
 import { usePopover, CustomPopover } from 'src/components/custom-popover';
 import PermissionAccessController from 'src/components/permission-access-controller/permission-access-controller';
 
-const PaymentsTableRow = ({ row, selected, onViewRow, onDeleteRow, onEditRow }) => {
+const PaymentsTableRow = ({ row, index, selected, onViewRow, onDeleteRow, onEditRow }) => {
   const confirm = useBoolean();
 
   const collapse = useBoolean();
@@ -24,7 +24,7 @@ const PaymentsTableRow = ({ row, selected, onViewRow, onDeleteRow, onEditRow }) 
 
   const renderPrimary = (
     <TableRow hover selected={selected}>
-      <TableCell>{row?.id}</TableCell>
+      <TableCell>{index || row?.id}</TableCell>
 
       <TableCell>{fDate(row?.paymentDate)}</TableCell>
       <TableCell>{row?.customer?.name}</TableCell>

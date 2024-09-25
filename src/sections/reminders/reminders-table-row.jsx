@@ -15,14 +15,14 @@ import { ConfirmDialog } from 'src/components/custom-dialog';
 import { usePopover, CustomPopover } from 'src/components/custom-popover';
 import PermissionAccessController from 'src/components/permission-access-controller/permission-access-controller';
 
-const RemindersTableRow = ({ row, selected, onViewRow, onDeleteRow, onEditRow }) => {
+const RemindersTableRow = ({ row, index, selected, onViewRow, onDeleteRow, onEditRow }) => {
   const confirm = useBoolean();
 
   const popover = usePopover();
 
   const renderPrimary = (
     <TableRow hover selected={selected}>
-      <TableCell>{row.id}</TableCell>
+      <TableCell>{index || row?.id}</TableCell>
       <TableCell>{fDate(row.reminderDate)}</TableCell>
       <TableCell>{row.title}</TableCell>
       <TableCell align="right" sx={{ px: 1, whiteSpace: 'nowrap' }}>

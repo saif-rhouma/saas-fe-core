@@ -47,6 +47,7 @@ const MasterSettingEditForm = ({ applicationAccount, financial }) => {
     if (applicationAccount) {
       reset(defaultValues);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [applicationAccount]);
 
   const defaultValues = useMemo(

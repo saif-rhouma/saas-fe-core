@@ -15,26 +15,36 @@ import { useBoolean } from 'src/hooks/use-boolean';
 
 import axios, { endpoints } from 'src/utils/axios';
 import { fCurrency } from 'src/utils/format-number';
+import { calculateTax, calculateAfterTax } from 'src/utils/helper';
 
 import { CONFIG } from 'src/config-global';
+import { varAlpha } from 'src/theme/styles';
 
 import { toast } from 'src/components/snackbar';
 import { Iconify } from 'src/components/iconify';
 import ProductItemButton from 'src/components/product/product-Item-button';
 
 import OrderProductTable from './order-product-table';
+import OrderDiscountDialog from './order-discount-dialog';
 import OrderCustomerCreateDialog from './order-customer-create-dialog';
 
-export function OrderNewEditForm({ products, customers }) {
+export function OrderNewEditForm({ products, customers, taxPercentage }) {
   const dialog = useBoolean();
+  const dialogDiscount = useBoolean();
   const router = useRouter();
   const [orderId, setOrderId] = useState();
+  const [discount, setDiscount] = useState(0);
   const [selectedCustomer, setSelectedCustomer] = useState('Customer');
   const [selectedDate, setSelectedDate] = useState(dayjs(new Date()));
   const [selectedProducts, setSelectedProducts] = useState([]);
   const [filterProducts, setfilterProducts] = useState(products);
 
   const queryClient = useQueryClient();
+
+  const handleDiscount = (amount) => {
+    setDiscount(amount);
+    dialogDiscount.onFalse();
+  };
 
   const { mutate: createOrder } = useMutation({
     mutationFn: (payload) => axios.post(endpoints.order.create, payload),
@@ -166,10 +176,48 @@ export function OrderNewEditForm({ products, customers }) {
   );
 
   const renderTotal = (
-    <Stack spacing={2} alignItems="flex-end" sx={{ p: 3, textAlign: 'right', typography: 'body2' }}>
+    <Stack spacing={2} alignItems="flex-end" sx={{ p: 2, textAlign: 'right', typography: 'body2' }}>
+      <Stack direction="row">
+        <Box sx={{ color: 'text.secondary' }}>Subtotal</Box>
+        <Box sx={{ width: 160, typography: 'subtitle2' }}>{fCurrency(getTotal()) || '-'}</Box>
+      </Stack>
+
+      <Stack direction="row" alignItems="center">
+        <Box sx={{ color: 'text.secondary' }}>Discount</Box>
+        <Box sx={{ width: 160, ...(0 && { color: 'error.main' }) }}>
+          <Box sx={{ pl: 4, mr: -0.5 }}>
+            <Stack
+              onClick={() => {
+                dialogDiscount.onToggle();
+              }}
+              sx={{
+                cursor: 'pointer',
+                p: 0.5,
+                color: 'error.main',
+                borderRadius: 1,
+                typography: 'subtitle2',
+                border: (theme) =>
+                  `solid 1px ${varAlpha(theme.vars.palette.grey['500Channel'], 0.2)}`,
+              }}
+            >
+              {fCurrency(discount)}
+            </Stack>
+          </Box>
+        </Box>
+      </Stack>
+
+      <Stack direction="row">
+        <Box sx={{ color: 'text.secondary' }}>Tax ({taxPercentage || '0'}%)</Box>
+        <Box sx={{ width: 160 }}>
+          {taxPercentage ? fCurrency(calculateTax(getTotal(), taxPercentage)) : '-'}
+        </Box>
+      </Stack>
+
       <Stack direction="row" sx={{ typography: 'subtitle1' }}>
         <div>Gross Total:</div>
-        <Box sx={{ width: 160 }}>{fCurrency(getTotal()) || '-'}</Box>
+        <Box sx={{ width: 160 }}>
+          {fCurrency(calculateAfterTax(getTotal() - discount, taxPercentage)) || '-'}
+        </Box>
       </Stack>
     </Stack>
   );
@@ -252,8 +300,10 @@ export function OrderNewEditForm({ products, customers }) {
             <Button
               variant="contained"
               onClick={() => {
+                // eslint-disable-next-line no-restricted-globals, radix
                 if (!isNaN(parseInt(selectedCustomer)) && selectedProducts.length) {
                   const payload = {
+                    discount: parseInt(discount, 10),
                     orderDate: selectedDate.format('YYYY-MM-DD'),
                     products: selectedProducts.map((prod) => ({
                       id: prod.id,
@@ -289,6 +339,12 @@ export function OrderNewEditForm({ products, customers }) {
         open={dialog.value}
         onClose={dialog.onFalse}
         handler={handleCreateCustomer}
+      />
+      <OrderDiscountDialog
+        discount={discount}
+        open={dialogDiscount.value}
+        onClose={dialogDiscount.onFalse}
+        handler={handleDiscount}
       />
     </Grid>
   );

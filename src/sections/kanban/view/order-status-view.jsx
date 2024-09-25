@@ -224,40 +224,6 @@ export function OrderStatusView() {
     });
   };
 
-  // const detectChangesForUpdate = useCallback(
-  //   (data) => {
-  //     console.log(data);
-  //     // const prevBoard = currentBoard.current;
-  //     // const allTasks = [];
-  //     // const prevTasks = [];
-  //     // board.columns.forEach((col) => {
-  //     //   allTasks.push(...board.tasks[col.id]);
-  //     //   prevTasks.push(...prevBoard[col.id]);
-  //     // });
-  //     // console.log(allTasks);
-  //     // console.log(prevTasks);
-  //     // let isChanged = false;
-  //     // let idx = 0;
-  //     // let changedTask;
-  //     // while (!isChanged || idx < allTasks.length - 2) {
-  //     //   const currentTask = allTasks[idx];
-  //     //   // console.log('---> While', currentTask);
-  //     //   const prevTask = prevTasks.find((task) => task.id === currentTask.id);
-  //     //   // console.log('---> currentTask', currentTask);
-  //     //   // console.log('---> prevTask', prevTask);
-  //     //   if (prevTask.status !== currentTask.status) {
-  //     //     console.log('--->Diff');
-  //     //     isChanged != isChanged;
-  //     //     changedTask = currentTask;
-  //     //   }
-  //     //   idx++;
-  //     // }
-  //     // // console.log('----> changedTask', changedTask);
-  //     // currentBoard.current = { ...board.tasks };
-  //   },
-  //   [board]
-  // );
-
   const detectChangesForUpdate = async (data) => {
     const allTasks = [];
     board.columns.forEach((col) => {

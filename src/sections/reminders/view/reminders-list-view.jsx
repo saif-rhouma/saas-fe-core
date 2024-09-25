@@ -138,7 +138,7 @@ const RemindersListView = ({ reminders }) => {
     },
     onSettled: async () => {
       await queryClient.invalidateQueries({ queryKey: ['reminders'] });
-      dialog.onClose();
+      dialog.onFalse();
     },
     onError: (err) => {
       console.log(err);
@@ -152,7 +152,7 @@ const RemindersListView = ({ reminders }) => {
     },
     onSettled: async () => {
       await queryClient.invalidateQueries({ queryKey: ['reminders'] });
-      dialogEdit.onClose();
+      dialogEdit.onFalse();
     },
     onError: (err) => {
       console.log(err);
@@ -219,14 +219,14 @@ const RemindersListView = ({ reminders }) => {
                           table.page * table.rowsPerPage,
                           table.page * table.rowsPerPage + table.rowsPerPage
                         )
-                        .map((row) => (
+                        .map((row, index) => (
                           <RemindersTableRow
                             key={row.id}
                             row={row}
+                            index={table.page * table.rowsPerPage + index + 1}
                             selected={table.selected.includes(row.id)}
                             onEditRow={() => handleEditRow(row)}
                             onDeleteRow={() => handleDeleteRow(row.id)}
-                            onViewRow={() => handleViewRow(row.id)}
                           />
                         ))}
 

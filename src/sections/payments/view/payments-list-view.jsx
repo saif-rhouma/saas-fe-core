@@ -208,9 +208,10 @@ const PaymentsListView = ({ payments }) => {
                           table.page * table.rowsPerPage,
                           table.page * table.rowsPerPage + table.rowsPerPage
                         )
-                        .map((row) => (
+                        .map((row, index) => (
                           <PaymentsTableRow
                             key={row.id}
+                            index={table.page * table.rowsPerPage + index + 1}
                             row={row}
                             selected={table.selected.includes(row.id)}
                             onEditRow={() => handleEditRow(row)}

@@ -14,8 +14,6 @@ export const signInWithPassword = async ({ email, password }) => {
 
     const { accessToken } = res.data;
 
-    console.log(res.data);
-
     // eslint-disable-next-line no-unsafe-optional-chaining
     let { currencySymbol } = res.data?.userOwnedApps;
 

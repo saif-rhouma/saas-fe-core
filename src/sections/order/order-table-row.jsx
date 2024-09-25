@@ -32,7 +32,6 @@ import PermissionAccessController from 'src/components/permission-access-control
 
 export function OrderTableRow({ row, selected, onViewRow, onSelectRow, onDeleteRow }) {
   const confirm = useBoolean();
-  console.log('---> row', row);
 
   const collapse = useBoolean();
 

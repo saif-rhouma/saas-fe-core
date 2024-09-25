@@ -65,6 +65,21 @@ export function sumBy(array, iteratee) {
 
 // ----------------------------------------------------------------------
 
+export function calculateTax(price, taxRate) {
+  const taxAmount = price * (taxRate / 100);
+  return taxAmount;
+}
+
+// ----------------------------------------------------------------------
+
+export function calculateAfterTax(price, taxRate) {
+  const taxAmount = price * (taxRate / 100);
+  const finalPrice = price + taxAmount;
+  return finalPrice;
+}
+
+// ----------------------------------------------------------------------
+
 export function isEqual(a, b) {
   if (a === null || a === undefined || b === null || b === undefined) {
     return a === b;

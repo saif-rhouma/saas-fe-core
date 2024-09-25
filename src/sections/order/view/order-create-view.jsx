@@ -6,7 +6,7 @@ import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 
 import { OrderNewEditForm } from '../order-new-edit-form';
 
-export function OrderCreateView({ products, customers }) {
+export function OrderCreateView({ products, customers, taxPercentage }) {
   return (
     <DashboardContent>
       <CustomBreadcrumbs
@@ -19,7 +19,7 @@ export function OrderCreateView({ products, customers }) {
         sx={{ mb: { xs: 3, md: 5 } }}
       />
 
-      <OrderNewEditForm products={products} customers={customers} />
+      <OrderNewEditForm products={products} customers={customers} taxPercentage={taxPercentage} />
     </DashboardContent>
   );
 }

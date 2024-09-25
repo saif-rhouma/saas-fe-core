@@ -16,16 +16,14 @@ import { ConfirmDialog } from 'src/components/custom-dialog';
 import { usePopover, CustomPopover } from 'src/components/custom-popover';
 import PermissionAccessController from 'src/components/permission-access-controller/permission-access-controller';
 
-const TicketsTableRow = ({ row, selected, onViewRow, onDeleteRow }) => {
+const TicketsTableRow = ({ row, index, selected, onViewRow, onDeleteRow }) => {
   const confirm = useBoolean();
-
-  const collapse = useBoolean();
 
   const popover = usePopover();
 
   const renderPrimary = (
     <TableRow hover selected={selected}>
-      <TableCell>{row.id}</TableCell>
+      <TableCell>{index || row.id}</TableCell>
       <TableCell>{fDate(row.createTime)}</TableCell>
       <TableCell>{row.topic}</TableCell>
       <TableCell>

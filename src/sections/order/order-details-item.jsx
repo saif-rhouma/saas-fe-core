@@ -6,6 +6,7 @@ import CardHeader from '@mui/material/CardHeader';
 
 import { fDate } from 'src/utils/format-time';
 import { fCurrency } from 'src/utils/format-number';
+import { calculateTax, calculateAfterTax } from 'src/utils/helper';
 
 import { Label } from 'src/components/label';
 import { Scrollbar } from 'src/components/scrollbar';
@@ -14,28 +15,20 @@ import OrderProductTable from './order-product-table';
 
 // ----------------------------------------------------------------------
 
-export function OrderDetailsItems({
-  taxes,
-  order,
-  shipping,
-  discount,
-  subtotal,
-  customer,
-  totalAmount,
-}) {
+export function OrderDetailsItems({ order, discount, customer, totalAmount }) {
   const renderTotal = (
     <Stack spacing={2} alignItems="flex-end" sx={{ p: 3, textAlign: 'right', typography: 'body2' }}>
       <Stack direction="row">
         <Box sx={{ color: 'text.secondary' }}>Subtotal</Box>
-        <Box sx={{ width: 160, typography: 'subtitle2' }}>{fCurrency(subtotal) || '-'}</Box>
+        <Box sx={{ width: 160, typography: 'subtitle2' }}>{fCurrency(totalAmount) || '-'}</Box>
       </Stack>
 
-      <Stack direction="row">
+      {/* <Stack direction="row">
         <Box sx={{ color: 'text.secondary' }}>Addon</Box>
         <Box sx={{ width: 160, ...(shipping && { color: 'error.main' }) }}>
           {shipping ? `- ${fCurrency(shipping)}` : '-'}
         </Box>
-      </Stack>
+      </Stack> */}
 
       <Stack direction="row">
         <Box sx={{ color: 'text.secondary' }}>Discount</Box>
@@ -45,13 +38,23 @@ export function OrderDetailsItems({
       </Stack>
 
       <Stack direction="row">
-        <Box sx={{ color: 'text.secondary' }}>Tax (0%)</Box>
-        <Box sx={{ width: 160 }}>{taxes ? fCurrency(taxes) : '-'}</Box>
+        <Box sx={{ color: 'text.secondary' }}>
+          Tax ({order?.application?.taxPercentage || '0'}%)
+        </Box>
+        <Box sx={{ width: 160 }}>
+          {order?.application?.taxPercentage
+            ? fCurrency(calculateTax(totalAmount - discount, order?.application?.taxPercentage))
+            : '-'}
+        </Box>
       </Stack>
 
       <Stack direction="row" sx={{ typography: 'subtitle1' }}>
         <div>Gross Total</div>
-        <Box sx={{ width: 160 }}>{fCurrency(totalAmount) || '-'}</Box>
+        <Box sx={{ width: 160 }}>
+          {fCurrency(
+            calculateAfterTax(totalAmount - discount, order?.application?.taxPercentage)
+          ) || '-'}
+        </Box>
       </Stack>
     </Stack>
   );

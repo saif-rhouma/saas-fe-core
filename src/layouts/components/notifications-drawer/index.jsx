@@ -1,47 +1,36 @@
 import { m } from 'framer-motion';
-import { useState, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 
-import Tab from '@mui/material/Tab';
 import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
 import Badge from '@mui/material/Badge';
 import Drawer from '@mui/material/Drawer';
-import Button from '@mui/material/Button';
 import SvgIcon from '@mui/material/SvgIcon';
-import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton';
 
 import { useBoolean } from 'src/hooks/use-boolean';
 
-import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
 import { varHover } from 'src/components/animate';
 import { Scrollbar } from 'src/components/scrollbar';
-import { CustomTabs } from 'src/components/custom-tabs';
 
 import { NotificationItem } from './notification-item';
-
-// ----------------------------------------------------------------------
-
-const TABS = [
-  { value: 'all', label: 'All', count: 22 },
-  { value: 'unread', label: 'Unread', count: 12 },
-  { value: 'archived', label: 'Archived', count: 10 },
-];
 
 // ----------------------------------------------------------------------
 
 export function NotificationsDrawer({ data = [], sx, ...other }) {
   const drawer = useBoolean();
 
-  const [currentTab, setCurrentTab] = useState('all');
-
   const handleChangeTab = useCallback((event, newValue) => {
     setCurrentTab(newValue);
   }, []);
 
   const [notifications, setNotifications] = useState(data);
+
+  useEffect(() => {
+    setNotifications(data);
+  }, [data]);
 
   const totalUnRead = notifications.filter((item) => item.isUnRead === true).length;
 
@@ -55,47 +44,18 @@ export function NotificationsDrawer({ data = [], sx, ...other }) {
         Notifications
       </Typography>
 
-      {!!totalUnRead && (
+      {/* {!!totalUnRead && (
         <Tooltip title="Mark all as read">
           <IconButton color="primary" onClick={handleMarkAllAsRead}>
             <Iconify icon="eva:done-all-fill" />
           </IconButton>
         </Tooltip>
-      )}
+      )} */}
 
       <IconButton onClick={drawer.onFalse} sx={{ display: { xs: 'inline-flex', sm: 'none' } }}>
         <Iconify icon="mingcute:close-line" />
       </IconButton>
-
-      <IconButton>
-        <Iconify icon="solar:settings-bold-duotone" />
-      </IconButton>
     </Stack>
-  );
-
-  const renderTabs = (
-    <CustomTabs variant="fullWidth" value={currentTab} onChange={handleChangeTab}>
-      {TABS.map((tab) => (
-        <Tab
-          key={tab.value}
-          iconPosition="end"
-          value={tab.value}
-          label={tab.label}
-          icon={
-            <Label
-              variant={((tab.value === 'all' || tab.value === currentTab) && 'filled') || 'soft'}
-              color={
-                (tab.value === 'unread' && 'info') ||
-                (tab.value === 'archived' && 'success') ||
-                'default'
-              }
-            >
-              {tab.count}
-            </Label>
-          }
-        />
-      ))}
-    </CustomTabs>
   );
 
   const renderList = (
@@ -146,15 +106,13 @@ export function NotificationsDrawer({ data = [], sx, ...other }) {
       >
         {renderHead}
 
-        {renderTabs}
-
         {renderList}
 
-        <Box sx={{ p: 1 }}>
+        {/* <Box sx={{ p: 1 }}>
           <Button fullWidth size="large">
             View all
           </Button>
-        </Box>
+        </Box> */}
       </Drawer>
     </>
   );

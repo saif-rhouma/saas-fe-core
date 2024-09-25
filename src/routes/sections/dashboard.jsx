@@ -151,7 +151,6 @@ export const dashboardRoutes = [
           { path: 'order', element: <ReportsOrderListPage /> },
           { path: 'plan', element: <ReportsPlanListPage /> },
           { path: 'stock', element: <ReportsStockListPage /> },
-          { path: 'custom', element: <ReportsDailyListPage /> },
         ],
       },
       {

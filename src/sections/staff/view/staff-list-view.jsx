@@ -200,10 +200,11 @@ const StaffListView = ({ staffs }) => {
                         table.page * table.rowsPerPage,
                         table.page * table.rowsPerPage + table.rowsPerPage
                       )
-                      .map((row) => (
+                      .map((row, index) => (
                         <StaffTableRow
                           key={row.id}
                           row={row}
+                          index={table.page * table.rowsPerPage + index + 1}
                           selected={table.selected.includes(row.id)}
                           onSelectRow={() => table.onSelectRow(row.id)}
                           onDeleteRow={() => handleDeleteRow(row.id)}

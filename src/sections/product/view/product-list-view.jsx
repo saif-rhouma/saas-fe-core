@@ -61,7 +61,7 @@ const TABLE_HEAD = [
 
 // ----------------------------------------------------------------------
 
-export function ProductListView({ products }) {
+export function ProductListView({ products, taxPercentage }) {
   const table = useTable({ defaultOrderBy: 'planId' });
 
   const confirm = useBoolean();
@@ -218,6 +218,7 @@ export function ProductListView({ products }) {
                             selected={table.selected.includes(row.id)}
                             onEditRow={() => handleEditRow(row.id)}
                             onDeleteRow={() => handleDeleteRow(row.id)}
+                            taxPercentage={taxPercentage}
                           />
                         ))}
 

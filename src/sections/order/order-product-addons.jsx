@@ -23,12 +23,12 @@ import PermissionAccessController from 'src/components/permission-access-control
 const OrderProductAddons = ({ order, payments, dialog, handleApproveOrder, handlePrint }) => {
   const renderTimeline = (
     <Box sx={{ pr: 4, pl: 4, pb: 4, pt: 2 }}>
-      <Box sx={{ mb: 2 }}>
+      {/* <Box sx={{ mb: 2 }}>
         <TextField size="small" fullWidth />
       </Box>
       <Stack sx={{ typography: 'subtitle2', width: '100%', marginBottom: 1 }}>
         <div>Payments</div>
-      </Stack>
+      </Stack> */}
       <Timeline
         sx={{ p: 0, m: 0, [`& .${timelineItemClasses.root}:before`]: { flex: 0, padding: 0 } }}
       >
@@ -86,7 +86,7 @@ const OrderProductAddons = ({ order, payments, dialog, handleApproveOrder, handl
         <PermissionAccessController permission={PermissionsType.PRINT_ORDER}>
           <Button variant="outlined" color="info" onClick={() => handlePrint()}>
             <Iconify icon="solar:printer-minimalistic-bold" />
-            <span style={{ margin: 4 }}>Print Invoice</span>
+            <span style={{ margin: 4 }}>Print Order</span>
           </Button>
         </PermissionAccessController>
       </Stack>
@@ -94,7 +94,8 @@ const OrderProductAddons = ({ order, payments, dialog, handleApproveOrder, handl
   );
   return (
     <Card>
-      <CardHeader title="Product Addons" />
+      {/* <CardHeader title="Product Addons" /> */}
+      {payments?.length > 0 && <CardHeader title="Payments" />}
       {renderTimeline}
     </Card>
   );

@@ -4,7 +4,6 @@ import TableCell from '@mui/material/TableCell';
 import { fDate } from 'src/utils/format-time';
 
 const ReportsPlanTableRow = ({ row, selected }) => {
-  console.log('----------> row', row);
   const renderPrimary = (
     <TableRow hover selected={selected}>
       <TableCell>{fDate(row?.planDate)}</TableCell>

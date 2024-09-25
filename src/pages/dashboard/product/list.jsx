@@ -24,10 +24,18 @@ export default function Page() {
     },
   });
 
-  if (response.isPending || response.isLoading) {
+  const responseApplication = useQuery({
+    queryKey: ['account-application'],
+    queryFn: async () => {
+      const { data } = await axios.get(endpoints.auth.application);
+      return data;
+    },
+  });
+
+  if (responseApplication.isLoading || response.isLoading) {
     return <LoadingScreen />;
   }
-  if (response.isError) {
+  if (responseApplication.isError || response.isError) {
     return <ErrorBlock route={paths.dashboard.products.root} />;
   }
   return (
@@ -35,7 +43,10 @@ export default function Page() {
       <Helmet>
         <title> {metadata.title}</title>
       </Helmet>
-      <ProductListView products={response.data} />
+      <ProductListView
+        products={response.data}
+        taxPercentage={responseApplication.data.taxPercentage}
+      />
     </>
   );
 }

@@ -3,7 +3,6 @@ import { useMemo } from 'react';
 import { RoleType, PermissionsType } from 'src/utils/constant';
 
 const useNavData = (navData, permissions, role) => {
-  console.log('--->> permissions', permissions);
   const hasPermission = (requiredPermission) => permissions.includes(requiredPermission);
   const hasPermissions = (requiredPermissions) =>
     requiredPermissions.some((perm) => permissions.includes(perm));

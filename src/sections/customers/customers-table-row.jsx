@@ -14,7 +14,7 @@ import { ConfirmDialog } from 'src/components/custom-dialog';
 import { usePopover, CustomPopover } from 'src/components/custom-popover';
 import PermissionAccessController from 'src/components/permission-access-controller/permission-access-controller';
 
-const CustomersTableRow = ({ row, selected, onDeleteRow, onEditRow }) => {
+const CustomersTableRow = ({ row, index, selected, onDeleteRow, onEditRow }) => {
   const confirm = useBoolean();
 
   const popover = usePopover();
@@ -28,7 +28,7 @@ const CustomersTableRow = ({ row, selected, onDeleteRow, onEditRow }) => {
 
   const renderPrimary = (
     <TableRow hover selected={selected}>
-      <TableCell>{row?.id}</TableCell>
+      <TableCell>{index || row?.id}</TableCell>
 
       <TableCell>{row?.name}</TableCell>
       <TableCell>{row?.email}</TableCell>

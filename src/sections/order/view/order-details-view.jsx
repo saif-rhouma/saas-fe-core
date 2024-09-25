@@ -129,10 +129,7 @@ export function OrderDetailsView({ currentOrder }) {
               <OrderDetailsItems
                 order={order}
                 customer={order?.customer}
-                taxes={order?.customer?.customer}
-                shipping={order?.shipping}
                 discount={order?.discount}
-                subtotal={order?.subtotal}
                 totalAmount={order?.totalOrderAmount}
               />
             </Stack>
@@ -183,7 +180,6 @@ export function OrderDetailsView({ currentOrder }) {
             variant="contained"
             color="error"
             onClick={() => {
-              // console.log(createPlans);
               handleCreatePlans(createPlans);
             }}
           >

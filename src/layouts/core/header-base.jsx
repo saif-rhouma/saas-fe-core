@@ -1,7 +1,16 @@
+import { useState, useEffect } from 'react';
+
 import Box from '@mui/material/Box';
 import { styled, useTheme } from '@mui/material/styles';
 
+import { CONFIG } from 'src/config-global';
+import alarmFile from 'src//assets/sounds/alarm.mp3';
+import notifyFile from 'src//assets/sounds/notif.mp3';
 import { useGlobalContext } from 'src/context/context';
+
+import { toast } from 'src/components/snackbar';
+
+import { useAuthContext } from 'src/auth/hooks';
 
 import { HeaderSection } from './header-section';
 import { MenuButton } from '../components/menu-button';
@@ -61,6 +70,44 @@ export function HeaderBase({
   const theme = useTheme();
 
   const { activePage } = useGlobalContext();
+
+  const { user } = useAuthContext();
+
+  const [events, setEvents] = useState([]);
+
+  const notifyAlarm = (payload) => {
+    const audio = new Audio(alarmFile);
+    audio.play();
+    toast.warning(`Reminder for : ${payload?.data?.title}`);
+  };
+
+  const notify = () => {
+    const audio = new Audio(notifyFile);
+    audio.play();
+  };
+
+  useEffect(() => {
+    const SERVER_EVENT_ENDPOINT = `${CONFIG.site.serverUrl}/api/notifications/reminders?clientId=${user?.id}`;
+    const eventSource = new EventSource(SERVER_EVENT_ENDPOINT);
+
+    // Listen to messages from the server
+    eventSource.onmessage = (event) => {
+      const eventData = JSON.parse(event.data);
+      if (eventData.type === 'ALARM') {
+        notifyAlarm(eventData);
+      } else {
+        notify();
+      }
+
+      setEvents((prevEvents) => [...prevEvents, eventData]);
+    };
+
+    // Clean up when the component unmounts
+    return () => {
+      eventSource.close();
+    };
+  }, [user]);
+
   return (
     <HeaderSection
       sx={sx}
@@ -109,9 +156,7 @@ export function HeaderBase({
               {/* -- Language popover -- */}
               {localization && <LanguagePopover data-slot="localization" data={data?.langs} />}
               {/* -- Notifications popover -- */}
-              {notifications && (
-                <NotificationsDrawer data-slot="notifications" data={data?.notifications} />
-              )}
+              {notifications && <NotificationsDrawer data-slot="notifications" data={events} />}
               {/* -- Settings button -- */}
               {settings && <SettingsButton data-slot="settings" />}
               {/* -- Account drawer -- */}
