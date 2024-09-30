@@ -15,7 +15,7 @@ import { ConfirmDialog } from 'src/components/custom-dialog';
 import { usePopover, CustomPopover } from 'src/components/custom-popover';
 import PermissionAccessController from 'src/components/permission-access-controller/permission-access-controller';
 
-const RemindersTableRow = ({ row, index, selected, onViewRow, onDeleteRow, onEditRow }) => {
+const RemindersTableRow = ({ row, index, selected, onViewFileRow, onDeleteRow, onEditRow }) => {
   const confirm = useBoolean();
 
   const popover = usePopover();
@@ -46,7 +46,7 @@ const RemindersTableRow = ({ row, index, selected, onViewRow, onDeleteRow, onEdi
           {row?.file && (
             <MenuItem
               onClick={() => {
-                onViewRow();
+                onViewFileRow();
                 popover.onClose();
               }}
             >

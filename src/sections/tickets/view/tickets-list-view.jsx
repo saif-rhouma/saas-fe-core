@@ -17,6 +17,7 @@ import { useSetState } from 'src/hooks/use-set-state';
 
 import axios, { endpoints } from 'src/utils/axios';
 import { PermissionsType } from 'src/utils/constant';
+import { downloadFile } from 'src/utils/download-file';
 import { fIsAfter, fIsBetween } from 'src/utils/format-time';
 
 import { DashboardContent } from 'src/layouts/dashboard';
@@ -112,6 +113,10 @@ const TicketsListView = ({ tickets, analytics }) => {
   );
 
   const queryClient = useQueryClient();
+
+  const handleDownloadClick = (file) => {
+    downloadFile(file);
+  };
 
   const { mutate: deleteTicket } = useMutation({
     mutationFn: (id) => axios.delete(endpoints.tickets.delete + id),
@@ -232,6 +237,7 @@ const TicketsListView = ({ tickets, analytics }) => {
                               onSelectRow={() => table.onSelectRow(row.id)}
                               onDeleteRow={() => handleDeleteRow(row.id)}
                               onViewRow={() => handleViewRow(row.id)}
+                              onViewFileRow={() => handleDownloadClick(row.file)}
                             />
                           ))}
 

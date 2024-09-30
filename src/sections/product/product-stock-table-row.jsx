@@ -1,4 +1,3 @@
-/* eslint-disable no-unsafe-optional-chaining */
 import TableRow from '@mui/material/TableRow';
 import TableCell from '@mui/material/TableCell';
 import IconButton from '@mui/material/IconButton';
@@ -16,7 +15,10 @@ const ProductStockTableRow = ({ row, index, selected, onEditRow }) => {
       <TableCell>{index || row?.id}</TableCell>
       <TableCell>
         <Stack spacing={2} direction="row" alignItems="center">
-          <Avatar alt={row?.name} src={CONFIG.site.serverFileHost + row?.image} />
+          <Avatar
+            alt={row?.name}
+            src={CONFIG.site.serverFileHost + (row?.image || CONFIG.site.defaultImgPlaceHolder)}
+          />
           <Box component="span">{row?.name}</Box>
         </Stack>
       </TableCell>

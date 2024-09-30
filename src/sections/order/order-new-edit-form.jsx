@@ -27,13 +27,17 @@ import ProductItemButton from 'src/components/product/product-Item-button';
 import OrderProductTable from './order-product-table';
 import OrderDiscountDialog from './order-discount-dialog';
 import OrderCustomerCreateDialog from './order-customer-create-dialog';
+import OrderDiscountProductDialog from './order-discount-product-dialog';
 
 export function OrderNewEditForm({ products, customers, taxPercentage }) {
   const dialog = useBoolean();
   const dialogDiscount = useBoolean();
+  const dialogDiscountProduct = useBoolean();
   const router = useRouter();
   const [orderId, setOrderId] = useState();
   const [discount, setDiscount] = useState(0);
+  const [discountProduct, setDiscountProduct] = useState(0);
+  const [selectedProduct, setSelectedProduct] = useState();
   const [selectedCustomer, setSelectedCustomer] = useState('Customer');
   const [selectedDate, setSelectedDate] = useState(dayjs(new Date()));
   const [selectedProducts, setSelectedProducts] = useState([]);
@@ -41,9 +45,24 @@ export function OrderNewEditForm({ products, customers, taxPercentage }) {
 
   const queryClient = useQueryClient();
 
+  const handleDiscountDialog = (payload, amount) => {
+    setDiscountProduct(amount);
+    setSelectedProduct(payload);
+    dialogDiscountProduct.onToggle();
+  };
+
   const handleDiscount = (amount) => {
     setDiscount(amount);
     dialogDiscount.onFalse();
+  };
+
+  const handleDiscountProduct = (index, product, amount) => {
+    const percentageDiscount = (amount / product.price) * 100;
+    setSelectedProducts((prev) => {
+      prev[index].discount = percentageDiscount;
+      return [...prev];
+    });
+    dialogDiscountProduct.onFalse();
   };
 
   const { mutate: createOrder } = useMutation({
@@ -66,22 +85,19 @@ export function OrderNewEditForm({ products, customers, taxPercentage }) {
   const handleChangeCustomer = useCallback((event) => {
     setSelectedCustomer(event.target.value);
   }, []);
-  const handleAddProducts = useCallback(
-    (payload) => {
-      setSelectedProducts((prev) => {
-        const isFoundIndx = prev.findIndex((prod) => prod.id === payload.id);
-        if (isFoundIndx >= 0) {
-          prev[isFoundIndx].quantity += 1;
-        } else {
-          payload.quantity = 1;
-          prev.push(payload);
-        }
-        const products = [...prev];
-        return products;
-      });
-    },
-    [selectedProducts]
-  );
+  const handleAddProducts = useCallback((payload) => {
+    setSelectedProducts((prev) => {
+      const isFoundIndx = prev.findIndex((prod) => prod.id === payload.id);
+      if (isFoundIndx >= 0) {
+        prev[isFoundIndx].quantity += 1;
+      } else {
+        payload.quantity = 1;
+        payload.discount = 0;
+        prev.push(payload);
+      }
+      return [...prev];
+    });
+  }, []);
   const handleFilterProducts = useCallback((event) => {
     const name = event.target.value;
     if (name) {
@@ -92,6 +108,7 @@ export function OrderNewEditForm({ products, customers, taxPercentage }) {
     if (name === undefined || name === null || name === '') {
       setfilterProducts(products);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleOnDecrease = useCallback(
@@ -101,20 +118,39 @@ export function OrderNewEditForm({ products, customers, taxPercentage }) {
         if (prev[idx].quantity === 0) {
           prev.splice(idx, 1);
         }
-        const products = [...prev];
-        return products;
+        return [...prev];
       });
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [selectedProducts]
   );
+
+  const handleOnDecreaseDiscount = useCallback((idx) => {
+    setSelectedProducts((prev) => {
+      if (prev[idx].discount > 0) {
+        prev[idx].discount -= 1;
+      }
+      return [...prev];
+    });
+  }, []);
+
+  const handleOnIncreaseDiscount = useCallback((idx) => {
+    setSelectedProducts((prev) => {
+      if (prev[idx].discount < 100) {
+        prev[idx].discount += 1;
+      }
+      return [...prev];
+    });
+  }, []);
+
   const handleOnIncrease = useCallback(
     (idx) => {
       setSelectedProducts((prev) => {
         prev[idx].quantity += 1;
-        const products = [...prev];
-        return products;
+        return [...prev];
       });
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [selectedProducts]
   );
 
@@ -122,10 +158,10 @@ export function OrderNewEditForm({ products, customers, taxPercentage }) {
     (idx) => {
       setSelectedProducts((prev) => {
         prev.splice(idx, 1);
-        const products = [...prev];
-        return products;
+        return [...prev];
       });
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [selectedProducts]
   );
 
@@ -133,6 +169,29 @@ export function OrderNewEditForm({ products, customers, taxPercentage }) {
     () => selectedProducts.reduce((total, product) => total + product.price * product.quantity, 0),
     [selectedProducts]
   );
+
+  const getTotalProductDiscount = useCallback(
+    () =>
+      selectedProducts.reduce(
+        (total, product) => total + product.price * (product.discount / 100) * product.quantity,
+        0
+      ),
+    [selectedProducts]
+  );
+
+  const { mutate: handleCreateCustomer } = useMutation({
+    mutationFn: (payload) => axios.post(endpoints.customers.create, payload),
+    onSuccess: async () => {
+      toast.success('New Customer Has Been Created!');
+    },
+    onSettled: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['customers'] });
+      dialog.onFalse();
+    },
+    onError: (err) => {
+      console.log(err);
+    },
+  });
 
   const renderOrderList = (
     <Card>
@@ -167,6 +226,7 @@ export function OrderNewEditForm({ products, customers, taxPercentage }) {
               handleClick={handleAddProducts}
               key={product?.id}
               productName={product?.name}
+              // eslint-disable-next-line no-unsafe-optional-chaining
               image={CONFIG.site.serverFileHost + product?.image}
             />
           ))}
@@ -180,6 +240,23 @@ export function OrderNewEditForm({ products, customers, taxPercentage }) {
       <Stack direction="row">
         <Box sx={{ color: 'text.secondary' }}>Subtotal</Box>
         <Box sx={{ width: 160, typography: 'subtitle2' }}>{fCurrency(getTotal()) || '-'}</Box>
+      </Stack>
+
+      <Stack direction="row" alignItems="center">
+        <Box sx={{ color: 'text.secondary' }}>Total Product Discount</Box>
+        <Box sx={{ width: 160, ...(0 && { color: 'error.main' }) }}>
+          <Box>
+            <Stack
+              sx={{
+                color: 'error.main',
+                borderRadius: 1,
+                typography: 'subtitle2',
+              }}
+            >
+              {fCurrency(getTotalProductDiscount()) || '-'}
+            </Stack>
+          </Box>
+        </Box>
       </Stack>
 
       <Stack direction="row" alignItems="center">
@@ -209,7 +286,7 @@ export function OrderNewEditForm({ products, customers, taxPercentage }) {
       <Stack direction="row">
         <Box sx={{ color: 'text.secondary' }}>Tax ({taxPercentage || '0'}%)</Box>
         <Box sx={{ width: 160 }}>
-          {taxPercentage ? fCurrency(calculateTax(getTotal(), taxPercentage)) : '-'}
+          {taxPercentage ? fCurrency(calculateTax(getTotal() - discount, taxPercentage)) : '-'}
         </Box>
       </Stack>
 
@@ -221,20 +298,6 @@ export function OrderNewEditForm({ products, customers, taxPercentage }) {
       </Stack>
     </Stack>
   );
-
-  const { mutate: handleCreateCustomer } = useMutation({
-    mutationFn: (payload) => axios.post(endpoints.customers.create, payload),
-    onSuccess: async () => {
-      toast.success('New Customer Has Been Created!');
-    },
-    onSettled: async () => {
-      await queryClient.invalidateQueries({ queryKey: ['customers'] });
-      dialog.onFalse();
-    },
-    onError: (err) => {
-      console.log(err);
-    },
-  });
 
   const renderOrderCreation = (
     <Card>
@@ -292,6 +355,9 @@ export function OrderNewEditForm({ products, customers, taxPercentage }) {
           products={selectedProducts}
           onDecrease={handleOnDecrease}
           onIncrease={handleOnIncrease}
+          onDecreaseDiscount={handleOnDecreaseDiscount}
+          onIncreaseDiscount={handleOnIncreaseDiscount}
+          handleDiscountDialog={handleDiscountDialog}
           removeItem={handleDeleteRow}
         />
         <Box display="flex" flexDirection="column" alignItems="flex-end" justifyContent="center">
@@ -345,6 +411,13 @@ export function OrderNewEditForm({ products, customers, taxPercentage }) {
         open={dialogDiscount.value}
         onClose={dialogDiscount.onFalse}
         handler={handleDiscount}
+      />
+      <OrderDiscountProductDialog
+        product={selectedProduct}
+        discount={discountProduct}
+        open={dialogDiscountProduct.value}
+        onClose={dialogDiscountProduct.onFalse}
+        handler={handleDiscountProduct}
       />
     </Grid>
   );

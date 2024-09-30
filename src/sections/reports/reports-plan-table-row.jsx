@@ -7,7 +7,7 @@ const ReportsPlanTableRow = ({ row, selected }) => {
   const renderPrimary = (
     <TableRow hover selected={selected}>
       <TableCell>{fDate(row?.planDate)}</TableCell>
-      <TableCell>PLN-{row?.id}</TableCell>
+      <TableCell>{row?.ref}</TableCell>
       <TableCell>{row?.product?.name}</TableCell>
       <TableCell>{row?.quantity}</TableCell>
       <TableCell>{row?.status}</TableCell>

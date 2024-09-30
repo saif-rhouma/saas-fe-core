@@ -8,23 +8,34 @@ import { Iconify } from 'src/components/iconify';
 import { TableHeadCustom } from 'src/components/table';
 
 import { IncrementerButton } from '../product/components/incrementer-button';
+import { IncrementPercentageButton } from '../product/components/incrementer-percentage-button';
 
-const OrderProductTable = ({ products, isDetail, onDecrease, onIncrease, removeItem }) => {
+const OrderProductTable = ({
+  products,
+  isDetail,
+  onDecrease,
+  onIncrease,
+  onDecreaseDiscount,
+  onIncreaseDiscount,
+  handleDiscountDialog,
+  removeItem,
+}) => {
   const TABLE_HEAD = [
     { id: 'orderNumber', label: '#', width: 40, align: 'center' },
-    { id: 'name', label: 'Product Name', width: 160 },
-    { id: 'color', label: 'Color', width: 80 },
+    { id: 'name', label: 'Product Name' },
+
     {
       id: 'rate',
       label: 'Rate',
-      width: 120,
     },
-    { id: 'totalAmount', label: 'Qty', width: 100 },
-    { id: 'status', label: 'Total', width: 140 },
+    { id: 'discountPercentage', label: 'Discount %' },
+    { id: 'discount', label: 'Discount' },
+    { id: 'totalAmount', label: 'Qty' },
+    { id: 'status', label: 'Total' },
   ];
 
   if (!isDetail) {
-    TABLE_HEAD.push({ id: 'action', width: 10 });
+    TABLE_HEAD.push({ id: 'action', width: 5 });
   }
 
   return (
@@ -47,13 +58,6 @@ const OrderProductTable = ({ products, isDetail, onDecrease, onIncrease, removeI
             <TableRow key={isDetail ? `${product.productId}` : `${product.id}`}>
               <TableCell align="center"> {idx + 1 || product.productId} </TableCell>
               <TableCell> {isDetail ? `${product.product.name}` : product.name} </TableCell>
-              {/* <TableCell>
-                <Stack spacing={2} direction="row" alignItems="center">
-                  <Avatar alt={row?.name} src={storageHost + row?.image} />
-                  <Box component="span">{row?.name}</Box>
-                </Stack>
-              </TableCell> */}
-              <TableCell> x </TableCell>
               <TableCell align={isDetail ? 'inherit' : 'center'}>
                 {isDetail ? (
                   `${fCurrency(product.product.price)}`
@@ -69,6 +73,48 @@ const OrderProductTable = ({ products, isDetail, onDecrease, onIncrease, removeI
                     }}
                   >
                     {fCurrency(product.price)}
+                  </Stack>
+                )}
+              </TableCell>
+
+              <TableCell>
+                {isDetail ? (
+                  `x${product.quantity}`
+                ) : (
+                  <Box sx={{ width: 88, textAlign: 'right' }}>
+                    <IncrementPercentageButton
+                      quantity={Math.round(product.discount)}
+                      onDecrease={() => onDecreaseDiscount(idx)}
+                      onIncrease={() => onIncreaseDiscount(idx)}
+                    />
+                  </Box>
+                )}
+              </TableCell>
+              <TableCell align={isDetail ? 'inherit' : 'center'}>
+                {isDetail ? (
+                  `${fCurrency(product.product.price)}`
+                ) : (
+                  <Stack
+                    sx={{
+                      p: 0.5,
+
+                      borderRadius: 1,
+                      typography: 'subtitle2',
+                      border: (theme) =>
+                        `solid 1px ${varAlpha(theme.vars.palette.grey['500Channel'], 0.2)}`,
+                    }}
+                    onClick={() => {
+                      const amount = product.price * (product.discount / 100);
+                      handleDiscountDialog(
+                        {
+                          index: idx,
+                          product,
+                        },
+                        amount
+                      );
+                    }}
+                  >
+                    {fCurrency(product.price * (product.discount / 100))}
                   </Stack>
                 )}
               </TableCell>
@@ -88,7 +134,9 @@ const OrderProductTable = ({ products, isDetail, onDecrease, onIncrease, removeI
               <TableCell>
                 {isDetail
                   ? `${fCurrency(product.product.price * product.quantity)}`
-                  : fCurrency(product.price * product.quantity)}
+                  : fCurrency(
+                      (product.price - product.price * (product.discount / 100)) * product.quantity
+                    )}
               </TableCell>
               {!isDetail && (
                 <TableCell>

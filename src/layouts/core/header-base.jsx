@@ -1,3 +1,5 @@
+// eslint-disable-next-line import/no-extraneous-dependencies
+import io from 'socket.io-client';
 import { useState, useEffect } from 'react';
 
 import Box from '@mui/material/Box';
@@ -19,7 +21,6 @@ import { AccountDrawer } from '../components/account-drawer';
 import { SettingsButton } from '../components/settings-button';
 import { LanguagePopover } from '../components/language-popover';
 import { NotificationsDrawer } from '../components/notifications-drawer';
-
 // ----------------------------------------------------------------------
 
 const StyledDivider = styled('span')(({ theme }) => ({
@@ -73,38 +74,50 @@ export function HeaderBase({
 
   const { user } = useAuthContext();
 
+  const [socket, setSocket] = useState(null);
+
   const [events, setEvents] = useState([]);
 
-  const notifyAlarm = (payload) => {
+  const notifyAlarm = ({ payload }) => {
     const audio = new Audio(alarmFile);
     audio.play();
-    toast.warning(`Reminder for : ${payload?.data?.title}`);
+    toast.warning(`${payload?.message}`);
   };
 
-  const notify = () => {
+  const notify = ({ payload }) => {
     const audio = new Audio(notifyFile);
     audio.play();
+    toast.warning(`${payload?.message}`);
   };
 
   useEffect(() => {
-    const SERVER_EVENT_ENDPOINT = `${CONFIG.site.serverUrl}/api/notifications/reminders?clientId=${user?.id}`;
-    const eventSource = new EventSource(SERVER_EVENT_ENDPOINT);
+    const SERVER_EVENT_ENDPOINT = `${CONFIG.site.serverUrl}/api/notifications`;
 
-    // Listen to messages from the server
-    eventSource.onmessage = (event) => {
-      const eventData = JSON.parse(event.data);
-      if (eventData.type === 'ALARM') {
-        notifyAlarm(eventData);
+    const newSocket = io(SERVER_EVENT_ENDPOINT, {
+      auth: {
+        authorization: `Bearer ${user.accessToken}`,
+      },
+    });
+
+    setSocket(newSocket);
+
+    newSocket.on('connect', () => {
+      console.log(`---> User Connected Socket ID : ${newSocket.id}`);
+    });
+
+    newSocket.on('newNotification', (evt) => {
+      console.log('---> Data', evt);
+      if (evt.type === 'ALARM') {
+        notifyAlarm(evt);
       } else {
-        notify();
+        notify(evt);
       }
+      setEvents((prevEvents) => [evt.payload, ...prevEvents]);
+    });
 
-      setEvents((prevEvents) => [...prevEvents, eventData]);
-    };
-
-    // Clean up when the component unmounts
+    // Clean up on component unmount
     return () => {
-      eventSource.close();
+      newSocket.disconnect();
     };
   }, [user]);
 

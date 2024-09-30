@@ -58,7 +58,10 @@ function RowItem({ row }) {
       <TableCell>{row.id}</TableCell>
       <TableCell>
         <Stack spacing={2} direction="row" alignItems="center">
-          <Avatar alt={row?.name} src={CONFIG.site.serverFileHost + row?.image} />
+          <Avatar
+            alt={row?.name}
+            src={CONFIG.site.serverFileHost + (row?.image || CONFIG.site.defaultImgPlaceHolder)}
+          />
           <Box component="span">{row?.name}</Box>
         </Stack>
       </TableCell>

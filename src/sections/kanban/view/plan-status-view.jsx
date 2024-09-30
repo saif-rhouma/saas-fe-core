@@ -36,7 +36,7 @@ import { EmptyContent } from 'src/components/empty-content';
 import { kanbanClasses } from '../classes';
 import { coordinateGetter } from '../utils';
 import { KanbanColumn } from '../column/kanban-column';
-import { KanbanTaskPlanItem } from '../item/kanban-task-Plan-item';
+import { KanbanTaskPlanItem } from '../item/kanban-task-plan-item';
 import { KanbanColumnSkeleton } from '../components/kanban-skeleton';
 import { KanbanDragOverlay } from '../components/kanban-drag-overlay';
 // ----------------------------------------------------------------------

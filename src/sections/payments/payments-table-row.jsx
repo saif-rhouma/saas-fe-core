@@ -15,10 +15,16 @@ import { ConfirmDialog } from 'src/components/custom-dialog';
 import { usePopover, CustomPopover } from 'src/components/custom-popover';
 import PermissionAccessController from 'src/components/permission-access-controller/permission-access-controller';
 
-const PaymentsTableRow = ({ row, index, selected, onViewRow, onDeleteRow, onEditRow }) => {
+const PaymentsTableRow = ({
+  row,
+  index,
+  selected,
+  onViewRow,
+  onViewFileRow,
+  onDeleteRow,
+  onEditRow,
+}) => {
   const confirm = useBoolean();
-
-  const collapse = useBoolean();
 
   const popover = usePopover();
 
@@ -28,7 +34,7 @@ const PaymentsTableRow = ({ row, index, selected, onViewRow, onDeleteRow, onEdit
 
       <TableCell>{fDate(row?.paymentDate)}</TableCell>
       <TableCell>{row?.customer?.name}</TableCell>
-      <TableCell>ORD-{row?.order?.id}</TableCell>
+      <TableCell>{row?.order?.ref}</TableCell>
       <TableCell>{row?.amount}</TableCell>
       <TableCell>{row?.paymentType}</TableCell>
       <TableCell align="right" sx={{ px: 1, whiteSpace: 'nowrap' }}>
@@ -52,7 +58,7 @@ const PaymentsTableRow = ({ row, index, selected, onViewRow, onDeleteRow, onEdit
           {row?.attachments && (
             <MenuItem
               onClick={() => {
-                onViewRow();
+                onViewFileRow();
                 popover.onClose();
               }}
             >

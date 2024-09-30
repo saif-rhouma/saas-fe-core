@@ -62,7 +62,7 @@ export function OrderDetailsItems({ order, discount, customer, totalAmount }) {
   return (
     <Card>
       <Stack justifyContent="center" alignItems="center">
-        <h1 className="print-title">Order REF: #ORD-{order.id}</h1>
+        <h1 className="print-title">Order REF: #{order.ref}</h1>
       </Stack>
       {/* Add some CSS to hide the title on screen and show it only in print */}
       <style jsx>{`
@@ -99,7 +99,7 @@ export function OrderDetailsItems({ order, discount, customer, totalAmount }) {
           <Stack direction="row" sx={{ typography: 'subtitle2', marginBottom: 1 }}>
             <div>Order Details</div>
           </Stack>
-          <Box sx={{ color: 'text.secondary' }}>ORDER ID: #ORD-{order.id}</Box>
+          <Box sx={{ color: 'text.secondary' }}>ORDER ID: #{order.ref}</Box>
           <Box sx={{ color: 'text.secondary' }}>Order Date: {fDate(order.orderDate)}</Box>
           <Box sx={{ color: 'text.secondary' }}>
             Delivery Date: {order.deliveryDate ? fDate(order.deliveryDate) : <span> - </span>}

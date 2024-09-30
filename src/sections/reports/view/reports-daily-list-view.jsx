@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useRef, useState, useEffect, useCallback } from 'react';
 
 import Box from '@mui/material/Box';
 import { Stack } from '@mui/material';
@@ -49,7 +49,8 @@ const ReportsDailyListView = ({ orders }) => {
   const table = useTable({ defaultOrderBy: 'orderNumber' });
 
   const [tableData, setTableData] = useState(orders);
-  const [dailyData, setDailyData] = useState(TABLE_ROWS);
+  // const [dailyData, setDailyData] = useState(TABLE_ROWS);
+  const dailyData = useRef(TABLE_ROWS);
 
   const filters = useSetState({
     name: '',
@@ -81,17 +82,22 @@ const ReportsDailyListView = ({ orders }) => {
     return result;
   }, []);
 
-  useEffect(() => {
-    const rowValues = getDataRow(dataFiltered);
+  const dailyResult = (data) => {
+    const rowValues = getDataRow(data);
     const tableRowValues = [
       { label: 'Orders', value: rowValues.orders },
       { label: 'No. of Orders Delivered', value: rowValues.nbDelivered },
       { label: 'Total Sales', value: rowValues.totalSales },
       { label: 'Total Payment', value: rowValues.totalPayments },
     ];
-    setDailyData(tableRowValues);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dataFiltered.length, table, tableData]);
+    return tableRowValues;
+  };
+
+  useEffect(() => {
+    if (orders) {
+      setTableData(orders);
+    }
+  }, [orders]);
 
   const canReset =
     !!filters.state.name ||
@@ -133,7 +139,7 @@ const ReportsDailyListView = ({ orders }) => {
               />
 
               <TableBody>
-                {dailyData.map((row) => (
+                {dailyResult(dataFiltered).map((row) => (
                   <ReportsDailyTableRow
                     key={row.id}
                     row={row}

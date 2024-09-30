@@ -37,7 +37,7 @@ export function PlanDetailsItems({ plan, handleViewOrder }) {
           <Stack direction="row" sx={{ typography: 'subtitle2', marginBottom: 1 }}>
             <div>Plan Details</div>
           </Stack>
-          <Box sx={{ color: 'text.secondary' }}>Plan ID: #PLN-{plan?.id}</Box>
+          <Box sx={{ color: 'text.secondary' }}>Plan ID: {plan?.ref}</Box>
           <Box sx={{ color: 'text.secondary' }}>Plan Date: {fDate(plan?.planDate)}</Box>
         </Box>
         <Box
@@ -104,7 +104,7 @@ export function PlanDetailsItems({ plan, handleViewOrder }) {
                   }
                 }}
               >
-                Related to Order: #ORD-{plan?.order?.id}
+                Related to Order: #{plan?.order?.ref}
               </Button>
             </Stack>
           )}

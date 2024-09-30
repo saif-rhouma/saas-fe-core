@@ -12,6 +12,7 @@ export const CONFIG = {
     assetURL: import.meta.env.VITE_ASSET_URL ?? '',
     basePath: import.meta.env.VITE_BASE_PATH ?? '',
     version: packageJson.version,
+    defaultImgPlaceHolder: 'default-placeholder.png',
   },
   /**
    * Auth

@@ -89,7 +89,7 @@ export const dashboardRoutes = [
           { element: <ProductListPage />, index: true },
           { path: 'list', element: <ProductListPage /> },
           { path: ':id', element: <ProductDetailsPage /> },
-          { path: 'addons', element: <ProductAddonsPage /> },
+          // { path: 'addons', element: <ProductAddonsPage /> },
           { path: 'stock', element: <ProductStockPage /> },
           { path: 'new', element: <ProductCreatePage /> },
           { path: ':id/edit', element: <ProductEditPage /> },

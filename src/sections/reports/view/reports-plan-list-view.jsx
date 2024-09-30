@@ -8,10 +8,10 @@ import Button from '@mui/material/Button';
 import TableBody from '@mui/material/TableBody';
 
 import { paths } from 'src/routes/paths';
-import { useRouter } from 'src/routes/hooks';
 
 import { useSetState } from 'src/hooks/use-set-state';
 
+import { exportToExcel } from 'src/utils/helper';
 import { PermissionsType } from 'src/utils/constant';
 import { fIsAfter, fIsBetween } from 'src/utils/format-time';
 
@@ -23,7 +23,6 @@ import PermissionAccessController from 'src/components/permission-access-control
 import {
   useTable,
   emptyRows,
-  rowInPage,
   TableNoData,
   getComparator,
   TableEmptyRows,
@@ -49,8 +48,6 @@ const TABLE_HEAD = [
 const ReportsPlanListView = ({ plans }) => {
   const table = useTable({ defaultOrderBy: 'orderNumber' });
 
-  const router = useRouter();
-
   const [tableData, setTableData] = useState(plans);
 
   const filters = useSetState({
@@ -69,14 +66,20 @@ const ReportsPlanListView = ({ plans }) => {
     dateError,
   });
 
-  const dataInPage = rowInPage(dataFiltered, table.page, table.rowsPerPage);
-
   const canReset =
     !!filters.state.name ||
     filters.state.status !== 'all' ||
     (!!filters.state.startDate && !!filters.state.endDate);
 
   const notFound = (!dataFiltered.length && canReset) || !dataFiltered.length;
+
+  const headers = [
+    { displayName: 'Date', key: 'planDate' },
+    { displayName: 'Plan Ref', key: 'ref' },
+    { displayName: 'Product Name', key: 'name' },
+    { displayName: 'Product QTY', key: 'quantity' },
+    { displayName: 'Status', key: 'status' },
+  ];
 
   return (
     <DashboardContent maxWidth="xl">
@@ -145,7 +148,18 @@ const ReportsPlanListView = ({ plans }) => {
               <Box>
                 <Stack direction="row" spacing={1}>
                   <PermissionAccessController permission={PermissionsType.DOWNLOAD_REPORT}>
-                    <Button variant="contained" startIcon={<Iconify icon="mdi:microsoft-excel" />}>
+                    <Button
+                      onClick={() => {
+                        exportToExcel(
+                          'plan reports',
+                          headers,
+                          dataFiltered.map((el) => ({ ...el, name: el?.product?.name })),
+                          'Stock'
+                        );
+                      }}
+                      variant="contained"
+                      startIcon={<Iconify icon="mdi:microsoft-excel" />}
+                    >
                       Download Report
                     </Button>
                   </PermissionAccessController>

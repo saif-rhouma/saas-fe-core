@@ -32,7 +32,7 @@ function OrderCustomerCreateDialog({ customer, open, onClose, handler }) {
     city: customer?.address.city || '',
     email: customer?.email || '',
     phoneNumber: customer?.phoneNumber || '',
-    taxNumber: parseInt(customer?.taxNumber) || '',
+    taxNumber: parseInt(customer?.taxNumber, 10) || '',
     address: customer?.address?.street || '',
     isActive: customer?.isActive || true,
   };
@@ -53,6 +53,7 @@ function OrderCustomerCreateDialog({ customer, open, onClose, handler }) {
     if (customer) {
       reset(defaultValues);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [customer]);
 
   const onSubmit = handleSubmit(async (data) => {

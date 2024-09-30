@@ -69,7 +69,6 @@ const TicketsPreviousMessage = ({ ticket, messages }) => {
       }
     } catch (error) {
       console.log(error);
-      setErrorMsg(error instanceof Error ? error.message : error);
     }
   });
 

@@ -19,16 +19,16 @@ import PermissionAccessController from 'src/components/permission-access-control
 
 // ----------------------------------------------------------------------
 
-export function PlanTableRow({ row, selected, onViewRow, onEditRow, onSelectRow, onDeleteRow }) {
+export function PlanTableRow({ row, index, selected, onViewRow, onEditRow, onDeleteRow }) {
   const confirm = useBoolean();
 
   const popover = usePopover();
-
+  console.log('----->> row?.ref', row);
   const renderPrimary = (
     <TableRow hover selected={selected}>
       <TableCell>
         <Link color="inherit" onClick={onViewRow} underline="always" sx={{ cursor: 'pointer' }}>
-          PLN-{row.id}
+          {row?.ref || index || row?.id}
         </Link>
       </TableCell>
 

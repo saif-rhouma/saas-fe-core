@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 import {
   Button,
@@ -10,11 +10,15 @@ import {
   DialogContent,
 } from '@mui/material';
 
-const OrderDiscountDialog = ({ discount, open, onClose, handler }) => {
+const OrderDiscountProductDialog = ({ product, discount, open, onClose, handler }) => {
+  console.log('>>> -discount', discount);
   const [amount, setAmount] = useState(discount);
+  useEffect(() => {
+    setAmount(discount);
+  }, [discount]);
   return (
     <Dialog fullWidth open={open} onClose={onClose}>
-      <DialogTitle>Discount</DialogTitle>
+      <DialogTitle>Discount Product : {product?.product?.name}</DialogTitle>
       <Divider />
       <DialogContent sx={{ pt: 1, mt: 1 }}>
         <TextField
@@ -29,7 +33,11 @@ const OrderDiscountDialog = ({ discount, open, onClose, handler }) => {
       </DialogContent>
       <Divider sx={{ pt: 1, mt: 1 }} />
       <DialogActions>
-        <Button type="submit" variant="contained" onClick={() => handler(amount)}>
+        <Button
+          type="submit"
+          variant="contained"
+          onClick={() => handler(product.index, product.product, amount)}
+        >
           Confirm
         </Button>
         <Button color="inherit" variant="outlined" onClick={onClose}>
@@ -39,4 +47,4 @@ const OrderDiscountDialog = ({ discount, open, onClose, handler }) => {
     </Dialog>
   );
 };
-export default OrderDiscountDialog;
+export default OrderDiscountProductDialog;

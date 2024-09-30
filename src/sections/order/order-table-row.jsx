@@ -30,7 +30,7 @@ import PermissionAccessController from 'src/components/permission-access-control
 
 // ----------------------------------------------------------------------
 
-export function OrderTableRow({ row, selected, onViewRow, onSelectRow, onDeleteRow }) {
+export function OrderTableRow({ row, index, selected, onViewRow, onSelectRow, onDeleteRow }) {
   const confirm = useBoolean();
 
   const collapse = useBoolean();
@@ -41,7 +41,7 @@ export function OrderTableRow({ row, selected, onViewRow, onSelectRow, onDeleteR
     <TableRow hover selected={selected}>
       <TableCell>
         <Link color="inherit" onClick={onViewRow} underline="always" sx={{ cursor: 'pointer' }}>
-          ORD-{row.id}
+          {row?.ref || index || row?.id}
         </Link>
       </TableCell>
 
@@ -79,7 +79,10 @@ export function OrderTableRow({ row, selected, onViewRow, onSelectRow, onDeleteR
       <TableCell align="center">
         <AvatarGroup sx={{ [`& .${avatarGroupClasses.avatar}`]: { width: 24, height: 24 } }}>
           {row?.productToOrder?.map((op) => (
-            <Tooltip title={`${op?.product?.name} | Quantity : ${op.quantity}`}>
+            <Tooltip
+              key={op?.product?.id}
+              title={`${op?.product?.name} | Quantity : ${op.quantity}`}
+            >
               <Avatar
                 key={op?.id}
                 alt={op?.product?.name}
@@ -99,6 +102,7 @@ export function OrderTableRow({ row, selected, onViewRow, onSelectRow, onDeleteR
             (row.status === 'Ready' && 'info') ||
             (row.status === 'InProcess' && 'warning') ||
             (row.status === 'Delivered' && 'success') ||
+            (row.status === 'Canceled' && 'error') ||
             'default'
           }
         >
@@ -190,29 +194,38 @@ export function OrderTableRow({ row, selected, onViewRow, onSelectRow, onDeleteR
               View
             </MenuItem>
           </PermissionAccessController>
-          <PermissionAccessController permission={PermissionsType.DELETE_ORDER}>
-            <MenuItem
-              onClick={() => {
-                confirm.onTrue();
-                popover.onClose();
-              }}
-              sx={{ color: 'error.main' }}
-            >
-              <Iconify icon="solar:trash-bin-trash-bold" />
-              Delete
-            </MenuItem>
-          </PermissionAccessController>
+          {row.status !== 'Canceled' && (
+            <PermissionAccessController permission={PermissionsType.DELETE_ORDER}>
+              <MenuItem
+                onClick={() => {
+                  confirm.onTrue();
+                  popover.onClose();
+                }}
+                sx={{ color: 'warning.main' }}
+              >
+                <Iconify icon="solar:trash-bin-trash-bold" />
+                Cancel
+              </MenuItem>
+            </PermissionAccessController>
+          )}
         </MenuList>
       </CustomPopover>
 
       <ConfirmDialog
         open={confirm.value}
         onClose={confirm.onFalse}
-        title="Delete"
-        content="Are you sure want to delete?"
+        title="Cancel Order"
+        content="Are you sure want to cancel this order?"
         action={
-          <Button variant="contained" color="error" onClick={onDeleteRow}>
-            Delete
+          <Button
+            variant="contained"
+            color="warning"
+            onClick={() => {
+              onDeleteRow();
+              confirm.onFalse();
+            }}
+          >
+            Confirm Canceling
           </Button>
         }
       />

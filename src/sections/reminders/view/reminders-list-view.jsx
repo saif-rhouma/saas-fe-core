@@ -15,6 +15,7 @@ import { useSetState } from 'src/hooks/use-set-state';
 
 import axios, { endpoints } from 'src/utils/axios';
 import { PermissionsType } from 'src/utils/constant';
+import { downloadFile } from 'src/utils/download-file';
 import { fIsAfter, fIsBetween } from 'src/utils/format-time';
 
 import { DashboardContent } from 'src/layouts/dashboard';
@@ -111,6 +112,10 @@ const RemindersListView = ({ reminders }) => {
   );
 
   const queryClient = useQueryClient();
+
+  const handleDownloadClick = (file) => {
+    downloadFile(file);
+  };
 
   const { mutate: deleteReminder } = useMutation({
     mutationFn: (id) => axios.delete(endpoints.reminders.delete + id),
@@ -227,6 +232,7 @@ const RemindersListView = ({ reminders }) => {
                             selected={table.selected.includes(row.id)}
                             onEditRow={() => handleEditRow(row)}
                             onDeleteRow={() => handleDeleteRow(row.id)}
+                            onViewFileRow={() => handleDownloadClick(row.file)}
                           />
                         ))}
 

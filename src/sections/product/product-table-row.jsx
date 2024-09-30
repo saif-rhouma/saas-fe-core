@@ -1,4 +1,3 @@
-/* eslint-disable no-unsafe-optional-chaining */
 import { useState } from 'react';
 
 import Button from '@mui/material/Button';
@@ -35,7 +34,10 @@ const ProductTableRow = ({ row, index, taxPercentage, selected, onDeleteRow, onE
       <TableCell>{index || row?.id}</TableCell>
       <TableCell>
         <Stack spacing={2} direction="row" alignItems="center">
-          <Avatar alt={row?.name} src={CONFIG.site.serverFileHost + row?.image} />
+          <Avatar
+            alt={row?.name}
+            src={CONFIG.site.serverFileHost + (row?.image || CONFIG.site.defaultImgPlaceHolder)}
+          />
           <Box component="span">{row?.name}</Box>
         </Stack>
       </TableCell>
@@ -98,7 +100,7 @@ const ProductTableRow = ({ row, index, taxPercentage, selected, onDeleteRow, onE
                   }}
                 >
                   <ListItemText
-                    primary={`ORD-${item?.order?.id}`}
+                    primary={`${item?.order?.ref}`}
                     secondary={item.sku}
                     primaryTypographyProps={{ typography: 'body2' }}
                     secondaryTypographyProps={{
@@ -115,13 +117,14 @@ const ProductTableRow = ({ row, index, taxPercentage, selected, onDeleteRow, onE
                         color: '#000',
                         fontWeight: '400',
                       }}
-                    >{`(${fCurrency(item.quantity * row?.price)})`}</span>
+                    >{`(${fCurrency(item.quantity * (row?.price || 0))})`}</span>
                   </Box>
 
                   <Box sx={{ width: 140, textAlign: 'right' }}>{item.order?.status}</Box>
                   <Box sx={{ width: 140, textAlign: 'right' }}>
                     {fCurrency(
                       calculateAfterTax(
+                        // eslint-disable-next-line no-unsafe-optional-chaining
                         item.order?.totalOrderAmount - item.order?.discount,
                         taxPercentage
                       )

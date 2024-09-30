@@ -28,7 +28,7 @@ const CustomersTableRow = ({ row, index, selected, onDeleteRow, onEditRow }) => 
 
   const renderPrimary = (
     <TableRow hover selected={selected}>
-      <TableCell>{index || row?.id}</TableCell>
+      <TableCell>{row?.ref || index || row?.id}</TableCell>
 
       <TableCell>{row?.name}</TableCell>
       <TableCell>{row?.email}</TableCell>

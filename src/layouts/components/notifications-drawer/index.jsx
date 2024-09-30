@@ -1,5 +1,5 @@
 import { m } from 'framer-motion';
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 
 import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
@@ -21,10 +21,6 @@ import { NotificationItem } from './notification-item';
 
 export function NotificationsDrawer({ data = [], sx, ...other }) {
   const drawer = useBoolean();
-
-  const handleChangeTab = useCallback((event, newValue) => {
-    setCurrentTab(newValue);
-  }, []);
 
   const [notifications, setNotifications] = useState(data);
 

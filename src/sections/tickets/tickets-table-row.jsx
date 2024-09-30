@@ -16,7 +16,7 @@ import { ConfirmDialog } from 'src/components/custom-dialog';
 import { usePopover, CustomPopover } from 'src/components/custom-popover';
 import PermissionAccessController from 'src/components/permission-access-controller/permission-access-controller';
 
-const TicketsTableRow = ({ row, index, selected, onViewRow, onDeleteRow }) => {
+const TicketsTableRow = ({ row, index, selected, onViewRow, onViewFileRow, onDeleteRow }) => {
   const confirm = useBoolean();
 
   const popover = usePopover();
@@ -68,6 +68,17 @@ const TicketsTableRow = ({ row, index, selected, onViewRow, onDeleteRow }) => {
         slotProps={{ arrow: { placement: 'right-top' } }}
       >
         <MenuList>
+          {row?.file && (
+            <MenuItem
+              onClick={() => {
+                onViewFileRow();
+                popover.onClose();
+              }}
+            >
+              <Iconify icon="solar:cloud-download-bold" />
+              Download
+            </MenuItem>
+          )}
           <MenuItem
             onClick={() => {
               onViewRow();

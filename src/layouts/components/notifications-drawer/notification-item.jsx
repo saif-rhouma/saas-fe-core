@@ -54,7 +54,7 @@ export function NotificationItem({ notification }) {
           }
         >
           {fToNow(notification?.data?.createTime)}
-          {notification?.type}
+          {notification?.message}
         </Stack>
       }
     />
@@ -83,11 +83,38 @@ export function NotificationItem({ notification }) {
         borderBottom: (theme) => `dashed 1px ${theme.vars.palette.divider}`,
       }}
     >
-      {/* {renderUnReadBadge} */}
-
       {renderAvatar}
 
-      <Stack sx={{ flexGrow: 1 }}>{renderText}</Stack>
+      <Stack sx={{ flexGrow: 1 }}>
+        {renderText}
+        {notification.type === 'TICKET' && (
+          <ListItemText
+            disableTypography
+            primary={notification?.data?.title}
+            secondary={
+              <Stack
+                direction="row"
+                alignItems="center"
+                sx={{ typography: 'caption', color: 'text.disabled' }}
+                divider={
+                  <Box
+                    sx={{
+                      width: 2,
+                      height: 2,
+                      bgcolor: 'currentColor',
+                      mx: 0.5,
+                      borderRadius: '50%',
+                    }}
+                  />
+                }
+              >
+                From
+                {`${notification?.data?.createdBy?.firstName} ${notification?.data?.createdBy?.lastName}`}
+              </Stack>
+            }
+          />
+        )}
+      </Stack>
     </ListItemButton>
   );
 }

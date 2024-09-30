@@ -210,7 +210,7 @@ export function OrderStatusView() {
 
   const changeTaskStatus = () => {
     board.columns.forEach((col) => {
-      for (let index = 0; index < board.tasks[col.id].length; index++) {
+      for (let index = 0; index < board.tasks[col.id].length; index += 1) {
         if (col.name === 'In Process') {
           board.tasks[col.id][index].status = 'InProcess';
         }
@@ -236,7 +236,7 @@ export function OrderStatusView() {
       if (task.status === 'Delivered') {
         payload.deliveryDate = dayjs();
         board.columns.forEach((col) => {
-          for (let index = 0; index < board.tasks[col.id].length; index++) {
+          for (let index = 0; index < board.tasks[col.id].length; index += 1) {
             if (board.tasks[col.id][index].id === task.id) {
               board.tasks[col.id][index].deliveryDate = payload.deliveryDate;
             }
@@ -246,7 +246,7 @@ export function OrderStatusView() {
         payload.deliveryDate = null;
         if (task.deliveryDate) {
           board.columns.forEach((col) => {
-            for (let index = 0; index < board.tasks[col.id].length; index++) {
+            for (let index = 0; index < board.tasks[col.id].length; index += 1) {
               if (board.tasks[col.id][index].id === task.id) {
                 board.tasks[col.id][index].deliveryDate = null;
               }

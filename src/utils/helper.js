@@ -1,3 +1,4 @@
+/* eslint-disable dot-notation */
 /**
  * https://github.com/you-dont-need/You-Dont-Need-Lodash-Underscore?tab=readme-ov-file#_flatten
  * https://github.com/you-dont-need-x/you-dont-need-lodash
@@ -141,3 +142,70 @@ export const merge = (target, ...sources) => {
 
 export const sortByDateDesc = (array, key) =>
   array.sort((a, b) => new Date(a[key]) - new Date(b[key]));
+
+// ----------------------------------------------------------------------
+// Function to convert JSON to CSV format
+export const convertToCSV = (array) => {
+  const keys = Object.keys(array[0]);
+  const csvRows = [];
+
+  // Add the header row
+  csvRows.push(keys.join(','));
+
+  // Add the data rows
+  array.forEach((row) => {
+    const values = keys.map((key) => row[key]);
+    csvRows.push(values.join(','));
+  });
+
+  return csvRows.join('\n');
+};
+
+// ----------------------------------------------------------------------
+
+// Function to handle export to Excel
+export const exportToExcel = async (filename, headerSet, data, sheetName = 'Sheet1') => {
+  // Function to remap data based on custom headers and corresponding keys
+  const remapData = (dataset, headers) =>
+    dataset.map((row) => {
+      const remappedRow = {};
+      headers.forEach((head) => {
+        remappedRow[head.displayName] = row[head.key]; // Dynamically map key to display name
+      });
+      return remappedRow;
+    });
+
+  // eslint-disable-next-line import/no-extraneous-dependencies
+  const XLSX = await import('xlsx-js-style'); // Dynamically import the xlsx library
+
+  const remappedData = remapData(data, headerSet); // Use dynamic remapped data
+  const headerDisplayNames = headerSet.map((head) => head.displayName); // Extract header display names
+
+  // Create header styles
+  const headerCellStyle = {
+    font: {
+      bold: true, // Bold font
+      color: { rgb: 'FFFFFF' }, // White text color
+    },
+    fill: {
+      fgColor: { rgb: '4F81BD' }, // Blue background color
+    },
+    alignment: {
+      horizontal: 'center', // Center alignment for header
+    },
+  };
+
+  const worksheet = XLSX.utils.json_to_sheet(remappedData, { header: headerDisplayNames });
+
+  // Apply styles to header cells
+  headerDisplayNames.forEach((_, index) => {
+    const cellAddress = XLSX.utils.encode_cell({ r: 0, c: index }); // Header row is the first row (0-indexed)
+    if (!worksheet[cellAddress]) worksheet[cellAddress] = {}; // Ensure the cell exists
+    worksheet[cellAddress].s = headerCellStyle; // Apply style to the header cell
+  });
+
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, worksheet, sheetName);
+
+  XLSX.writeFile(workbook, `${filename}.xlsx`);
+};

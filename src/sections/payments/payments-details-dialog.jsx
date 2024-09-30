@@ -36,7 +36,7 @@ const PaymentDetailsDialog = ({ payment, open, onClose }) => (
             Order ID:
           </Typography>
           <Typography component="span" variant="body2" sx={{ color: 'text.secondary' }}>
-            ORD-{payment?.id}
+            {payment?.ref}
           </Typography>
         </Box>
         <Box display="flex">

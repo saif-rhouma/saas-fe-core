@@ -1,3 +1,4 @@
+/* eslint-disable no-unsafe-optional-chaining */
 import dayjs from 'dayjs';
 import { z as zod } from 'zod';
 import { useForm } from 'react-hook-form';
@@ -49,7 +50,7 @@ const PaymentEditDialog = ({ payment, open, onClose, handler }) => {
     },
   };
   const { mutate: handleUploadPaymentFile } = useMutation({
-    mutationFn: (file) => axios.post(endpoints.files.upload, file, uploadConfig),
+    mutationFn: (fileUpload) => axios.post(endpoints.files.upload, fileUpload, uploadConfig),
     onSuccess: async ({ data }) => {
       const { name: filename } = data;
       if (filename) {
@@ -75,6 +76,7 @@ const PaymentEditDialog = ({ payment, open, onClose, handler }) => {
     if (payment) {
       reset(defaultValues);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [payment]);
 
   const defaultValues = useMemo(
@@ -143,7 +145,7 @@ const PaymentEditDialog = ({ payment, open, onClose, handler }) => {
                 Order ID:
               </Typography>
               <Typography component="span" variant="body2" sx={{ color: 'text.secondary' }}>
-                ORD-{payment?.id}
+                {payment?.ref}
               </Typography>
             </Box>
             <Box display="flex">

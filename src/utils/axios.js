@@ -33,6 +33,7 @@ export const endpoints = {
   chat: '/api/chat',
   kanban: '/api/oders',
   dashboard: '/api/analytics',
+  download: '/api/files/download/',
   calendar: '/api/calendar',
   auth: {
     me: '/api/auth/me',

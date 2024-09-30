@@ -13,6 +13,7 @@ import { paths } from 'src/routes/paths';
 
 import { useSetState } from 'src/hooks/use-set-state';
 
+import { exportToExcel } from 'src/utils/helper';
 import { fCurrency } from 'src/utils/format-number';
 import { PermissionsType } from 'src/utils/constant';
 import { fIsAfter, fIsBetween } from 'src/utils/format-time';
@@ -175,7 +176,25 @@ const ReportsOrderListView = ({ orders }) => {
               <Box>
                 <Stack direction="row" spacing={1} className="print-hide">
                   <PermissionAccessController permission={PermissionsType.DOWNLOAD_REPORT}>
-                    <Button variant="contained" startIcon={<Iconify icon="mdi:microsoft-excel" />}>
+                    <Button
+                      onClick={() => {
+                        const headers = [
+                          { displayName: 'Date', key: 'orderDate' },
+                          { displayName: 'Order Ref', key: 'ref' },
+                          { displayName: 'Customer', key: 'name' },
+                          { displayName: 'Order Amount', key: 'totalOrderAmount' },
+                          { displayName: 'Status', key: 'status' },
+                        ];
+                        exportToExcel(
+                          'plan reports',
+                          headers,
+                          dataFiltered.map((el) => ({ ...el, name: el?.customer?.name })),
+                          'Stock'
+                        );
+                      }}
+                      variant="contained"
+                      startIcon={<Iconify icon="mdi:microsoft-excel" />}
+                    >
                       Download Report
                     </Button>
                   </PermissionAccessController>

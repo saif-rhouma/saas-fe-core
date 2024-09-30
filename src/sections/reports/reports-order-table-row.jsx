@@ -18,7 +18,7 @@ const ReportsOrderTableRow = ({ row, selected, onViewRow, onSelectRow, onDeleteR
   const renderPrimary = (
     <TableRow hover selected={selected}>
       <TableCell>{fDate(row?.orderDate)}</TableCell>
-      <TableCell>ORD-{row?.id}</TableCell>
+      <TableCell>{row?.ref}</TableCell>
       <TableCell>{row?.customer?.name}</TableCell>
       <TableCell>{fCurrency(row?.totalOrderAmount) || '-'}</TableCell>
       <TableCell>{row?.status}</TableCell>

@@ -61,7 +61,7 @@ export function fCurrency(inputValue, options) {
   const fm = new Intl.NumberFormat(locale.code, {
     style: 'decimal',
     // currency: locale.currency,
-    minimumFractionDigits: 2,
+    minimumFractionDigits: 0,
     maximumFractionDigits: 2,
     ...options,
   }).format(number);

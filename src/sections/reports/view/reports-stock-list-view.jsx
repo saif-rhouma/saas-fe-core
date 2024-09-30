@@ -11,6 +11,7 @@ import { paths } from 'src/routes/paths';
 
 import { useSetState } from 'src/hooks/use-set-state';
 
+import { exportToExcel } from 'src/utils/helper';
 import { PermissionsType } from 'src/utils/constant';
 import { fIsAfter, fIsBetween } from 'src/utils/format-time';
 
@@ -22,7 +23,6 @@ import PermissionAccessController from 'src/components/permission-access-control
 import {
   useTable,
   emptyRows,
-  rowInPage,
   TableNoData,
   getComparator,
   TableEmptyRows,
@@ -74,14 +74,22 @@ const ReportsStockListView = ({ products }) => {
     setTableData(products);
   }, [products]);
 
-  const dataInPage = rowInPage(dataFiltered, table.page, table.rowsPerPage);
-
   const canReset =
     !!filters.state.name ||
     filters.state.status !== 'all' ||
     (!!filters.state.startDate && !!filters.state.endDate);
 
   const notFound = (!dataFiltered.length && canReset) || !dataFiltered.length;
+
+  const headers = [
+    { displayName: 'Product Name', key: 'name' },
+    { displayName: 'Plan Qty', key: 'totals_quantity' },
+    { displayName: 'Pending Stock', key: 'pending_quantity' },
+    { displayName: 'Processing A Stock', key: 'processing_a_quantity' },
+    { displayName: 'Processing B Stock', key: 'processing_b_quantity' },
+    { displayName: 'Ready to Deliver Stock', key: 'ready_quantity' },
+    { displayName: 'In Stock', key: 'in_stock' },
+  ];
 
   return (
     <DashboardContent maxWidth="xl">
@@ -95,8 +103,9 @@ const ReportsStockListView = ({ products }) => {
           action={
             <PermissionAccessController permission={PermissionsType.DOWNLOAD_REPORT}>
               <Button
-                // // component={RouterLink}
-                // href={paths.dashboard.product.new}
+                onClick={() => {
+                  exportToExcel('stock reports', headers, dataFiltered, 'Stock');
+                }}
                 variant="contained"
                 startIcon={<Iconify icon="mdi:microsoft-excel" />}
               >

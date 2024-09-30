@@ -108,13 +108,13 @@ export function OrderListView({ orders, analytics }) {
   const { mutate: deleteOrder } = useMutation({
     mutationFn: (id) => axios.delete(endpoints.order.delete + id),
     onSuccess: async () => {
-      const deleteRow = tableData.filter((row) => row.id !== id);
+      // const deleteRow = tableData.filter((row) => row.id !== id);
 
-      toast.success('Delete success!');
+      toast.success('Order Has Been Canceled!');
 
-      setTableData(deleteRow);
+      // setTableData(deleteRow);
 
-      table.onUpdatePageDeleteRow(dataInPage.length);
+      // table.onUpdatePageDeleteRow(dataInPage.length);
     },
     onSettled: async () => {
       await queryClient.invalidateQueries({ queryKey: ['orders'] });
@@ -312,6 +312,7 @@ function applyFilter({ inputData, comparator, filters, dateError }) {
       (order) =>
         order.id.toString().toLowerCase().indexOf(name.toLowerCase()) !== -1 ||
         order.customer.name.toLowerCase().indexOf(name.toLowerCase()) !== -1 ||
+        order.status.toLowerCase().indexOf(name.toLowerCase()) !== -1 ||
         order.customer.email.toLowerCase().indexOf(name.toLowerCase()) !== -1
     );
   }

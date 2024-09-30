@@ -54,7 +54,7 @@ export const navData = [
         icon: ICONS.file,
         children: [
           { title: 'Products List', path: paths.dashboard.product.root },
-          { title: 'Products Addons', path: paths.dashboard.product.addons },
+          // { title: 'Products Addons', path: paths.dashboard.product.addons },
           { title: 'Product Stock', path: paths.dashboard.product.stock },
         ],
       },

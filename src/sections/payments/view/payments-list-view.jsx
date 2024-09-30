@@ -15,6 +15,7 @@ import { useSetState } from 'src/hooks/use-set-state';
 
 import axios, { endpoints } from 'src/utils/axios';
 import { PermissionsType } from 'src/utils/constant';
+import { downloadFile } from 'src/utils/download-file';
 import { fIsAfter, fIsBetween } from 'src/utils/format-time';
 
 import { DashboardContent } from 'src/layouts/dashboard';
@@ -109,6 +110,11 @@ const PaymentsListView = ({ payments }) => {
   );
 
   const queryClient = useQueryClient();
+
+  const handleDownloadClick = (file) => {
+    downloadFile(file);
+  };
+
   const { mutate: deletePayment } = useMutation({
     mutationFn: (id) => {
       axios.delete(endpoints.payments.delete + id);
@@ -217,6 +223,10 @@ const PaymentsListView = ({ payments }) => {
                             onEditRow={() => handleEditRow(row)}
                             onDeleteRow={() => handleDeleteRow(row.id)}
                             onViewRow={() => handleViewRow(row)}
+                            onViewFileRow={() => {
+                              console.log('---->> row.attachments', row.attachments);
+                              handleDownloadClick(row.attachments);
+                            }}
                           />
                         ))}
 

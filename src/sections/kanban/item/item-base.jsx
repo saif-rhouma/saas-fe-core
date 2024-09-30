@@ -152,7 +152,7 @@ const ItemBase = forwardRef(({ task, stateProps, sx, ...other }, ref) => {
           {renderPriority}
           <Stack direction="row" justifyContent="space-between">
             <Typography variant="subtitle2">{task?.customer?.name}</Typography>
-            <Typography variant="subtitle2">ORD-{task?.id}</Typography>
+            <Typography variant="subtitle2">{task?.ref}</Typography>
           </Stack>
           <Stack direction="row" justifyContent="space-between" sx={{ typography: 'body2' }}>
             <Box sx={{ color: 'text.secondary' }}>Order Date:</Box>

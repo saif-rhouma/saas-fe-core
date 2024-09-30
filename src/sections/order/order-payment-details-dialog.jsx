@@ -48,7 +48,7 @@ const OrderPaymentDetailsDialog = ({ order, payment, open, onClose, handler }) =
     },
   };
   const { mutate: handleUploadPaymentFile } = useMutation({
-    mutationFn: (file) => axios.post(endpoints.files.upload, file, uploadConfig),
+    mutationFn: (fileUpload) => axios.post(endpoints.files.upload, fileUpload, uploadConfig),
     onSuccess: async ({ data }) => {
       const { name: filename } = data;
       if (filename) {
@@ -131,7 +131,7 @@ const OrderPaymentDetailsDialog = ({ order, payment, open, onClose, handler }) =
                 Order ID:
               </Typography>
               <Typography component="span" variant="body2" sx={{ color: 'text.secondary' }}>
-                ORD-{order.id}
+                {order.ref}
               </Typography>
             </Box>
             <Box display="flex">
