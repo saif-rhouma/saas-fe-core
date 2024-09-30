@@ -95,25 +95,26 @@ export function HeaderBase({
 
     const newSocket = io(SERVER_EVENT_ENDPOINT, {
       auth: {
-        authorization: `Bearer ${user.accessToken}`,
+        authorization: `Bearer ${user?.accessToken}`,
       },
     });
 
     setSocket(newSocket);
+    if (newSocket) {
+      newSocket.on('connect', () => {
+        console.log(`---> User Connected Socket ID : ${newSocket.id}`);
+      });
 
-    newSocket.on('connect', () => {
-      console.log(`---> User Connected Socket ID : ${newSocket.id}`);
-    });
-
-    newSocket.on('newNotification', (evt) => {
-      console.log('---> Data', evt);
-      if (evt.type === 'ALARM') {
-        notifyAlarm(evt);
-      } else {
-        notify(evt);
-      }
-      setEvents((prevEvents) => [evt.payload, ...prevEvents]);
-    });
+      newSocket.on('newNotification', (evt) => {
+        console.log('---> Data', evt);
+        if (evt.type === 'ALARM') {
+          notifyAlarm(evt);
+        } else {
+          notify(evt);
+        }
+        setEvents((prevEvents) => [evt.payload, ...prevEvents]);
+      });
+    }
 
     // Clean up on component unmount
     return () => {
