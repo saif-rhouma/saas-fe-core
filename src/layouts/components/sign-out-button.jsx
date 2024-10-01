@@ -30,8 +30,6 @@ export function SignOutButton({ onClose, ...other }) {
 
   const { checkUserSession } = useAuthContext();
 
-  const { logout: signOutAuth0 } = useAuth0();
-
   const handleLogout = useCallback(async () => {
     try {
       await signOut();
@@ -45,27 +43,8 @@ export function SignOutButton({ onClose, ...other }) {
     }
   }, [checkUserSession, onClose, router]);
 
-  const handleLogoutAuth0 = useCallback(async () => {
-    try {
-      await signOutAuth0();
-
-      onClose?.();
-      router.refresh();
-    } catch (error) {
-      console.error(error);
-      toast.error('Unable to logout!');
-    }
-  }, [onClose, router, signOutAuth0]);
-
   return (
-    <Button
-      fullWidth
-      variant="soft"
-      size="large"
-      color="error"
-      onClick={CONFIG.auth.method === 'auth0' ? handleLogoutAuth0 : handleLogout}
-      {...other}
-    >
+    <Button fullWidth variant="soft" size="large" color="error" onClick={handleLogout} {...other}>
       Logout
     </Button>
   );

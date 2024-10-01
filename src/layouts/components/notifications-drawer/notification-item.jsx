@@ -24,7 +24,7 @@ export function NotificationItem({ notification }) {
         >
           <Box
             component="img"
-            src={`${CONFIG.site.basePath}/assets/icons/notification/${(notification.type === 'ALARM' && 'ic-glass-message') || (notification.type === 'TICKET' && 'ic-mail') || (notification.type === 'mail' && 'ic-mail') || (notification.type === 'delivery' && 'ic-delivery')}.svg`}
+            src={`${CONFIG.site.basePath}/assets/icons/notification/${(notification.type === 'ALARM' && 'ic-glass-message') || ((notification.type === 'TICKET' || notification.type === 'HISTORY') && 'ic-mail') || (notification.type === 'mail' && 'ic-mail') || (notification.type === 'delivery' && 'ic-delivery')}.svg`}
             sx={{ width: 24, height: 24 }}
           />
         </Stack>
@@ -87,7 +87,7 @@ export function NotificationItem({ notification }) {
 
       <Stack sx={{ flexGrow: 1 }}>
         {renderText}
-        {notification.type === 'TICKET' && (
+        {(notification.type === 'TICKET' || notification.type === 'HISTORY') && (
           <ListItemText
             disableTypography
             primary={notification?.data?.title}

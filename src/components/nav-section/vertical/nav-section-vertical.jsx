@@ -1,8 +1,11 @@
 import { useState, useCallback } from 'react';
 
+import { Box } from '@mui/material';
 import Stack from '@mui/material/Stack';
 import Collapse from '@mui/material/Collapse';
 import { useTheme } from '@mui/material/styles';
+
+import { SignOutButton } from 'src/layouts/components/sign-out-button';
 
 import { NavList } from './nav-list';
 import { navSectionClasses } from '../classes';
@@ -65,6 +68,9 @@ function Group({ items, render, subheader, slotProps, enabledRootRedirect }) {
           enabledRootRedirect={enabledRootRedirect}
         />
       ))}
+      <Box sx={{ p: 2.5 }}>
+        <SignOutButton />
+      </Box>
     </NavUl>
   );
 

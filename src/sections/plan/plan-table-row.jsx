@@ -23,7 +23,7 @@ export function PlanTableRow({ row, index, selected, onViewRow, onEditRow, onDel
   const confirm = useBoolean();
 
   const popover = usePopover();
-  console.log('----->> row?.ref', row);
+
   const renderPrimary = (
     <TableRow hover selected={selected}>
       <TableCell>

@@ -106,13 +106,26 @@ export function HeaderBase({
       });
 
       newSocket.on('newNotification', (evt) => {
-        console.log('---> Data', evt);
         if (evt.type === 'ALARM') {
           notifyAlarm(evt);
-        } else {
+          setEvents((prevEvents) => [evt.payload, ...prevEvents]);
+        }
+
+        if (evt.type === 'HISTORY') {
+          notify(evt);
+          setEvents((prevEvents) => [
+            ...evt.payload.data.map((item) => ({
+              message: `Open Ticket: ${item.topic}`,
+              type: 'HISTORY',
+              data: item,
+            })),
+            ...prevEvents,
+          ]);
+        }
+
+        if (evt.type === 'MESSAGE') {
           notify(evt);
         }
-        setEvents((prevEvents) => [evt.payload, ...prevEvents]);
       });
     }
 

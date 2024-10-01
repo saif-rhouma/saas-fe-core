@@ -11,7 +11,6 @@ import {
 } from '@mui/material';
 
 const OrderDiscountProductDialog = ({ product, discount, open, onClose, handler }) => {
-  console.log('>>> -discount', discount);
   const [amount, setAmount] = useState(discount);
   useEffect(() => {
     setAmount(discount);

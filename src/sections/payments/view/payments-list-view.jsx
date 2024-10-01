@@ -224,7 +224,6 @@ const PaymentsListView = ({ payments }) => {
                             onDeleteRow={() => handleDeleteRow(row.id)}
                             onViewRow={() => handleViewRow(row)}
                             onViewFileRow={() => {
-                              console.log('---->> row.attachments', row.attachments);
                               handleDownloadClick(row.attachments);
                             }}
                           />

@@ -51,7 +51,7 @@ export const navData = [
       {
         title: 'Products',
         path: paths.dashboard.product.root,
-        icon: ICONS.file,
+        icon: ICONS.product,
         children: [
           { title: 'Products List', path: paths.dashboard.product.root },
           // { title: 'Products Addons', path: paths.dashboard.product.addons },
@@ -61,11 +61,11 @@ export const navData = [
       { title: 'Orders Status', path: paths.dashboard.order.status, icon: ICONS.menuItem },
       { title: 'Plans', path: paths.dashboard.plan.root, icon: ICONS.booking },
       { title: 'Plans Status', path: paths.dashboard.plan.status, icon: ICONS.menuItem },
-      { title: 'Customers', path: paths.dashboard.customers.root, icon: ICONS.course },
+      { title: 'Customers', path: paths.dashboard.customers.root, icon: ICONS.label },
       { title: 'Payments', path: paths.dashboard.payments.root, icon: ICONS.invoice },
       { title: 'Reminders', path: paths.dashboard.reminders.root, icon: ICONS.calendar },
-      { title: 'Tickets', path: paths.dashboard.tickets.root, icon: ICONS.external },
-      { title: 'Staff', path: paths.dashboard.staff.root, icon: ICONS.label },
+      { title: 'Tickets', path: paths.dashboard.tickets.root, icon: ICONS.job },
+      { title: 'Staff', path: paths.dashboard.staff.root, icon: ICONS.user },
       {
         title: 'Reports',
         path: paths.dashboard.reports.root,
@@ -87,7 +87,7 @@ export const navData = [
           { title: 'Master Setting', path: paths.dashboard.tools.master },
         ],
       },
-      { title: 'Logout', path: paths.dashboard.general.course, icon: ICONS.course },
+      // { title: 'Logout', path: paths.dashboard.general.course, icon: ICONS.disabled },
     ],
   },
 ];
@@ -100,7 +100,7 @@ export const navDataInit = [
     // subheader: 'Overview',
     items: [
       { title: 'Dashboard', path: paths.dashboard.root, icon: ICONS.dashboard },
-      { title: 'Logout', path: paths.dashboard.general.course, icon: ICONS.course },
+      // { title: 'Logout', path: paths.dashboard.general.course, icon: ICONS.disabled },
     ],
   },
 ];

@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
 import Badge from '@mui/material/Badge';
+import { Tooltip } from '@mui/material';
 import Drawer from '@mui/material/Drawer';
 import SvgIcon from '@mui/material/SvgIcon';
 import Typography from '@mui/material/Typography';
@@ -31,7 +32,9 @@ export function NotificationsDrawer({ data = [], sx, ...other }) {
   const totalUnRead = notifications.filter((item) => item.isUnRead === true).length;
 
   const handleMarkAllAsRead = () => {
-    setNotifications(notifications.map((notification) => ({ ...notification, isUnRead: false })));
+    setNotifications(
+      notifications.filter((item) => item.type === 'HISTORY' || item.type === 'TICKET')
+    );
   };
 
   const renderHead = (
@@ -40,13 +43,13 @@ export function NotificationsDrawer({ data = [], sx, ...other }) {
         Notifications
       </Typography>
 
-      {/* {!!totalUnRead && (
+      {!!totalUnRead && (
         <Tooltip title="Mark all as read">
           <IconButton color="primary" onClick={handleMarkAllAsRead}>
             <Iconify icon="eva:done-all-fill" />
           </IconButton>
         </Tooltip>
-      )} */}
+      )}
 
       <IconButton onClick={drawer.onFalse} sx={{ display: { xs: 'inline-flex', sm: 'none' } }}>
         <Iconify icon="mingcute:close-line" />

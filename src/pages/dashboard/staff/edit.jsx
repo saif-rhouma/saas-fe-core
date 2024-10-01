@@ -19,8 +19,6 @@ const metadata = { title: `Staff edit | Dashboard - ${CONFIG.site.name}` };
 export default function Page() {
   const { id = '' } = useParams();
 
-  console.log(id);
-
   const response = useQuery({
     queryKey: ['staff', id],
     queryFn: async () => {
