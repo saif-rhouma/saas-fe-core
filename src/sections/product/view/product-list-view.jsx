@@ -114,6 +114,13 @@ export function ProductListView({ products, taxPercentage }) {
     [router]
   );
 
+  const handleViewRow = useCallback(
+    (id) => {
+      router.push(paths.dashboard.product.details(id));
+    },
+    [router]
+  );
+
   const queryClient = useQueryClient();
 
   const { mutate: deleteProduct } = useMutation({
@@ -218,6 +225,7 @@ export function ProductListView({ products, taxPercentage }) {
                             index={table.page * table.rowsPerPage + index + 1}
                             selected={table.selected.includes(row.id)}
                             onEditRow={() => handleEditRow(row.id)}
+                            onViewRow={() => handleViewRow(row.id)}
                             onDeleteRow={() => handleDeleteRow(row.id)}
                             taxPercentage={taxPercentage}
                           />

@@ -49,7 +49,7 @@ const ReminderCreateDialog = ({ currentReminder, open, onClose, handler }) => {
   };
 
   const { mutate: handleUploadReminderFile } = useMutation({
-    mutationFn: (file) => axios.post(endpoints.files.upload, file, uploadConfig),
+    mutationFn: (fnFile) => axios.post(endpoints.files.upload, fnFile, uploadConfig),
     onSuccess: async ({ data }) => {
       const { name: filename } = data;
       if (filename) {
@@ -90,6 +90,7 @@ const ReminderCreateDialog = ({ currentReminder, open, onClose, handler }) => {
     if (currentReminder) {
       reset(defaultValues);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentReminder]);
 
   const methods = useForm({

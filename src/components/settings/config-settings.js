@@ -10,7 +10,7 @@ export const defaultSettings = {
   direction: 'ltr',
   contrast: 'default',
   navLayout: 'vertical',
-  primaryColor: 'default',
+  primaryColor: 'cyan',
   navColor: 'integrate',
   compactLayout: true,
   fontFamily: defaultFont,

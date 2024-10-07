@@ -35,7 +35,9 @@ const OrderDiscountProductDialog = ({ product, discount, open, onClose, handler 
         <Button
           type="submit"
           variant="contained"
-          onClick={() => handler(product.index, product.product, amount)}
+          onClick={() => {
+            handler(product.index, amount);
+          }}
         >
           Confirm
         </Button>

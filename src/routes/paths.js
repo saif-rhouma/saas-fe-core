@@ -154,8 +154,8 @@ export const paths = {
     },
     customers: {
       root: `${ROOTS.DASHBOARD}/customer`,
+      details: (id) => `${ROOTS.DASHBOARD}/customer/${id}`,
       // new: `${ROOTS.DASHBOARD}/plan/new`,
-      // details: (id) => `${ROOTS.DASHBOARD}/plan/${id}`,
       // edit: (id) => `${ROOTS.DASHBOARD}/plan/${id}/edit`,
       // demo: {
       //   details: `${ROOTS.DASHBOARD}/plan/${MOCK_ID}`,

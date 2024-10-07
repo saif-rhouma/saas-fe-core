@@ -6,12 +6,11 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
-import { Button } from '@mui/material';
 import Stack from '@mui/material/Stack';
 import { LoadingButton } from '@mui/lab';
 import Divider from '@mui/material/Divider';
 import Accordion from '@mui/material/Accordion';
-import Typography from '@mui/material/Typography';
+import { Button, FormControlLabel } from '@mui/material';
 import AccordionDetails from '@mui/material/AccordionDetails';
 import AccordionSummary from '@mui/material/AccordionSummary';
 
@@ -27,6 +26,7 @@ import { CONFIG } from 'src/config-global';
 import { toast } from 'src/components/snackbar';
 import { Iconify } from 'src/components/iconify';
 import { Form, Field } from 'src/components/hook-form';
+import { ConfirmDialog } from 'src/components/custom-dialog';
 import ProductItemButton from 'src/components/product/product-Item-button';
 
 import ProductUploadImageDialog from './product-upload-image-dialog';
@@ -35,6 +35,7 @@ import ProductUploadImageDialog from './product-upload-image-dialog';
 export const NewProductSchema = zod.object({
   name: zod.string().min(1, { message: 'Name is required!' }),
   price: zod.number().min(1, { message: 'Price should not be $0.00' }),
+  description: zod.string(),
   isActive: zod.boolean(),
 });
 
@@ -43,17 +44,24 @@ export const NewProductSchema = zod.object({
 export function ProductNewEditForm({ currentProduct, productsImages }) {
   const router = useRouter();
 
+  const confirm = useBoolean();
+
   const dialog = useBoolean();
 
   const defaultValues = useMemo(
     () => ({
       name: currentProduct?.name || '',
+      description: currentProduct?.description || '',
       price: currentProduct?.price || 0,
       images: currentProduct?.images || [],
-      isActive: currentProduct?.isActive,
+      isActive: currentProduct?.isActive === undefined ? true : currentProduct?.isActive,
     }),
     [currentProduct]
   );
+
+  const [expanded, setExpanded] = useState(true);
+  const [selectedDeletedImages, setSelectedDeletedImages] = useState([]);
+  const [deletedAction, setDeleteAction] = useState(false);
 
   const [selectedImage, setSelectedImage] = useState();
   const [file, setFile] = useState();
@@ -174,13 +182,26 @@ export function ProductNewEditForm({ currentProduct, productsImages }) {
     },
   });
 
-  const { mutate: handleDeleteImage } = useMutation({
-    mutationFn: (payload) => axios.delete(endpoints.files.delete + payload),
+  const handleDeleteImages = (payload) => {
+    const objectExists = selectedDeletedImages.some((item) => item === payload);
+
+    if (!objectExists) {
+      const newData = [...selectedDeletedImages, payload];
+      setSelectedDeletedImages(newData);
+    } else {
+      const newData = selectedDeletedImages.filter((item) => item !== payload);
+      setSelectedDeletedImages(newData);
+    }
+  };
+
+  const { mutate: deleteMultipleImages } = useMutation({
+    mutationFn: (payload) => axios.delete(endpoints.files.deletes, payload),
     onSuccess: async () => {
-      toast.success('Image Has been Deleted!');
-    },
-    onSettled: async () => {
+      toast.success(`${selectedDeletedImages.length} has been deleted!`);
       await queryClient.invalidateQueries({ queryKey: ['products-images'] });
+    },
+    onSettled: () => {
+      confirm.onFalse();
     },
     onError: (err) => {
       console.log(err);
@@ -191,83 +212,171 @@ export function ProductNewEditForm({ currentProduct, productsImages }) {
     <>
       <Card>
         <Form methods={methods} onSubmit={onSubmit}>
-          <Stack spacing={4} sx={{ p: 3 }}>
+          <Stack
+            spacing={4}
+            sx={{ p: 3 }}
+            display="grid"
+            gridTemplateColumns={{ xs: 'repeat(1, 1fr)', md: 'repeat(2, 1fr)' }}
+          >
             <Box
               columnGap={2}
               rowGap={3}
-              display="grid"
-              gridTemplateColumns={{ xs: 'repeat(1, 1fr)', md: 'repeat(2, 1fr)' }}
-            >
-              <Field.Text fullWidth label="Product Name" name="name" />
-              <Field.Text fullWidth type="number" label="Product Price" name="price" />
-            </Box>
-            {currentProduct && currentProduct.image === selectedImage && (
-              <Box
-                spacing={2}
-                gap={3}
-                display="grid"
-                gridTemplateColumns={{ xs: 'repeat(2, 1fr)', md: 'repeat(12, 1fr)' }}
-              >
-                <ProductItemButton
-                  image={CONFIG.site.serverFileHost + currentProduct.image}
-                  handleClick={handleSelectedImage}
-                  selected={currentProduct.image === selectedImage}
-                />
-              </Box>
-            )}
-
-            <Box
-              sx={{
-                borderRadius: 1,
-                overflow: 'hidden',
-                border: (theme) => `solid 1px ${theme.vars.palette.divider}`,
-              }}
-            >
-              <Accordion>
-                <AccordionSummary expandIcon={<Iconify icon="eva:arrow-ios-downward-fill" />}>
-                  <Typography>Select Icon</Typography>
-                </AccordionSummary>
-
-                <Divider />
-                <AccordionDetails>
-                  <Box
-                    spacing={2}
-                    gap={3}
-                    display="grid"
-                    gridTemplateColumns={{ xs: 'repeat(2, 1fr)', md: 'repeat(12, 1fr)' }}
-                  >
-                    {productsImages.map((img) => (
-                      <ProductItemButton
-                        image={CONFIG.site.serverFileHost + img.name}
-                        handleClick={handleSelectedImage}
-                        handleDelete={handleDeleteImage}
-                        payload={img.name}
-                        selected={img.name === selectedImage}
-                      />
-                    ))}
-                    <ProductItemButton
-                      image={`${CONFIG.site.basePath}/assets/upload-img.png`}
-                      handleClick={() => dialog.onToggle()}
-                    />
-                  </Box>
-                </AccordionDetails>
-              </Accordion>
-            </Box>
-            <Field.Switch name="isActive" label="Is Active?" />
-            <Box
               display="flex"
               flexDirection="column"
-              alignItems="flex-end"
-              justifyContent="center"
+              // gridTemplateColumns={{ xs: 'repeat(1, 1fr)', md: 'repeat(2, 1fr)' }}
             >
-              <Box display="flex" gap={2} height={50}>
-                <LoadingButton type="submit" variant="contained">
-                  Save
-                </LoadingButton>
-                <Button variant="outlined">Cancel</Button>
+              <Field.Text fullWidth label="Product Name" name="name" />
+              <Field.Text fullWidth name="description" label="Description" />
+              <Field.Text fullWidth type="number" label="Product Price" name="price" />
+              {currentProduct && <Field.Switch name="isActive" label="Is Active?" />}
+            </Box>
+
+            <Box>
+              {/* {currentProduct && currentProduct.image === selectedImage && (
+                <Box
+                  spacing={2}
+                  gap={3}
+                  display="grid"
+                  gridTemplateColumns={{ xs: 'repeat(2, 1fr)', md: 'repeat(12, 1fr)' }}
+                >
+                  <ProductItemButton
+                    image={CONFIG.site.serverFileHost + currentProduct.image}
+                    handleClick={handleSelectedImage}
+                    selected={currentProduct.image === selectedImage}
+                  />
+                </Box>
+              )} */}
+              <Box
+                sx={{
+                  borderRadius: 1,
+                  overflow: 'hidden',
+                  border: (theme) => `solid 1px ${theme.vars.palette.divider}`,
+                }}
+              >
+                <Accordion
+                  defaultExpanded={currentProduct}
+                  expanded={expanded}
+                  onChange={() => {
+                    setExpanded(!expanded);
+                  }}
+                >
+                  <AccordionSummary expandIcon={<Iconify icon="eva:arrow-ios-downward-fill" />}>
+                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                      {/* <Typography>Select Icon</Typography> */}
+
+                      {!deletedAction && (
+                        <FormControlLabel
+                          sx={{ ml: 1, mr: 1 }}
+                          onClick={(event) => event.stopPropagation()}
+                          onFocus={(event) => event.stopPropagation()}
+                          control={
+                            <Button
+                              variant="outlined"
+                              onClick={() => {
+                                setExpanded(true);
+                                dialog.onToggle();
+                              }}
+                              startIcon={<Iconify icon="eva:cloud-upload-fill" />}
+                            >
+                              Upload Image
+                            </Button>
+                          }
+                        />
+                      )}
+
+                      <FormControlLabel
+                        sx={{ ml: 1, mr: 1 }}
+                        onClick={(event) => event.stopPropagation()}
+                        onFocus={(event) => event.stopPropagation()}
+                        control={
+                          <Button
+                            variant="outlined"
+                            color="error"
+                            onClick={(event) => {
+                              setDeleteAction(true);
+                              setExpanded(true);
+                              if (selectedDeletedImages.length > 0) {
+                                confirm.onToggle();
+                              }
+                            }}
+                            startIcon={<Iconify icon="solar:trash-bin-trash-bold" />}
+                          >
+                            {deletedAction
+                              ? selectedDeletedImages.length > 0
+                                ? `Deletes ${selectedDeletedImages.length} Images`
+                                : 'Select Image(s)'
+                              : 'Delete'}
+                          </Button>
+                        }
+                      />
+
+                      {deletedAction && (
+                        <FormControlLabel
+                          sx={{ ml: 1, mr: 1 }}
+                          onClick={(event) => event.stopPropagation()}
+                          onFocus={(event) => event.stopPropagation()}
+                          control={
+                            <Button
+                              variant="outlined"
+                              color="warning"
+                              startIcon={<Iconify icon="ooui:cancel" />}
+                              onClick={() => {
+                                setDeleteAction(false);
+                                setSelectedDeletedImages([]);
+                              }}
+                            >
+                              Cancel Deletion
+                            </Button>
+                          }
+                        />
+                      )}
+                    </Box>
+                  </AccordionSummary>
+
+                  <Divider />
+                  <AccordionDetails>
+                    <Box
+                      spacing={2}
+                      gap={3}
+                      display="grid"
+                      gridTemplateColumns={{ xs: 'repeat(2, 1fr)', md: 'repeat(6, 1fr)' }}
+                    >
+                      {productsImages.map((img) => (
+                        <ProductItemButton
+                          image={CONFIG.site.serverFileHost + img.name}
+                          handleClick={handleSelectedImage}
+                          handleDelete={handleDeleteImages}
+                          payload={img.name}
+                          selected={img.name === selectedImage}
+                          deletedAction={deletedAction}
+                          deletedImages={selectedDeletedImages}
+                        />
+                      ))}
+                      {/* <ProductItemButton
+                        image={`${CONFIG.site.basePath}/assets/upload-img.png`}
+                        handleClick={() => dialog.onToggle()}
+                      /> */}
+                    </Box>
+                  </AccordionDetails>
+                </Accordion>
               </Box>
             </Box>
           </Stack>
+          <Box
+            spacing={4}
+            sx={{ p: 3 }}
+            display="flex"
+            flexDirection="column"
+            alignItems="flex-end"
+            justifyContent="center"
+          >
+            <Box display="flex" gap={2} height={50}>
+              <LoadingButton type="submit" variant="contained">
+                Save
+              </LoadingButton>
+              <Button variant="outlined">Cancel</Button>
+            </Box>
+          </Box>
         </Form>
       </Card>
       <ProductUploadImageDialog
@@ -277,6 +386,28 @@ export function ProductNewEditForm({ currentProduct, productsImages }) {
         handleUpload={handleUpload}
         handleDrop={handleDropSingleFile}
         handleDelete={handleDelete}
+      />
+      <ConfirmDialog
+        open={confirm.value}
+        onClose={confirm.onFalse}
+        title="Delete"
+        content={`Are you sure want to delete ${selectedDeletedImages.length} Images?`}
+        action={
+          <Button
+            variant="contained"
+            color="error"
+            onClick={() => {
+              const payload = {
+                files: selectedDeletedImages,
+              };
+              deleteMultipleImages({ data: payload });
+              setSelectedDeletedImages([]);
+              setDeleteAction(false);
+            }}
+          >
+            Delete
+          </Button>
+        }
       />
     </>
   );

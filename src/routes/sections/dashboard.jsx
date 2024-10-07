@@ -30,6 +30,7 @@ const ProductAddonsPage = lazy(() => import('src/pages/dashboard/product/addons'
 const ProductStockPage = lazy(() => import('src/pages/dashboard/product/stock'));
 // Customer
 const CustomerListPage = lazy(() => import('src/pages/dashboard/customers/list'));
+const CustomerDetailsPage = lazy(() => import('src/pages/dashboard/customers/details'));
 // Payments
 const PaymentsListPage = lazy(() => import('src/pages/dashboard/payments/list'));
 // Reminders
@@ -49,7 +50,7 @@ const ReportsStockListPage = lazy(() => import('src/pages/dashboard/reports/stoc
 // const ReportsCustomListPage = lazy(() => import('src/pages/dashboard/reports/custom-list'));
 // Tools
 const ToolsAccountPage = lazy(() => import('src/pages/dashboard/tools/list'));
-const ToolsFinancialPage = lazy(() => import('src/pages/dashboard/tools/financial'));
+// const ToolsFinancialPage = lazy(() => import('src/pages/dashboard/tools/financial'));
 const ToolsMasterPage = lazy(() => import('src/pages/dashboard/tools/master'));
 // Order Status
 const OrderStatus = lazy(() => import('src/pages/dashboard/order/status'));
@@ -110,6 +111,7 @@ export const dashboardRoutes = [
         children: [
           { element: <CustomerListPage />, index: true },
           { path: 'list', element: <CustomerListPage /> },
+          { path: ':id', element: <CustomerDetailsPage /> },
         ],
       },
       {
@@ -158,7 +160,7 @@ export const dashboardRoutes = [
         children: [
           { element: <ToolsAccountPage />, index: true },
           { path: 'account-setting', element: <ToolsAccountPage /> },
-          { path: 'financial-year', element: <ToolsFinancialPage /> },
+          // { path: 'financial-year', element: <ToolsFinancialPage /> },
           { path: 'master-setting', element: <ToolsMasterPage /> },
         ],
       },

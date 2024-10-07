@@ -14,7 +14,7 @@ import { ErrorBlock } from 'src/sections/error/error-block';
 import { StaffCreateView } from 'src/sections/staff/view/staff-create-view';
 // ----------------------------------------------------------------------
 
-const metadata = { title: `Staff edit | Dashboard - ${CONFIG.site.name}` };
+const metadata = { title: `User edit | Dashboard - ${CONFIG.site.name}` };
 
 export default function Page() {
   const { id = '' } = useParams();

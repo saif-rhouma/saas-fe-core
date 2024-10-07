@@ -35,7 +35,7 @@ const useNavData = (navData, permissions, role) => {
           if (item.title === 'Reminders' && !hasPermission(PermissionsType.REMINDER_LIST))
             return false;
           if (item.title === 'Tickets' && !hasPermission(PermissionsType.TICKET_LIST)) return false;
-          if (item.title === 'Staff' && !hasPermission(PermissionsType.STAFF_LIST)) return false;
+          if (item.title === 'Users' && !hasPermission(PermissionsType.STAFF_LIST)) return false;
           if (
             item.title === 'Reports' &&
             !hasPermissions([
@@ -47,7 +47,7 @@ const useNavData = (navData, permissions, role) => {
           )
             return false;
           if (
-            item.title === 'Tools' &&
+            item.title === 'Settings' &&
             !hasPermissions([
               PermissionsType.ACCOUNT_SETTINGS,
               PermissionsType.MASTER_SETTINGS,

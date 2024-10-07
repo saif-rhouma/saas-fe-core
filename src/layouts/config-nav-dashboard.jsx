@@ -65,7 +65,7 @@ export const navData = [
       { title: 'Payments', path: paths.dashboard.payments.root, icon: ICONS.invoice },
       { title: 'Reminders', path: paths.dashboard.reminders.root, icon: ICONS.calendar },
       { title: 'Tickets', path: paths.dashboard.tickets.root, icon: ICONS.job },
-      { title: 'Staff', path: paths.dashboard.staff.root, icon: ICONS.user },
+      { title: 'Users', path: paths.dashboard.staff.root, icon: ICONS.user },
       {
         title: 'Reports',
         path: paths.dashboard.reports.root,
@@ -78,12 +78,12 @@ export const navData = [
         ],
       },
       {
-        title: 'Tools',
+        title: 'Settings',
         path: paths.dashboard.tools.root,
         icon: ICONS.course,
         children: [
           { title: 'Account Settings', path: paths.dashboard.tools.root },
-          { title: 'Financial Year', path: paths.dashboard.tools.financial },
+          // { title: 'Financial Year', path: paths.dashboard.tools.financial },
           { title: 'Master Setting', path: paths.dashboard.tools.master },
         ],
       },

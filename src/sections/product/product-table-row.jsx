@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 
 import Button from '@mui/material/Button';
 import MenuItem from '@mui/material/MenuItem';
@@ -6,7 +6,10 @@ import MenuList from '@mui/material/MenuList';
 import TableRow from '@mui/material/TableRow';
 import TableCell from '@mui/material/TableCell';
 import IconButton from '@mui/material/IconButton';
-import { Box, Stack, Paper, Avatar, Collapse, ListItemText } from '@mui/material';
+import { Box, Stack, Paper, Avatar, Collapse } from '@mui/material';
+
+import { paths } from 'src/routes/paths';
+import { useRouter } from 'src/routes/hooks';
 
 import { useBoolean } from 'src/hooks/use-boolean';
 
@@ -22,13 +25,26 @@ import { ConfirmDialog } from 'src/components/custom-dialog';
 import { usePopover, CustomPopover } from 'src/components/custom-popover';
 import PermissionAccessController from 'src/components/permission-access-controller/permission-access-controller';
 
-const ProductTableRow = ({ row, index, taxPercentage, selected, onDeleteRow, onEditRow }) => {
-  const [hasOrders, setHasOrders] = useState(
-    row?.productToOrder.filter((item) => item?.order?.status === 'Delivered').length > 0
-  );
+const ProductTableRow = ({ row, index, selected, onViewRow, onDeleteRow, onEditRow }) => {
+  const [hasOrders, setHasOrders] = useState(row?.productToOrder.length > 0);
   const confirm = useBoolean();
   const collapse = useBoolean();
   const popover = usePopover();
+  const router = useRouter();
+  const handleViewOrder = useCallback(
+    (id) => {
+      router.push(paths.dashboard.order.details(id));
+    },
+    [router]
+  );
+
+  const handleViewProduct = useCallback(
+    (id) => {
+      router.push(paths.dashboard.product.details(id));
+    },
+    [router]
+  );
+
   const renderPrimary = (
     <TableRow hover selected={selected}>
       <TableCell>{index || row?.id}</TableCell>
@@ -73,7 +89,6 @@ const ProductTableRow = ({ row, index, taxPercentage, selected, onDeleteRow, onE
       </TableCell>
     </TableRow>
   );
-
   const renderSecondary = (
     <TableRow>
       <TableCell sx={{ p: 0, border: 'none' }} colSpan={8}>
@@ -83,11 +98,35 @@ const ProductTableRow = ({ row, index, taxPercentage, selected, onDeleteRow, onE
           unmountOnExit
           sx={{ bgcolor: 'background.neutral' }}
         >
-          {}
           <Paper sx={{ m: 1.5 }}>
-            {row?.productToOrder
-              .filter((item) => item?.order?.status === 'Delivered')
-              .map((item) => (
+            {row?.productToOrder.map((item, idx) => {
+              if (idx === 5) {
+                return (
+                  <Stack
+                    key={item.id}
+                    alignItems="flex-end"
+                    sx={{
+                      p: (theme) => theme.spacing(1.5, 2, 1.5, 1.5),
+                      '&:not(:last-of-type)': {
+                        borderBottom: (theme) =>
+                          `solid 2px ${theme.vars.palette.background.neutral}`,
+                      },
+                    }}
+                  >
+                    <Button
+                      variant="contained"
+                      size="small"
+                      endIcon={<Iconify icon="heroicons-outline:external-link" />}
+                      onClick={() => {
+                        handleViewProduct(row.id);
+                      }}
+                    >
+                      See More
+                    </Button>
+                  </Stack>
+                );
+              }
+              return (
                 <Stack
                   key={item.id}
                   direction="row"
@@ -99,39 +138,59 @@ const ProductTableRow = ({ row, index, taxPercentage, selected, onDeleteRow, onE
                     },
                   }}
                 >
-                  <ListItemText
-                    primary={`${item?.order?.ref}`}
-                    secondary={item.sku}
-                    primaryTypographyProps={{ typography: 'body2' }}
-                    secondaryTypographyProps={{
-                      component: 'span',
-                      color: 'text.disabled',
-                      mt: 0.5,
+                  <Box
+                    onClick={() => handleViewOrder(item?.order?.id)}
+                    sx={{
+                      width: 240,
+                      display: 'flex',
+                      gap: 1,
+                      alignItems: 'center',
+                      cursor: 'pointer',
+                      marginRight: 5,
                     }}
-                  />
+                  >
+                    <Iconify icon="heroicons-outline:external-link" />
+                    <span>{item?.order?.ref}</span>
+                  </Box>
 
-                  <Box sx={{ color: 'error.main', fontWeight: 'bold' }}>
+                  <Box
+                    sx={{
+                      width: '100%',
+                      display: 'flex',
+                      gap: 1,
+                      alignItems: 'center',
+                      // cursor: 'pointer',
+                    }}
+                  >
+                    {/* <Iconify icon="heroicons-outline:external-link" />{' '} */}
+                    <span>{item.order?.customer?.name}</span>
+                  </Box>
+
+                  <Box sx={{ width: 240, color: 'error.main', fontWeight: 'bold' }}>
                     x{item.quantity}{' '}
                     <span
                       style={{
                         color: '#000',
                         fontWeight: '400',
                       }}
-                    >{`(${fCurrency(item.quantity * (row?.price || 0))})`}</span>
+                    >{`(${fCurrency(item?.snapshotProductPrice)})`}</span>
                   </Box>
 
-                  <Box sx={{ width: 140, textAlign: 'right' }}>{item.order?.status}</Box>
-                  <Box sx={{ width: 140, textAlign: 'right' }}>
+                  <Box sx={{ width: 200, textAlign: 'right' }}>{item.order?.status}</Box>
+                  <Box sx={{ width: 300, textAlign: 'right' }}>
                     {fCurrency(
                       calculateAfterTax(
                         // eslint-disable-next-line no-unsafe-optional-chaining
-                        item.order?.totalOrderAmount - item.order?.discount,
-                        taxPercentage
+                        item.order?.totalOrderAmount -
+                          // eslint-disable-next-line no-unsafe-optional-chaining
+                          item.order?.totalOrderAmount * (item.order?.discount / 100),
+                        item.order?.snapshotTaxPercentage
                       )
                     ) || '-'}
                   </Box>
                 </Stack>
-              ))}
+              );
+            })}
           </Paper>
         </Collapse>
       </TableCell>
@@ -151,6 +210,15 @@ const ProductTableRow = ({ row, index, taxPercentage, selected, onDeleteRow, onE
         slotProps={{ arrow: { placement: 'right-top' } }}
       >
         <MenuList>
+          <MenuItem
+            onClick={() => {
+              onViewRow();
+              popover.onClose();
+            }}
+          >
+            <Iconify icon="solar:eye-bold" />
+            View
+          </MenuItem>
           <PermissionAccessController permission={PermissionsType.EDIT_PRODUCT}>
             <MenuItem
               onClick={() => {

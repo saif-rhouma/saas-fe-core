@@ -1,4 +1,4 @@
-import { Box, Stack, Table, Button, TableRow, TableBody, TableCell } from '@mui/material';
+import { Box, Table, Button, TableRow, TableBody, TableCell } from '@mui/material';
 
 import { fCurrency } from 'src/utils/format-number';
 
@@ -8,7 +8,6 @@ import { Iconify } from 'src/components/iconify';
 import { TableHeadCustom } from 'src/components/table';
 
 import { IncrementerButton } from '../product/components/incrementer-button';
-import { IncrementPercentageButton } from '../product/components/incrementer-percentage-button';
 
 const OrderProductTable = ({
   products,
@@ -22,15 +21,9 @@ const OrderProductTable = ({
 }) => {
   const TABLE_HEAD = [
     { id: 'orderNumber', label: '#', width: 40, align: 'center' },
-    { id: 'name', label: 'Product Name' },
-
-    {
-      id: 'rate',
-      label: 'Rate',
-    },
-    { id: 'discountPercentage', label: 'Discount %' },
-    { id: 'discount', label: 'Discount' },
-    { id: 'totalAmount', label: 'Qty' },
+    { id: 'name', label: 'Product Name', width: 400 },
+    { id: 'rate', label: 'Rate', width: 200 },
+    { id: 'totalAmount', label: 'Quantity' },
     { id: 'status', label: 'Total' },
   ];
 
@@ -62,65 +55,45 @@ const OrderProductTable = ({
                 {isDetail ? (
                   `${fCurrency(product.product.price)}`
                 ) : (
-                  <Stack
+                  <Box
                     sx={{
+                      display: 'flex',
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                      position: 'relative',
                       p: 0.5,
-
                       borderRadius: 1,
                       typography: 'subtitle2',
                       border: (theme) =>
                         `solid 1px ${varAlpha(theme.vars.palette.grey['500Channel'], 0.2)}`,
                     }}
                   >
-                    {fCurrency(product.price)}
-                  </Stack>
-                )}
-              </TableCell>
-
-              <TableCell>
-                {isDetail ? (
-                  `x${product.quantity}`
-                ) : (
-                  <Box sx={{ width: 88, textAlign: 'right' }}>
-                    <IncrementPercentageButton
-                      quantity={Math.round(product.discount)}
-                      onDecrease={() => onDecreaseDiscount(idx)}
-                      onIncrease={() => onIncreaseDiscount(idx)}
-                    />
+                    <Box>{fCurrency(product.price)}</Box>
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        position: 'absolute',
+                        right: 0,
+                        padding: 0.5,
+                        color: 'warning.main',
+                        '&:hover': { color: 'error.main' },
+                      }}
+                      onClick={() => handleDiscountDialog({ index: idx, product }, product.price)}
+                    >
+                      <Iconify icon="solar:pen-bold" />
+                    </Box>
                   </Box>
                 )}
               </TableCell>
-              <TableCell align={isDetail ? 'inherit' : 'center'}>
-                {isDetail ? (
-                  `${fCurrency(product.product.price)}`
-                ) : (
-                  <Stack
-                    sx={{
-                      p: 0.5,
-
-                      borderRadius: 1,
-                      typography: 'subtitle2',
-                      border: (theme) =>
-                        `solid 1px ${varAlpha(theme.vars.palette.grey['500Channel'], 0.2)}`,
-                    }}
-                    onClick={() => {
-                      const amount = product.price * (product.discount / 100);
-                      handleDiscountDialog(
-                        {
-                          index: idx,
-                          product,
-                        },
-                        amount
-                      );
-                    }}
-                  >
-                    {fCurrency(product.price * (product.discount / 100))}
-                  </Stack>
-                )}
-              </TableCell>
+              {/* <TableCell>{isDetail && `x${product.quantity}`}</TableCell> */}
+              {/* <TableCell align={isDetail ? 'inherit' : 'center'}>
+                {isDetail && `${fCurrency(product.product.price)}`}
+              </TableCell> */}
               <TableCell>
                 {isDetail ? (
-                  `x${product.quantity}`
+                  `x${product.quantity} (${fCurrency(product.snapshotProductPrice)})`
                 ) : (
                   <Box sx={{ width: 88, textAlign: 'right' }}>
                     <IncrementerButton
@@ -133,7 +106,7 @@ const OrderProductTable = ({
               </TableCell>
               <TableCell>
                 {isDetail
-                  ? `${fCurrency(product.product.price * product.quantity)}`
+                  ? `${fCurrency(product.snapshotProductPrice * product.quantity)}`
                   : fCurrency(
                       (product.price - product.price * (product.discount / 100)) * product.quantity
                     )}

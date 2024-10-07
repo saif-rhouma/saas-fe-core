@@ -23,27 +23,23 @@ export function OrderDetailsItems({ order, discount, customer, totalAmount }) {
         <Box sx={{ width: 160, typography: 'subtitle2' }}>{fCurrency(totalAmount) || '-'}</Box>
       </Stack>
 
-      {/* <Stack direction="row">
-        <Box sx={{ color: 'text.secondary' }}>Addon</Box>
-        <Box sx={{ width: 160, ...(shipping && { color: 'error.main' }) }}>
-          {shipping ? `- ${fCurrency(shipping)}` : '-'}
-        </Box>
-      </Stack> */}
-
       <Stack direction="row">
         <Box sx={{ color: 'text.secondary' }}>Discount</Box>
         <Box sx={{ width: 160, ...(discount && { color: 'error.main' }) }}>
-          {discount ? `- ${fCurrency(discount)}` : '-'}
+          {discount ? `- ${discount}%` : '-'}
         </Box>
       </Stack>
 
       <Stack direction="row">
-        <Box sx={{ color: 'text.secondary' }}>
-          Tax ({order?.application?.taxPercentage || '0'}%)
-        </Box>
+        <Box sx={{ color: 'text.secondary' }}>Tax ({order?.snapshotTaxPercentage || '0'}%)</Box>
         <Box sx={{ width: 160 }}>
-          {order?.application?.taxPercentage
-            ? fCurrency(calculateTax(totalAmount - discount, order?.application?.taxPercentage))
+          {order?.snapshotTaxPercentage
+            ? fCurrency(
+                calculateTax(
+                  totalAmount - totalAmount * (discount / 100),
+                  order?.snapshotTaxPercentage
+                )
+              )
             : '-'}
         </Box>
       </Stack>
@@ -52,7 +48,10 @@ export function OrderDetailsItems({ order, discount, customer, totalAmount }) {
         <div>Gross Total</div>
         <Box sx={{ width: 160 }}>
           {fCurrency(
-            calculateAfterTax(totalAmount - discount, order?.application?.taxPercentage)
+            calculateAfterTax(
+              totalAmount - totalAmount * (discount / 100),
+              order?.snapshotTaxPercentage
+            )
           ) || '-'}
         </Box>
       </Stack>

@@ -20,7 +20,7 @@ const CustomerCreationSchema = zod.object({
     .string()
     .min(1, { message: 'Email is required!' })
     .email({ message: 'Email must be a valid email address!' }),
-  phoneNumber: schemaHelper.phoneNumber({ isValidPhoneNumber }),
+  // phoneNumber: schemaHelper.phoneNumber({ isValidPhoneNumber }),
   taxNumber: zod.number().min(1, { message: 'Tax number is required!' }),
   address: zod.string(),
   isActive: zod.boolean(),

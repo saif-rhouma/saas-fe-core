@@ -3,6 +3,7 @@ import { useForm } from 'react-hook-form';
 import { useMemo, useState, useEffect } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { isValidPhoneNumber } from 'react-phone-number-input/input';
 
 import Card from '@mui/material/Card';
 import Stack from '@mui/material/Stack';
@@ -20,18 +21,18 @@ import axios, { endpoints } from 'src/utils/axios';
 
 import { toast } from 'src/components/snackbar';
 import { Iconify } from 'src/components/iconify';
-import { Form, Field } from 'src/components/hook-form';
+import { Form, Field, schemaHelper } from 'src/components/hook-form';
 
 // Schema definition for form validation
 export const NewStaffSchema = zod.object({
   firstName: zod.string().min(1, { message: 'Staff firstName is required!' }),
-  lastName: zod.string().min(1, { message: 'Staff lastName is required!' }),
+  // lastName: zod.string().min(1, { message: 'Staff lastName is required!' }),
   password: zod
     .string()
     .min(1, { message: 'Password is required!' })
     .min(8, { message: 'Password must be at least 8 characters!' }),
   email: zod.string().min(1, { message: 'Email is required!' }),
-  phoneNumber: zod.string().min(1, { message: 'Phone Number is required!' }),
+  // phoneNumber: schemaHelper.phoneNumber({ isValidPhoneNumber }),
   permissions: zod.string().array().nonempty({ message: 'At least one permission is required!' }),
   isActive: zod.boolean(),
 });
@@ -138,9 +139,9 @@ export function StaffNewEditForm({ currentStaff, appPermissions }) {
             gridTemplateColumns={{ xs: 'repeat(1, 1fr)', md: 'repeat(3, 1fr)' }}
           >
             <Field.Text label="First Name" name="firstName" />
-            <Field.Text label="Last Name" name="lastName" />
-            <Field.Phone name="phoneNumber" label="Phone number" />
+            {/* <Field.Text label="Last Name" name="lastName" /> */}
             <Field.Text label="Email" name="email" />
+            <Field.Phone name="phoneNumber" label="Phone number" />
             <Field.Text
               name="password"
               label="Password"

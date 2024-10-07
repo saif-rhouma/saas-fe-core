@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 
 import {
   Button,
@@ -12,18 +12,32 @@ import {
 
 const OrderDiscountDialog = ({ discount, open, onClose, handler }) => {
   const [amount, setAmount] = useState(discount);
+  const handleBlur = useCallback(() => {
+    if (amount < 0) {
+      setAmount(0);
+    } else if (amount > 100) {
+      setAmount(100);
+    }
+  }, [amount]);
   return (
     <Dialog fullWidth open={open} onClose={onClose}>
-      <DialogTitle>Discount</DialogTitle>
+      <DialogTitle>Discount Percentage</DialogTitle>
       <Divider />
       <DialogContent sx={{ pt: 1, mt: 1 }}>
         <TextField
           fullWidth
-          label="Discount Amount"
-          type="number"
+          label="Percentage"
           value={amount}
           onChange={(event) => {
-            setAmount(event.target.value);
+            setAmount(Number(event.target.value));
+          }}
+          onBlur={handleBlur}
+          inputProps={{
+            step: 10,
+            min: 0,
+            max: 100,
+            type: 'number',
+            id: 'input-amount',
           }}
         />
       </DialogContent>

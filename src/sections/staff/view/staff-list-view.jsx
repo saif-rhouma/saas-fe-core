@@ -146,7 +146,7 @@ const StaffListView = ({ staffs }) => {
         <CustomBreadcrumbs
           links={[
             { name: 'Dashboard', href: paths.dashboard.root },
-            { name: 'Staff', href: paths.dashboard.staff.root },
+            { name: 'User', href: paths.dashboard.staff.root },
           ]}
           action={
             <PermissionAccessController permission={PermissionsType.ADD_STAFF}>
@@ -156,7 +156,7 @@ const StaffListView = ({ staffs }) => {
                 variant="contained"
                 startIcon={<Iconify icon="mingcute:add-line" />}
               >
-                Add New Staff
+                Add New User
               </Button>
             </PermissionAccessController>
           }

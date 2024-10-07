@@ -11,7 +11,7 @@ const MasterSettingView = ({ applicationAccount, financial }) => (
     <CustomBreadcrumbs
       links={[
         { name: 'Dashboard', href: paths.dashboard.root },
-        { name: 'Tools', href: paths.dashboard.tools.root },
+        { name: 'Settings', href: paths.dashboard.tools.root },
         { name: 'Master Settings' },
       ]}
       sx={{ mb: { xs: 3, md: 5 } }}

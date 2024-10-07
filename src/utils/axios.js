@@ -132,6 +132,7 @@ export const endpoints = {
   files: {
     upload: '/api/files/upload',
     delete: '/api/files/delete/',
+    deletes: '/api/files/deletes/',
   },
   account: {
     edit: '/api/users/',

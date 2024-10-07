@@ -13,7 +13,7 @@ import { ErrorBlock } from 'src/sections/error/error-block';
 import { StaffCreateView } from 'src/sections/staff/view/staff-create-view';
 // ----------------------------------------------------------------------
 
-const metadata = { title: `Create a new staff | Dashboard - ${CONFIG.site.name}` };
+const metadata = { title: `Create a new user | Dashboard - ${CONFIG.site.name}` };
 
 export default function Page() {
   const response = useQuery({

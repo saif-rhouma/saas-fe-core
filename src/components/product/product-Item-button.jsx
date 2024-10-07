@@ -10,10 +10,25 @@ const ProductItemButton = ({
   handleClick,
   handleDelete,
   selected,
+  deletedAction,
+  deletedImages,
 }) => {
   const previewUrl = typeof image === 'string' ? image : URL.createObjectURL(image);
+
   const theme = useTheme();
+
   const PRIMARY_MAIN = theme.vars.palette.primary.main;
+
+  const DELETE_MAIN = theme.vars.palette.error.main;
+
+  const isDeleted = () => {
+    const objectExists = deletedImages.some((item) => item === payload);
+    if (objectExists) {
+      return DELETE_MAIN;
+    }
+    return '';
+  };
+
   return (
     <Box
       gap={1}
@@ -23,15 +38,15 @@ const ProductItemButton = ({
       justifyContent="center"
       sx={{
         position: 'relative',
-        backgroundColor: selected ? PRIMARY_MAIN : '',
+        backgroundColor: deletedAction ? isDeleted : selected ? PRIMARY_MAIN : '',
         p: 3,
         borderRadius: 1,
         overflow: 'hidden',
-        border: (theme) => `solid 1px ${theme.vars.palette.divider}`,
+        border: (thm) => `solid 1px ${thm.vars.palette.divider}`,
       }}
     >
       <Box sx={{ display: 'inline-flex', width: 65, height: 65 }}>
-        {handleDelete && (
+        {deletedAction && (
           <Box
             sx={{
               padding: 0.5,
@@ -45,12 +60,9 @@ const ProductItemButton = ({
               top: 10,
               right: 10,
               backgroundColor: 'rgba(0, 0, 0, 0.1)',
-              ':hover': {
-                backgroundColor: 'rgba(0, 0, 0, 0.2)',
-              },
-            }}
-            onClick={() => {
-              handleDelete(payload);
+              // ':hover': {
+              //   backgroundColor: 'rgba(0, 0, 0, 0.2)',
+              // },
             }}
           >
             <Iconify icon="solar:trash-bin-trash-bold" />
@@ -58,7 +70,13 @@ const ProductItemButton = ({
         )}
 
         <Box
-          onClick={() => handleClick(payload)}
+          onClick={() => {
+            if (deletedAction) {
+              handleDelete(payload);
+            } else {
+              handleClick(payload);
+            }
+          }}
           component="img"
           src={previewUrl}
           sx={{
@@ -74,9 +92,10 @@ const ProductItemButton = ({
           component="span"
           sx={{
             height: 24,
+            textAlign: 'center',
             lineHeight: '24px',
-            fontSize: (theme) => theme.typography.subtitle2.fontSize,
-            fontWeight: (theme) => theme.typography.subtitle2.fontWeight,
+            fontSize: (thm) => thm.typography.subtitle2.fontSize,
+            fontWeight: (thm) => thm.typography.subtitle2.fontWeight,
           }}
         >
           {productName}

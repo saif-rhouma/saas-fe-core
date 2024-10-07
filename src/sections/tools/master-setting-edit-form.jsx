@@ -58,7 +58,7 @@ const MasterSettingEditForm = ({ applicationAccount, financial }) => {
       phoneNumber: applicationAccount?.phoneNumber || '',
       currencySymbol: applicationAccount?.currencySymbol || '',
       taxPercentage: applicationAccount?.taxPercentage || '',
-      financialYear: applicationAccount?.financialYear?.id || '',
+      // financialYear: applicationAccount?.financialYear?.id || '',
       country: applicationAccount?.address?.country || '',
       state: applicationAccount?.address?.state || '',
       city: applicationAccount?.address?.city || '',
@@ -212,7 +212,7 @@ const MasterSettingEditForm = ({ applicationAccount, financial }) => {
       <Card sx={{ mb: 4 }}>
         <Stack spacing={2} sx={{ p: 3 }}>
           <Typography variant="h6" gutterBottom>
-            Application Details
+            Organization Details
           </Typography>
           <Box
             columnGap={2}
@@ -220,7 +220,7 @@ const MasterSettingEditForm = ({ applicationAccount, financial }) => {
             display="grid"
             gridTemplateColumns={{ xs: 'repeat(1, 1fr)', md: 'repeat(2, 1fr)' }}
           >
-            <Field.Text name="name" label="Application Name" />
+            <Field.Text name="name" label="Organization Name" />
             <Field.Phone name="phoneNumber" label="Phone number" />
             <Field.Text name="email" label="Email address" />
             <Field.Text name="description" label="Description" />
@@ -271,11 +271,11 @@ const MasterSettingEditForm = ({ applicationAccount, financial }) => {
             columnGap={2}
             rowGap={3}
             display="grid"
-            gridTemplateColumns={{ xs: 'repeat(1, 1fr)', md: 'repeat(3, 1fr)' }}
+            gridTemplateColumns={{ xs: 'repeat(1, 1fr)', md: 'repeat(2, 1fr)' }}
           >
             <Field.Text name="currencySymbol" label="Currency Symbol" />
             <Field.Text name="taxPercentage" label="Tax Percentage" />
-            <Field.Select
+            {/* <Field.Select
               name="financialYear"
               label="Select a Financial Year"
               sx={{ width: 420, textTransform: 'capitalize' }}
@@ -285,7 +285,7 @@ const MasterSettingEditForm = ({ applicationAccount, financial }) => {
                   {fYear?.year}
                 </MenuItem>
               ))}
-            </Field.Select>
+            </Field.Select> */}
           </Box>
         </Stack>
       </Card>

@@ -6,6 +6,8 @@ import { useTheme } from '@mui/material/styles';
 
 import { RouterLink } from 'src/routes/components';
 
+import { useAuthContext } from 'src/auth/hooks';
+
 import { logoClasses } from './classes';
 
 // ----------------------------------------------------------------------
@@ -21,6 +23,17 @@ export const Logo = forwardRef(
     const PRIMARY_MAIN = theme.vars.palette.primary.main;
 
     const PRIMARY_DARK = theme.vars.palette.primary.dark;
+
+    const { user } = useAuthContext();
+
+    const getApplicationName = (userInput) => {
+      let { name } = userInput.userOwnedApps;
+      if (user?.roles?.includes('STAFF')) {
+        // eslint-disable-next-line prefer-destructuring
+        name = userInput.applications.name;
+      }
+      return name;
+    };
 
     /*
      * OR using local (public folder)
@@ -100,7 +113,7 @@ export const Logo = forwardRef(
             {logo}
           </Box>
         </NoSsr>
-        <span style={{ fontWeight: 'bold' }}>NFCAC</span>
+        {user && <span style={{ fontWeight: 'bold' }}>{getApplicationName(user)}</span>}
       </div>
     );
   }

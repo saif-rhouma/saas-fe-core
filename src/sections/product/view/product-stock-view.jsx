@@ -49,7 +49,7 @@ const TABLE_HEAD = [
   { id: 'stockId', label: 'No.', width: 60 },
   { id: 'productName', label: 'Product Name' },
   { id: 'stock', label: 'In Stock', width: 200 },
-  { id: '', width: 40 },
+  // { id: '', width: 40 },
 ];
 
 // ----------------------------------------------------------------------

@@ -6,7 +6,16 @@ import Card from '@mui/material/Card';
 import Stack from '@mui/material/Stack';
 import Grid from '@mui/material/Unstable_Grid2';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-import { Box, Button, Select, MenuItem, TextField, InputAdornment } from '@mui/material';
+import {
+  Box,
+  Button,
+  Select,
+  MenuItem,
+  TextField,
+  FormControl,
+  InputAdornment,
+  FormHelperText,
+} from '@mui/material';
 
 import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hooks';
@@ -21,8 +30,11 @@ import { CONFIG } from 'src/config-global';
 import { varAlpha } from 'src/theme/styles';
 
 import { toast } from 'src/components/snackbar';
+import { useTable } from 'src/components/table';
 import { Iconify } from 'src/components/iconify';
+import InfoDialog from 'src/components/dialogs/info-dialog';
 import ProductItemButton from 'src/components/product/product-Item-button';
+import { ComponentPaginationCustom } from 'src/components/table/component-pagination-custom';
 
 import OrderProductTable from './order-product-table';
 import OrderDiscountDialog from './order-discount-dialog';
@@ -30,13 +42,19 @@ import OrderCustomerCreateDialog from './order-customer-create-dialog';
 import OrderDiscountProductDialog from './order-discount-product-dialog';
 
 export function OrderNewEditForm({ products, customers, taxPercentage }) {
+  const table = useTable({ defaultRowsPerPage: 6 });
+
   const dialog = useBoolean();
   const dialogDiscount = useBoolean();
   const dialogDiscountProduct = useBoolean();
+  const dialogInfo = useBoolean();
+  const [dialogTitle, setDialogTitle] = useState('');
+  const [dialogContentText, setDialogContentText] = useState('');
   const router = useRouter();
   const [orderId, setOrderId] = useState();
   const [discount, setDiscount] = useState(0);
   const [discountProduct, setDiscountProduct] = useState(0);
+  const [customerError, setCustomerError] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState();
   const [selectedCustomer, setSelectedCustomer] = useState('Customer');
   const [selectedDate, setSelectedDate] = useState(dayjs(new Date()));
@@ -56,10 +74,9 @@ export function OrderNewEditForm({ products, customers, taxPercentage }) {
     dialogDiscount.onFalse();
   };
 
-  const handleDiscountProduct = (index, product, amount) => {
-    const percentageDiscount = (amount / product.price) * 100;
+  const handleDiscountProduct = (index, amount) => {
     setSelectedProducts((prev) => {
-      prev[index].discount = percentageDiscount;
+      prev[index].price = amount;
       return [...prev];
     });
     dialogDiscountProduct.onFalse();
@@ -69,13 +86,15 @@ export function OrderNewEditForm({ products, customers, taxPercentage }) {
     mutationFn: (payload) => axios.post(endpoints.order.create, payload),
     onSuccess: async () => {
       toast.success('New Order Has Been Created!');
-    },
-    onSettled: async () => {
       await queryClient.invalidateQueries({ queryKey: ['orders'] });
       await queryClient.invalidateQueries({ queryKey: ['orders', 'analytics'] });
+    },
+    onSettled: async () => {
       router.push(paths.dashboard.order.root);
     },
-    onError: () => {},
+    onError: (err) => {
+      console.error(err);
+    },
   });
 
   const handleOrderId = useCallback((event) => {
@@ -84,6 +103,11 @@ export function OrderNewEditForm({ products, customers, taxPercentage }) {
 
   const handleChangeCustomer = useCallback((event) => {
     setSelectedCustomer(event.target.value);
+    if (event.target.value === 'Customer') {
+      setCustomerError(true);
+    } else {
+      setCustomerError(false);
+    }
   }, []);
   const handleAddProducts = useCallback((payload) => {
     setSelectedProducts((prev) => {
@@ -195,23 +219,32 @@ export function OrderNewEditForm({ products, customers, taxPercentage }) {
 
   const renderOrderList = (
     <Card>
-      <Stack spacing={4} sx={{ p: 3 }}>
-        <TextField
-          fullWidth
-          maxWidth="xs"
-          placeholder="Search customer or order number..."
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <Iconify icon="eva:search-fill" sx={{ color: 'text.disabled' }} />
-              </InputAdornment>
-            ),
-          }}
-          onChange={handleFilterProducts}
-        />
+      <Stack>
+        <Box sx={{ p: 3 }}>
+          <TextField
+            color="success"
+            // focused
+            fullWidth
+            maxWidth="xs"
+            placeholder="Search customer or order number..."
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <Iconify icon="eva:search-fill" sx={{ color: 'text.disabled' }} />
+                </InputAdornment>
+              ),
+            }}
+            sx={{
+              '& .MuiOutlinedInput-root': {
+                border: '1px solid #909090',
+              },
+            }}
+            onChange={handleFilterProducts}
+          />
+        </Box>
         <Box
-          spacing={2}
-          gap={3}
+          sx={{ pl: 3, pr: 3 }}
+          gap={1}
           display="grid"
           gridTemplateColumns={{
             xs: 'repeat(2, 1fr)',
@@ -220,17 +253,30 @@ export function OrderNewEditForm({ products, customers, taxPercentage }) {
             lg: 'repeat(2, 1fr)',
           }}
         >
-          {filterProducts.map((product) => (
-            <ProductItemButton
-              payload={product}
-              handleClick={handleAddProducts}
-              key={product?.id}
-              productName={product?.name}
-              // eslint-disable-next-line no-unsafe-optional-chaining
-              image={CONFIG.site.serverFileHost + product?.image}
-            />
-          ))}
+          {filterProducts
+            .slice(
+              table.page * table.rowsPerPage,
+              table.page * table.rowsPerPage + table.rowsPerPage
+            )
+            .map((product) => (
+              <ProductItemButton
+                payload={product}
+                handleClick={handleAddProducts}
+                key={product?.id}
+                productName={product?.name}
+                // eslint-disable-next-line no-unsafe-optional-chaining
+                image={CONFIG.site.serverFileHost + product?.image}
+              />
+            ))}
         </Box>
+        <ComponentPaginationCustom
+          page={table.page}
+          count={filterProducts.length}
+          rowsPerPage={6}
+          defaultRowsPerPage={6}
+          onPageChange={table.onChangePage}
+          onRowsPerPageChange={table.onChangeRowsPerPage}
+        />
       </Stack>
     </Card>
   );
@@ -242,7 +288,7 @@ export function OrderNewEditForm({ products, customers, taxPercentage }) {
         <Box sx={{ width: 160, typography: 'subtitle2' }}>{fCurrency(getTotal()) || '-'}</Box>
       </Stack>
 
-      <Stack direction="row" alignItems="center">
+      {/* <Stack direction="row" alignItems="center">
         <Box sx={{ color: 'text.secondary' }}>Total Product Discount</Box>
         <Box sx={{ width: 160, ...(0 && { color: 'error.main' }) }}>
           <Box>
@@ -257,7 +303,7 @@ export function OrderNewEditForm({ products, customers, taxPercentage }) {
             </Stack>
           </Box>
         </Box>
-      </Stack>
+      </Stack> */}
 
       <Stack direction="row" alignItems="center">
         <Box sx={{ color: 'text.secondary' }}>Discount</Box>
@@ -277,7 +323,7 @@ export function OrderNewEditForm({ products, customers, taxPercentage }) {
                   `solid 1px ${varAlpha(theme.vars.palette.grey['500Channel'], 0.2)}`,
               }}
             >
-              {fCurrency(discount)}
+              {discount}%
             </Stack>
           </Box>
         </Box>
@@ -286,14 +332,18 @@ export function OrderNewEditForm({ products, customers, taxPercentage }) {
       <Stack direction="row">
         <Box sx={{ color: 'text.secondary' }}>Tax ({taxPercentage || '0'}%)</Box>
         <Box sx={{ width: 160 }}>
-          {taxPercentage ? fCurrency(calculateTax(getTotal() - discount, taxPercentage)) : '-'}
+          {taxPercentage
+            ? fCurrency(calculateTax(getTotal() - getTotal() * (discount / 100), taxPercentage))
+            : '-'}
         </Box>
       </Stack>
 
       <Stack direction="row" sx={{ typography: 'subtitle1' }}>
         <div>Gross Total:</div>
         <Box sx={{ width: 160 }}>
-          {fCurrency(calculateAfterTax(getTotal() - discount, taxPercentage)) || '-'}
+          {fCurrency(
+            calculateAfterTax(getTotal() - getTotal() * (discount / 100), taxPercentage)
+          ) || '-'}
         </Box>
       </Stack>
     </Stack>
@@ -312,18 +362,22 @@ export function OrderNewEditForm({ products, customers, taxPercentage }) {
             lg: 'repeat(2, 1fr)',
           }}
         >
-          <Select
-            sx={{ maxWidth: 420, textTransform: 'capitalize' }}
-            value={selectedCustomer}
-            onChange={handleChangeCustomer}
-          >
-            <MenuItem value="Customer">Customer</MenuItem>
-            {customers.map((customer) => (
-              <MenuItem key={customer.id} value={customer.id}>
-                {customer.name}
-              </MenuItem>
-            ))}
-          </Select>
+          <FormControl sx={{ m: 1, minWidth: 120 }} error={customerError && !selectedCustomer}>
+            <Select
+              sx={{ maxWidth: 420, textTransform: 'capitalize' }}
+              value={selectedCustomer}
+              error={customerError}
+              onChange={handleChangeCustomer}
+            >
+              <MenuItem value="Customer">Customer</MenuItem>
+              {customers.map((customer) => (
+                <MenuItem key={customer.id} value={customer.id}>
+                  {customer.name}
+                </MenuItem>
+              ))}
+            </Select>
+            {customerError && <FormHelperText error>Customer is required!</FormHelperText>}
+          </FormControl>
           <Box display="flex" justifyContent="flex-end" alignItems="center">
             <Button
               variant="contained"
@@ -336,7 +390,7 @@ export function OrderNewEditForm({ products, customers, taxPercentage }) {
 
           <TextField
             label="Order ID"
-            placeholder="This Could Be Generated Automaticly"
+            placeholder="This Could Be Generated Automatically"
             value={orderId}
             onChange={handleOrderId}
             sx={{ mt: 2 }}
@@ -367,12 +421,30 @@ export function OrderNewEditForm({ products, customers, taxPercentage }) {
               variant="contained"
               onClick={() => {
                 // eslint-disable-next-line no-restricted-globals, radix
+                if (isNaN(parseInt(selectedCustomer))) {
+                  setCustomerError(true);
+                  return;
+                }
+                setCustomerError(false);
+
+                if (!selectedProducts.length) {
+                  setDialogTitle('Something went wrong. Product(s) are required!');
+                  setDialogContentText(
+                    `You need to add at least one product to this order. Please select a product from the list on the right.`
+                  );
+                  dialogInfo.onToggle();
+                  return;
+                }
+
+                // eslint-disable-next-line no-restricted-globals, radix
                 if (!isNaN(parseInt(selectedCustomer)) && selectedProducts.length) {
+                  setCustomerError(false);
                   const payload = {
                     discount: parseInt(discount, 10),
                     orderDate: selectedDate.format('YYYY-MM-DD'),
                     products: selectedProducts.map((prod) => ({
                       id: prod.id,
+                      snapshotProductPrice: prod.price,
                       quantity: prod.quantity,
                     })),
                     customer: selectedCustomer,
@@ -394,11 +466,11 @@ export function OrderNewEditForm({ products, customers, taxPercentage }) {
 
   return (
     <Grid container spacing={3}>
-      <Grid xs={12} md={4}>
+      <Grid xs={12} md={3}>
         <Stack>{renderOrderList}</Stack>
       </Grid>
 
-      <Grid xs={12} md={8}>
+      <Grid xs={12} md={9}>
         <Stack>{renderOrderCreation}</Stack>
       </Grid>
       <OrderCustomerCreateDialog
@@ -419,6 +491,7 @@ export function OrderNewEditForm({ products, customers, taxPercentage }) {
         onClose={dialogDiscountProduct.onFalse}
         handler={handleDiscountProduct}
       />
+      <InfoDialog dialog={dialogInfo} title={dialogTitle} contentText={dialogContentText} />
     </Grid>
   );
 }

@@ -13,7 +13,7 @@ import { ErrorBlock } from 'src/sections/error/error-block';
 import FinancialYearView from 'src/sections/tools/view/financial-year-view';
 // ----------------------------------------------------------------------
 
-const metadata = { title: `Tools | Dashboard - ${CONFIG.site.name}` };
+const metadata = { title: `Settings | Dashboard - ${CONFIG.site.name}` };
 
 export default function Page() {
   const response = useQuery({

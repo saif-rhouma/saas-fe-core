@@ -239,7 +239,7 @@ export function fSub({
 }
 
 export function monthName(month) {
-  const mon = parseInt(month);
+  const mon = parseInt(month, 10);
   return [
     'January',
     'February',
