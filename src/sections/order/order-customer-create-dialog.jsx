@@ -2,7 +2,6 @@ import { z as zod } from 'zod';
 import { useForm } from 'react-hook-form';
 import { useState, useEffect } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { isValidPhoneNumber } from 'react-phone-number-input/input';
 
 import Alert from '@mui/material/Alert';
 import Stack from '@mui/material/Stack';
@@ -11,7 +10,7 @@ import Dialog from '@mui/material/Dialog';
 import DialogContent from '@mui/material/DialogContent';
 import { Button, DialogTitle, DialogActions } from '@mui/material';
 
-import { Form, Field, schemaHelper } from 'src/components/hook-form';
+import { Form, Field } from 'src/components/hook-form';
 
 const CustomerCreationSchema = zod.object({
   name: zod.string().min(1, { message: 'Name is required!' }),

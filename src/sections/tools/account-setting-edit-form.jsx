@@ -145,7 +145,7 @@ const AccountSettingEditForm = ({ userAccount }) => {
       <Form methods={methods} onSubmit={onSubmit}>
         <Stack spacing={4} sx={{ p: 3 }}>
           <Typography variant="h6" gutterBottom>
-            Settings
+            Account Setting
           </Typography>
           <Box
             columnGap={2}

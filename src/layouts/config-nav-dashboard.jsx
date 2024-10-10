@@ -55,6 +55,7 @@ export const navData = [
         children: [
           { title: 'Products List', path: paths.dashboard.product.root },
           // { title: 'Products Addons', path: paths.dashboard.product.addons },
+          { title: 'Categories List', path: paths.dashboard.product.categories },
           { title: 'Product Stock', path: paths.dashboard.product.stock },
         ],
       },
@@ -82,7 +83,7 @@ export const navData = [
         path: paths.dashboard.tools.root,
         icon: ICONS.course,
         children: [
-          { title: 'Account Settings', path: paths.dashboard.tools.root },
+          { title: 'Permission Groups', path: paths.dashboard.tools.permissions },
           // { title: 'Financial Year', path: paths.dashboard.tools.financial },
           { title: 'Master Setting', path: paths.dashboard.tools.master },
         ],

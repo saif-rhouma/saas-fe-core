@@ -10,9 +10,9 @@ import Stack from '@mui/material/Stack';
 import { LoadingButton } from '@mui/lab';
 import Divider from '@mui/material/Divider';
 import Accordion from '@mui/material/Accordion';
-import { Button, FormControlLabel } from '@mui/material';
 import AccordionDetails from '@mui/material/AccordionDetails';
 import AccordionSummary from '@mui/material/AccordionSummary';
+import { Button, MenuItem, FormControlLabel } from '@mui/material';
 
 import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hooks';
@@ -36,12 +36,13 @@ export const NewProductSchema = zod.object({
   name: zod.string().min(1, { message: 'Name is required!' }),
   price: zod.number().min(1, { message: 'Price should not be $0.00' }),
   description: zod.string(),
+  categoryId: zod.number(),
   isActive: zod.boolean(),
 });
 
 // ----------------------------------------------------------------------
 
-export function ProductNewEditForm({ currentProduct, productsImages }) {
+export function ProductNewEditForm({ currentProduct, productsImages, categories }) {
   const router = useRouter();
 
   const confirm = useBoolean();
@@ -54,6 +55,7 @@ export function ProductNewEditForm({ currentProduct, productsImages }) {
       description: currentProduct?.description || '',
       price: currentProduct?.price || 0,
       images: currentProduct?.images || [],
+      categoryId: currentProduct?.category?.id || null,
       isActive: currentProduct?.isActive === undefined ? true : currentProduct?.isActive,
     }),
     [currentProduct]
@@ -92,6 +94,7 @@ export function ProductNewEditForm({ currentProduct, productsImages }) {
       }
       if (currentProduct?.id) {
         const { id } = currentProduct;
+        console.log('---> payload', payload);
         await handleEditProduct({ id, payload });
       } else {
         await handleCreateProduct(payload);
@@ -226,8 +229,28 @@ export function ProductNewEditForm({ currentProduct, productsImages }) {
               // gridTemplateColumns={{ xs: 'repeat(1, 1fr)', md: 'repeat(2, 1fr)' }}
             >
               <Field.Text fullWidth label="Product Name" name="name" />
-              <Field.Text fullWidth name="description" label="Description" />
+              <Field.Text
+                label="Description"
+                name="description"
+                multiline
+                rows={3}
+                inputProps={{ maxLength: 250 }}
+              />
               <Field.Text fullWidth type="number" label="Product Price" name="price" />
+              {categories?.length > 0 && (
+                <Field.Select
+                  name="categoryId"
+                  label="Category"
+                  sx={{ textTransform: 'capitalize' }}
+                >
+                  {categories.map((cat) => (
+                    <MenuItem key={cat.id} value={cat.id}>
+                      {`${cat?.name}`}
+                    </MenuItem>
+                  ))}
+                </Field.Select>
+              )}
+
               {currentProduct && <Field.Switch name="isActive" label="Is Active?" />}
             </Box>
 

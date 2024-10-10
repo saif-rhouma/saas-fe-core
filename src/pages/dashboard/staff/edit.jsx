@@ -22,8 +22,8 @@ export default function Page() {
   const response = useQuery({
     queryKey: ['staff', id],
     queryFn: async () => {
-      const res = await axios.get(endpoints.staff.details + id);
-      return res.data;
+      const { data } = await axios.get(endpoints.staff.details + id);
+      return data;
     },
   });
 
@@ -35,10 +35,18 @@ export default function Page() {
     },
   });
 
-  if (responsePermissions.isLoading || response.isLoading) {
+  const responsePG = useQuery({
+    queryKey: ['permissions-groups'],
+    queryFn: async () => {
+      const { data } = await axios.get(endpoints.permissionsGroup.list);
+      return data;
+    },
+  });
+
+  if (responsePermissions.isLoading || response.isLoading || responsePG.isLoading) {
     return <LoadingScreen />;
   }
-  if (response.isError || responsePermissions.isError) {
+  if (response.isError || responsePermissions.isError || responsePG.isError) {
     return <ErrorBlock route={paths.dashboard.staff.root} />;
   }
 
@@ -48,7 +56,11 @@ export default function Page() {
         <title> {metadata.title}</title>
       </Helmet>
 
-      <StaffCreateView currentStaff={response.data} appPermissions={responsePermissions.data} />
+      <StaffCreateView
+        currentStaff={response.data}
+        appPermissions={responsePermissions.data}
+        appPermissionsGroup={responsePG.data}
+      />
     </>
   );
 }

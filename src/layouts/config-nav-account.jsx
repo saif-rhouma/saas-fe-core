@@ -9,8 +9,8 @@ export const _account = [
     icon: <Iconify icon="solar:home-angle-bold-duotone" />,
   },
   {
-    label: 'Settings',
-    href: '/dashboard/tools',
+    label: 'Account Setting',
+    href: '/dashboard/tools/account-setting',
     icon: <Iconify icon="solar:settings-bold-duotone" />,
   },
 ];

@@ -144,8 +144,10 @@ export const paths = {
       root: `${ROOTS.DASHBOARD}/product`,
       new: `${ROOTS.DASHBOARD}/product/new`,
       addons: `${ROOTS.DASHBOARD}/product/addons`,
+      categories: `${ROOTS.DASHBOARD}/product/categories`,
       stock: `${ROOTS.DASHBOARD}/product/stock`,
       details: (id) => `${ROOTS.DASHBOARD}/product/${id}`,
+      categoryDetails: (id) => `${ROOTS.DASHBOARD}/product/categories/details/${id}`,
       edit: (id) => `${ROOTS.DASHBOARD}/product/${id}/edit`,
       demo: {
         details: `${ROOTS.DASHBOARD}/product/${MOCK_ID}`,
@@ -209,6 +211,9 @@ export const paths = {
       root: `${ROOTS.DASHBOARD}/tools`,
       financial: `${ROOTS.DASHBOARD}/tools/financial-year`,
       master: `${ROOTS.DASHBOARD}/tools/master-setting`,
+      permissions: `${ROOTS.DASHBOARD}/tools/permissions-groups`,
+      newPermissions: `${ROOTS.DASHBOARD}/tools/permissions-groups/new`,
+      editPermissions: (id) => `${ROOTS.DASHBOARD}/tools/permissions-groups/${id}/edit`,
     },
     invoice: {
       root: `${ROOTS.DASHBOARD}/invoice`,

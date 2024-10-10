@@ -6,7 +6,8 @@ import MenuList from '@mui/material/MenuList';
 import TableRow from '@mui/material/TableRow';
 import TableCell from '@mui/material/TableCell';
 import IconButton from '@mui/material/IconButton';
-import { Box, Stack, Paper, Avatar, Collapse } from '@mui/material';
+import AvatarGroup, { avatarGroupClasses } from '@mui/material/AvatarGroup';
+import { Box, Stack, Paper, Avatar, Tooltip, Collapse } from '@mui/material';
 
 import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hooks';
@@ -26,7 +27,7 @@ import { usePopover, CustomPopover } from 'src/components/custom-popover';
 import PermissionAccessController from 'src/components/permission-access-controller/permission-access-controller';
 
 const ProductTableRow = ({ row, index, selected, onViewRow, onDeleteRow, onEditRow }) => {
-  const [hasOrders, setHasOrders] = useState(row?.productToOrder.length > 0);
+  const [hasOrders, setHasOrders] = useState(row?.productToOrder?.length > 0);
   const confirm = useBoolean();
   const collapse = useBoolean();
   const popover = usePopover();
@@ -56,6 +57,17 @@ const ProductTableRow = ({ row, index, selected, onViewRow, onDeleteRow, onEditR
           />
           <Box component="span">{row?.name}</Box>
         </Stack>
+      </TableCell>
+
+      <TableCell>
+        <AvatarGroup sx={{ [`& .${avatarGroupClasses.avatar}`]: { width: 24, height: 24 } }}>
+          <Tooltip title={`${row?.category?.name}`}>
+            <Avatar
+              alt={row?.category?.name}
+              src={`${CONFIG.site.serverFileHost}${row?.category?.image}`}
+            />
+          </Tooltip>
+        </AvatarGroup>
       </TableCell>
 
       <TableCell>{fCurrency(row?.price)}</TableCell>
@@ -99,7 +111,7 @@ const ProductTableRow = ({ row, index, selected, onViewRow, onDeleteRow, onEditR
           sx={{ bgcolor: 'background.neutral' }}
         >
           <Paper sx={{ m: 1.5 }}>
-            {row?.productToOrder.map((item, idx) => {
+            {row?.productToOrder?.map((item, idx) => {
               if (idx === 5) {
                 return (
                   <Stack

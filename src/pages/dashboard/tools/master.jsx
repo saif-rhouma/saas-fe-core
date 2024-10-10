@@ -24,15 +24,15 @@ export default function Page() {
     },
   });
 
-  const responseFinancial = useQuery({
-    queryKey: ['financial-year'],
-    queryFn: async () => {
-      const { data } = await axios.get(endpoints.financial.list);
-      return data;
-    },
-  });
+  // const responseFinancial = useQuery({
+  //   queryKey: ['financial-year'],
+  //   queryFn: async () => {
+  //     const { data } = await axios.get(endpoints.financial.list);
+  //     return data;
+  //   },
+  // });
 
-  if (responseFinancial.isLoading || response.isLoading) {
+  if (response.isLoading) {
     return <LoadingScreen />;
   }
   if (response.isError) {
@@ -44,7 +44,7 @@ export default function Page() {
         <title> {metadata.title}</title>
       </Helmet>
 
-      <MasterSettingView applicationAccount={response.data} financial={responseFinancial.data} />
+      <MasterSettingView applicationAccount={response.data} />
     </>
   );
 }

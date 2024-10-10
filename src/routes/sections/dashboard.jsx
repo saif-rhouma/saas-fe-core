@@ -28,6 +28,10 @@ const ProductCreatePage = lazy(() => import('src/pages/dashboard/product/new'));
 const ProductEditPage = lazy(() => import('src/pages/dashboard/product/edit'));
 const ProductAddonsPage = lazy(() => import('src/pages/dashboard/product/addons'));
 const ProductStockPage = lazy(() => import('src/pages/dashboard/product/stock'));
+const ProductCategoryPage = lazy(() => import('src/pages/dashboard/product/category'));
+const ProductCategoryDetailsPage = lazy(
+  () => import('src/pages/dashboard/product/category-details')
+);
 // Customer
 const CustomerListPage = lazy(() => import('src/pages/dashboard/customers/list'));
 const CustomerDetailsPage = lazy(() => import('src/pages/dashboard/customers/details'));
@@ -52,6 +56,13 @@ const ReportsStockListPage = lazy(() => import('src/pages/dashboard/reports/stoc
 const ToolsAccountPage = lazy(() => import('src/pages/dashboard/tools/list'));
 // const ToolsFinancialPage = lazy(() => import('src/pages/dashboard/tools/financial'));
 const ToolsMasterPage = lazy(() => import('src/pages/dashboard/tools/master'));
+const PermissionsGroupPage = lazy(() => import('src/pages/dashboard/tools/permissions-group'));
+const PermissionsGroupCreatePage = lazy(
+  () => import('src/pages/dashboard/tools/new-permission-group')
+);
+const PermissionsGroupEditPage = lazy(
+  () => import('src/pages/dashboard/tools/edit-permission-group')
+);
 // Order Status
 const OrderStatus = lazy(() => import('src/pages/dashboard/order/status'));
 // Plan Status
@@ -90,10 +101,12 @@ export const dashboardRoutes = [
           { element: <ProductListPage />, index: true },
           { path: 'list', element: <ProductListPage /> },
           { path: ':id', element: <ProductDetailsPage /> },
-          // { path: 'addons', element: <ProductAddonsPage /> },
+          { path: 'categories', element: <ProductCategoryPage /> },
+          { path: 'categories/details/:id', element: <ProductCategoryDetailsPage /> },
           { path: 'stock', element: <ProductStockPage /> },
           { path: 'new', element: <ProductCreatePage /> },
           { path: ':id/edit', element: <ProductEditPage /> },
+          // { path: 'addons', element: <ProductAddonsPage /> },
         ],
       },
       {
@@ -158,10 +171,13 @@ export const dashboardRoutes = [
       {
         path: 'tools',
         children: [
-          { element: <ToolsAccountPage />, index: true },
+          { element: <ToolsMasterPage />, index: true },
           { path: 'account-setting', element: <ToolsAccountPage /> },
           // { path: 'financial-year', element: <ToolsFinancialPage /> },
           { path: 'master-setting', element: <ToolsMasterPage /> },
+          { path: 'permissions-groups', element: <PermissionsGroupPage /> },
+          { path: 'permissions-groups/new', element: <PermissionsGroupCreatePage /> },
+          { path: 'permissions-groups/:id/edit', element: <PermissionsGroupEditPage /> },
         ],
       },
     ],

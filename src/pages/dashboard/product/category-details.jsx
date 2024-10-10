@@ -11,19 +11,19 @@ import { CONFIG } from 'src/config-global';
 import { LoadingScreen } from 'src/components/loading-screen';
 
 import { ErrorBlock } from 'src/sections/error/error-block';
-import CustomerDetailsView from 'src/sections/customers/view/customer-details-view';
+import ProductCategoryDetailsView from 'src/sections/product/view/product-category-details-view';
 
 // ----------------------------------------------------------------------
 
-const metadata = { title: `Customer details | Dashboard - ${CONFIG.site.name}` };
+const metadata = { title: `Category details | Dashboard - ${CONFIG.site.name}` };
 
 export default function Page() {
   const { id = '' } = useParams();
 
   const response = useQuery({
-    queryKey: ['customer', id],
+    queryKey: ['category', id],
     queryFn: async () => {
-      const { data } = await axios.get(endpoints.customers.details + id);
+      const { data } = await axios.get(endpoints.productCategories.details + id);
       return data;
     },
   });
@@ -42,7 +42,7 @@ export default function Page() {
         <title> {metadata.title}</title>
       </Helmet>
 
-      <CustomerDetailsView payload={response.data} />
+      <ProductCategoryDetailsView category={response.data} />
     </>
   );
 }

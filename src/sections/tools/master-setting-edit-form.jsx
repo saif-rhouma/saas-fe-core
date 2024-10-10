@@ -10,6 +10,8 @@ import { Box, Card, Stack, Button, MenuItem, Typography } from '@mui/material';
 import { fData } from 'src/utils/format-number';
 import axios, { endpoints } from 'src/utils/axios';
 
+import { CONFIG } from 'src/config-global';
+
 import { toast } from 'src/components/snackbar';
 import { Upload, UploadAvatar } from 'src/components/upload';
 import { Form, Field, schemaHelper } from 'src/components/hook-form';
@@ -26,7 +28,7 @@ export const MasterAccountSchema = zod.object({
   phoneNumber: schemaHelper.phoneNumber({ isValidPhoneNumber }),
   currencySymbol: zod.string().min(1, { message: 'Staff Last Name is required!' }),
   taxPercentage: zod.number().min(1, { message: 'Staff Last Name is required!' }),
-  financialYear: zod.number().min(1, { message: 'Financial Year is required!' }),
+  // financialYear: zod.number().min(1, { message: 'Financial Year is required!' }),
   country: zod.string().min(1, { message: 'Country is required!' }),
   state: zod.string(),
   street: zod.string(),
@@ -46,6 +48,8 @@ const MasterSettingEditForm = ({ applicationAccount, financial }) => {
   useEffect(() => {
     if (applicationAccount) {
       reset(defaultValues);
+      setAvatarUrl(`${CONFIG.site.serverFileHost}${applicationAccount.favicon}`);
+      setFile(`${CONFIG.site.serverFileHost}${applicationAccount.appLogo}`);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [applicationAccount]);
@@ -110,12 +114,12 @@ const MasterSettingEditForm = ({ applicationAccount, financial }) => {
         const formData = new FormData();
         formData.append('file', avatarUrl);
         formData.append('category', 'AppAvatar');
-        await handleUploadFile(formData);
+        await handleUploadFavIconFile(formData);
       } else if (file) {
         const formData = new FormData();
         formData.append('file', file);
         formData.append('category', 'AppLogo');
-        await handleUploadFile(formData);
+        await handleUploadAppLogoFile(formData);
       } else {
         await handleEditAccount(data);
       }
@@ -144,16 +148,45 @@ const MasterSettingEditForm = ({ applicationAccount, financial }) => {
     },
   };
 
+  const changeFavicon = useCallback((faviconPath) => {
+    const link = document.querySelector("link[rel~='icon']") || document.createElement('link');
+    link.type = 'image/x-icon';
+    link.rel = 'icon';
+    link.href = faviconPath;
+    document.getElementsByTagName('head')[0].appendChild(link);
+  }, []);
+
   const queryClient = useQueryClient();
 
-  const { mutate: handleUploadFile } = useMutation({
+  const { mutate: handleUploadFavIconFile } = useMutation({
     // eslint-disable-next-line no-shadow
     mutationFn: (file) => axios.post(endpoints.files.upload, file, uploadConfig),
     onSuccess: async ({ data }) => {
       const { name: filename } = data;
       if (filename) {
         const { current: payload } = store;
-        payload.avatar = filename;
+        payload.favicon = filename;
+        changeFavicon(`${CONFIG.site.serverFileHost}${filename}`);
+        await handleEditAccount(payload);
+      }
+      return data;
+    },
+    onSettled: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['appAvatar-images'] });
+    },
+    onError: (err) => {
+      console.log(err);
+    },
+  });
+
+  const { mutate: handleUploadAppLogoFile } = useMutation({
+    // eslint-disable-next-line no-shadow
+    mutationFn: (file) => axios.post(endpoints.files.upload, file, uploadConfig),
+    onSuccess: async ({ data }) => {
+      const { name: filename } = data;
+      if (filename) {
+        const { current: payload } = store;
+        payload.appLogo = filename;
         await handleEditAccount(payload);
       }
       return data;
@@ -182,6 +215,7 @@ const MasterSettingEditForm = ({ applicationAccount, financial }) => {
       if (avatarFilename) {
         payload.favicon = avatarFilename;
       }
+      changeFavicon(`${CONFIG.site.serverFileHost}${avatarFilename}`);
       await handleEditAccount(payload);
     },
     onSettled: async () => {

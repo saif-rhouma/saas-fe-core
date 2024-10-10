@@ -1,10 +1,13 @@
-import { useId, forwardRef } from 'react';
+/* eslint-disable react-hooks/exhaustive-deps */
+import { useId, useRef, useState, forwardRef } from 'react';
 
 import Box from '@mui/material/Box';
 import NoSsr from '@mui/material/NoSsr';
 import { useTheme } from '@mui/material/styles';
 
 import { RouterLink } from 'src/routes/components';
+
+import { CONFIG } from 'src/config-global';
 
 import { useAuthContext } from 'src/auth/hooks';
 
@@ -15,6 +18,11 @@ import { logoClasses } from './classes';
 export const Logo = forwardRef(
   ({ width = 40, height = 40, disableLink = false, className, href = '/', sx, ...other }, ref) => {
     const theme = useTheme();
+
+    const [textWidth, setTextWidth] = useState(80);
+
+    const logoRef = useRef();
+    const textRef = useRef();
 
     const gradientId = useId();
 
@@ -33,6 +41,15 @@ export const Logo = forwardRef(
         name = userInput.applications.name;
       }
       return name;
+    };
+
+    const getApplicationLogo = (userInput) => {
+      let { appLogo } = userInput.userOwnedApps;
+      if (user?.roles?.includes('STAFF')) {
+        // eslint-disable-next-line prefer-destructuring
+        appLogo = userInput.applications.appLogo;
+      }
+      return appLogo;
     };
 
     /*
@@ -76,8 +93,26 @@ export const Logo = forwardRef(
       </svg>
     );
 
+    // useEffect(() => {
+    //   const { offsetWidth } = logoRef.current;
+    //   if (offsetWidth > 160) {
+    //     if (textRef.current) {
+    //       textRef.current.style.width = '60px';
+    //     }
+    //     // setTextWidth(180);
+    //   } else {
+    //     // eslint-disable-next-line no-lonely-if
+    //     if (textRef.current) {
+    //       textRef.current.style.width = '180px';
+    //     }
+    //   }
+    // });
+
     return (
-      <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 20 }}>
+      <div
+        ref={logoRef}
+        style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 20 }}
+      >
         <NoSsr
           fallback={
             <Box
@@ -110,10 +145,33 @@ export const Logo = forwardRef(
             }}
             {...other}
           >
-            {logo}
+            {user ? (
+              <Box
+                alt="logo"
+                component="img"
+                src={`${CONFIG.site.serverFileHost}${getApplicationLogo(user)}`}
+                width={width}
+                height={height}
+              />
+            ) : (
+              logo
+            )}
           </Box>
         </NoSsr>
-        {user && <span style={{ fontWeight: 'bold' }}>{getApplicationName(user)}</span>}
+        {user && (
+          <span
+            ref={textRef}
+            style={{
+              fontWeight: 'bold',
+              whiteSpace: 'nowrap',
+              overflow: 'hidden',
+              // width: textWidth,
+              textOverflow: 'ellipsis',
+            }}
+          >
+            {getApplicationName(user)}
+          </span>
+        )}
       </div>
     );
   }

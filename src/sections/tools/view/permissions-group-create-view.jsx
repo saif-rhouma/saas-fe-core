@@ -4,27 +4,25 @@ import { DashboardContent } from 'src/layouts/dashboard';
 
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 
-import { ProductNewEditForm } from '../product-new-edit-form';
+import { PermissionsGroupNewEditForm } from '../permissions-group-new-edit-form';
 
 // ----------------------------------------------------------------------
 
-export function ProductEditView({ product, productsImages, categories }) {
+export function PermissionsGroupCreateView({ currentPermission, appPermissions }) {
   return (
     <DashboardContent>
       <CustomBreadcrumbs
-        heading="Edit"
         links={[
           { name: 'Dashboard', href: paths.dashboard.root },
-          { name: 'Product', href: paths.dashboard.product.root },
-          { name: product?.name },
+          { name: 'Permissions Groups', href: paths.dashboard.staff.root },
+          { name: 'New Permissions Group' },
         ]}
         sx={{ mb: { xs: 3, md: 5 } }}
       />
 
-      <ProductNewEditForm
-        currentProduct={product}
-        productsImages={productsImages}
-        categories={categories}
+      <PermissionsGroupNewEditForm
+        currentPermission={currentPermission}
+        appPermissions={appPermissions}
       />
     </DashboardContent>
   );

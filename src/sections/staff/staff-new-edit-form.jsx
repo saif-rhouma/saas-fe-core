@@ -3,13 +3,12 @@ import { useForm } from 'react-hook-form';
 import { useMemo, useState, useEffect } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { isValidPhoneNumber } from 'react-phone-number-input/input';
 
 import Card from '@mui/material/Card';
 import Stack from '@mui/material/Stack';
-import { Box, Button } from '@mui/material';
-import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton';
+import Typography from '@mui/material/Typography';
+import { Box, Button, MenuItem } from '@mui/material';
 import InputAdornment from '@mui/material/InputAdornment';
 
 import { paths } from 'src/routes/paths';
@@ -21,7 +20,7 @@ import axios, { endpoints } from 'src/utils/axios';
 
 import { toast } from 'src/components/snackbar';
 import { Iconify } from 'src/components/iconify';
-import { Form, Field, schemaHelper } from 'src/components/hook-form';
+import { Form, Field } from 'src/components/hook-form';
 
 // Schema definition for form validation
 export const NewStaffSchema = zod.object({
@@ -35,12 +34,15 @@ export const NewStaffSchema = zod.object({
   // phoneNumber: schemaHelper.phoneNumber({ isValidPhoneNumber }),
   permissions: zod.string().array().nonempty({ message: 'At least one permission is required!' }),
   isActive: zod.boolean(),
+  permissionsGroup: zod.number(),
 });
 
-export function StaffNewEditForm({ currentStaff, appPermissions }) {
+export function StaffNewEditForm({ currentStaff, appPermissions, appPermissionsGroup }) {
   const queryClient = useQueryClient();
   const router = useRouter();
   const [permissions, setPermissions] = useState(appPermissions);
+
+  const [isCustom, setIsCustom] = useState(false);
 
   const password = useBoolean();
 
@@ -51,8 +53,9 @@ export function StaffNewEditForm({ currentStaff, appPermissions }) {
       phoneNumber: currentStaff?.phoneNumber || '',
       email: currentStaff?.email || '',
       password: currentStaff?.password || '',
-      isActive: currentStaff?.isActive,
+      isActive: currentStaff?.isActive === undefined ? true : currentStaff?.isActive,
       permissions: currentStaff?.permissions.map((per) => per.slug) || [],
+      permissionsGroup: currentStaff?.permissionsGroup || null,
     }),
     [currentStaff]
   );
@@ -70,6 +73,8 @@ export function StaffNewEditForm({ currentStaff, appPermissions }) {
     control,
     formState: { isSubmitting },
   } = methods;
+
+  const values = watch();
 
   useEffect(() => {
     if (currentStaff) {
@@ -113,6 +118,9 @@ export function StaffNewEditForm({ currentStaff, appPermissions }) {
   });
 
   const onSubmit = handleSubmit(async (payload) => {
+    if (payload.permissionsGroup !== 0) {
+      delete payload.permissions;
+    }
     try {
       if (currentStaff?.id) {
         const { id } = currentStaff;
@@ -158,6 +166,30 @@ export function StaffNewEditForm({ currentStaff, appPermissions }) {
                 ),
               }}
             />
+            <Field.Select
+              name="permissionsGroup"
+              label="Choose Permissions Group"
+              sx={{ width: 420, textTransform: 'capitalize' }}
+              onChange={(event) => {
+                const { value: id } = event.target;
+                if (id) {
+                  const permsGroup = appPermissionsGroup.find((pg) => pg.id === id);
+                  setValue(
+                    'permissions',
+                    permsGroup.permissions.map((per) => per.slug)
+                  );
+                  setValue('permissionsGroup', id);
+                  setIsCustom(false);
+                }
+              }}
+            >
+              {appPermissionsGroup.map((pg) => (
+                <MenuItem key={pg.id} value={pg.id}>
+                  {`${pg?.name}`}
+                </MenuItem>
+              ))}
+              {isCustom && <MenuItem value={0}>Custom</MenuItem>}
+            </Field.Select>
           </Box>
         </Stack>
       </Card>
@@ -168,6 +200,10 @@ export function StaffNewEditForm({ currentStaff, appPermissions }) {
         <Box display="flex" justifyContent="center" alignItems="center" sx={{ mb: 4 }}>
           <Field.MultiCheckbox
             name="permissions"
+            onClick={() => {
+              setIsCustom(true);
+              setValue('permissionsGroup', 0);
+            }}
             options={appPermissions.map((per) => ({ label: per.name, value: per.slug }))}
             sx={{
               display: 'grid',
@@ -177,7 +213,7 @@ export function StaffNewEditForm({ currentStaff, appPermissions }) {
             }}
           />
         </Box>
-        <Field.Switch name="isActive" label="Is Active?" />
+        {currentStaff && <Field.Switch name="isActive" label="Is Active?" />}
         <Box display="flex" justifyContent="flex-end" mt={2}>
           <Button type="submit" variant="contained" disabled={isSubmitting}>
             Submit

@@ -4,6 +4,8 @@ import { useSetState } from 'src/hooks/use-set-state';
 
 import axios, { endpoints } from 'src/utils/axios';
 
+import { CONFIG } from 'src/config-global';
+
 import { STORAGE_KEY } from './constant';
 import { AuthContext } from '../auth-context';
 import { setSession, isValidToken } from './utils';
@@ -64,10 +66,23 @@ export function AuthProvider({ children }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const changeFavicon = useCallback((faviconPath) => {
+    const link = document.querySelector("link[rel~='icon']") || document.createElement('link');
+    link.type = 'image/x-icon';
+    link.rel = 'icon';
+    link.href = faviconPath;
+    document.getElementsByTagName('head')[0].appendChild(link);
+  }, []);
+
   useEffect(() => {
     if (state.user?.roles?.includes('STAFF')) {
       checkUserPermissions();
     }
+    const favIcon = state.user?.userOwnedApps?.favicon || state.user?.applications?.favicon;
+    if (state.user?.userOwnedApps?.favicon || state.user?.applications?.favicon) {
+      changeFavicon(`${CONFIG.site.serverFileHost}${favIcon}`);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [checkUserPermissions, state]);
 
   // ----------------------------------------------------------------------

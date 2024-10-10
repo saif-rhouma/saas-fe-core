@@ -12,13 +12,11 @@ import IconButton from '@mui/material/IconButton';
 
 import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hooks';
-import { RouterLink } from 'src/routes/components';
 
 import { useBoolean } from 'src/hooks/use-boolean';
 import { useSetState } from 'src/hooks/use-set-state';
 
 import axios, { endpoints } from 'src/utils/axios';
-import { PermissionsType } from 'src/utils/constant';
 import { fIsAfter, fIsBetween } from 'src/utils/format-time';
 
 import { DashboardContent } from 'src/layouts/dashboard';
@@ -27,7 +25,6 @@ import { toast } from 'src/components/snackbar';
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
-import PermissionAccessController from 'src/components/permission-access-controller/permission-access-controller';
 import {
   useTable,
   emptyRows,
@@ -40,37 +37,32 @@ import {
   TablePaginationCustom,
 } from 'src/components/table';
 
-import ProductTableRow from '../product-table-row';
-import { ProductTableToolbar } from '../product-table-toolbar';
-import { ProductTableFiltersResult } from '../product-table-filters-result';
+import ProductCategoryTableRow from '../product-category-table-row';
+import ProductCategoryEditDialog from '../product-category-edit-dialog';
+import ProductCategoryCreateDialog from '../product-category-create-dialog';
+import { ProductCategoryTableToolbar } from '../product-category-table-toolbar';
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
-  { id: 'productId', label: 'No.', width: 80 },
-  { id: 'productName', label: 'Name' },
-  { id: 'productPrice', label: 'Category', width: 200 },
-  { id: 'productPrice', label: 'Price', width: 200 },
-  {
-    id: 'stock',
-    label: 'Stock',
-
-    align: 'center',
-  },
-  { id: 'status', label: 'Status', width: 100 },
+  { id: 'id', label: 'No.', width: 80 },
+  { id: 'name', label: 'Category Name', width: 300 },
+  { id: 'desc', label: 'Description' },
+  { id: 'status', label: 'Product Count', width: 200 },
   { id: '', width: 88 },
 ];
 
 // ----------------------------------------------------------------------
 
-export function ProductListView({ products, taxPercentage }) {
-  const table = useTable({ defaultOrderBy: 'planId' });
-
+const ProductCategoryView = ({ categories }) => {
   const confirm = useBoolean();
 
-  const router = useRouter();
+  const dialogCreate = useBoolean();
+  const dialogEdit = useBoolean();
 
-  const [tableData, setTableData] = useState(products);
+  const [selectedCategory, setSelectedCategory] = useState();
 
+  const table = useTable({ defaultOrderBy: 'planId' });
+  const [tableData, setTableData] = useState(categories);
   const filters = useSetState({
     name: '',
     status: 'all',
@@ -79,8 +71,8 @@ export function ProductListView({ products, taxPercentage }) {
   });
 
   useEffect(() => {
-    setTableData(products);
-  }, [products]);
+    setTableData(categories);
+  }, [categories]);
 
   const dateError = fIsAfter(filters.state.startDate, filters.state.endDate);
 
@@ -100,32 +92,10 @@ export function ProductListView({ products, taxPercentage }) {
 
   const notFound = (!dataFiltered.length && canReset) || !dataFiltered.length;
 
-  const handleDeleteRow = useCallback(
-    (id) => {
-      deleteProduct(id);
-    },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [dataInPage.length, table, tableData]
-  );
-
-  const handleEditRow = useCallback(
-    (id) => {
-      router.push(paths.dashboard.product.edit(id));
-    },
-    [router]
-  );
-
-  const handleViewRow = useCallback(
-    (id) => {
-      router.push(paths.dashboard.product.details(id));
-    },
-    [router]
-  );
-
   const queryClient = useQueryClient();
 
-  const { mutate: deleteProduct } = useMutation({
-    mutationFn: (id) => axios.delete(endpoints.products.delete + id),
+  const { mutate: deleteCategory } = useMutation({
+    mutationFn: (id) => axios.delete(endpoints.productCategories.delete + id),
     onSuccess: async (id) => {
       const deleteRow = tableData.filter((row) => row.id !== id);
 
@@ -134,54 +104,96 @@ export function ProductListView({ products, taxPercentage }) {
       setTableData(deleteRow);
 
       table.onUpdatePageDeleteRow(dataInPage.length);
+      await queryClient.invalidateQueries({ queryKey: ['product-categories'] });
     },
-    onSettled: async () => {
-      await queryClient.invalidateQueries({ queryKey: ['products'] });
+    onError: (err) => {
+      console.log(err);
     },
-    onError: () => {},
   });
 
+  const handleDeleteRow = useCallback(
+    (id) => {
+      deleteCategory(id);
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [dataInPage.length, table, tableData]
+  );
+
+  const handleEditRow = useCallback(
+    (row) => {
+      setSelectedCategory(row);
+      dialogEdit.onToggle();
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [dataInPage.length, table, tableData]
+  );
+
+  const { mutate: handleCreateCategory } = useMutation({
+    mutationFn: (payload) => axios.post(endpoints.productCategories.create, payload),
+    onSuccess: async () => {
+      toast.success('New Category Has Been Created!');
+      await queryClient.invalidateQueries({ queryKey: ['product-categories'] });
+    },
+    onSettled: async () => {
+      dialogCreate.onFalse();
+    },
+    onError: (err) => {
+      console.log(err);
+    },
+  });
+
+  const { mutate: handleEditCategory } = useMutation({
+    mutationFn: ({ id, payload }) => axios.patch(endpoints.productCategories.edit + id, payload),
+    onSuccess: async () => {
+      toast.success('Category Has Been Modified!');
+      await queryClient.invalidateQueries({ queryKey: ['product-categories'] });
+    },
+    onSettled: async () => {
+      dialogEdit.onFalse();
+    },
+    onError: (err) => {
+      console.log(err);
+    },
+  });
+
+  const router = useRouter();
+
+  const handleViewRow = useCallback(
+    (id) => {
+      router.push(paths.dashboard.product.categoryDetails(id));
+    },
+    [router]
+  );
+
   return (
-    <DashboardContent maxWidth="xl">
-      <Grid container spacing={3}>
-        <Grid xs={12} md={12}>
-          <CustomBreadcrumbs
-            links={[
-              { name: 'Dashboard', href: paths.dashboard.root },
-              { name: 'Product', href: paths.dashboard.plan.root },
-              { name: 'List' },
-            ]}
-            action={
-              <PermissionAccessController permission={PermissionsType.ADD_PRODUCT}>
+    <>
+      <DashboardContent maxWidth="xl">
+        <Grid container spacing={3}>
+          <Grid xs={12} md={12}>
+            <CustomBreadcrumbs
+              links={[
+                { name: 'Dashboard', href: paths.dashboard.root },
+                { name: 'Product', href: paths.dashboard.plan.root },
+                { name: 'Categories List' },
+              ]}
+              action={
                 <Button
-                  component={RouterLink}
-                  href={paths.dashboard.product.new}
+                  onClick={() => dialogCreate.onToggle()}
                   variant="contained"
                   startIcon={<Iconify icon="mingcute:add-line" />}
                 >
-                  Add New Product
+                  Add New Category
                 </Button>
-              </PermissionAccessController>
-            }
-          />
-        </Grid>
-        <PermissionAccessController permission={PermissionsType.LIST_PRODUCT}>
+              }
+            />
+          </Grid>
           <Grid xs={12} md={12}>
             <Card>
-              <ProductTableToolbar
+              <ProductCategoryTableToolbar
                 filters={filters}
                 onResetPage={table.onResetPage}
                 dateError={dateError}
               />
-
-              {canReset && (
-                <ProductTableFiltersResult
-                  filters={filters}
-                  totalResults={dataFiltered.length}
-                  onResetPage={table.onResetPage}
-                  sx={{ p: 2.5, pt: 0 }}
-                />
-              )}
 
               <Box sx={{ position: 'relative' }}>
                 <TableSelectedAction
@@ -220,15 +232,14 @@ export function ProductListView({ products, taxPercentage }) {
                           table.page * table.rowsPerPage + table.rowsPerPage
                         )
                         .map((row, index) => (
-                          <ProductTableRow
+                          <ProductCategoryTableRow
                             key={row.id}
                             row={row}
                             index={table.page * table.rowsPerPage + index + 1}
                             selected={table.selected.includes(row.id)}
-                            onEditRow={() => handleEditRow(row.id)}
+                            onEditRow={() => handleEditRow(row)}
                             onViewRow={() => handleViewRow(row.id)}
                             onDeleteRow={() => handleDeleteRow(row.id)}
-                            taxPercentage={taxPercentage}
                           />
                         ))}
 
@@ -253,11 +264,23 @@ export function ProductListView({ products, taxPercentage }) {
               />
             </Card>
           </Grid>
-        </PermissionAccessController>
-      </Grid>
-    </DashboardContent>
+        </Grid>
+      </DashboardContent>
+      <ProductCategoryCreateDialog
+        handler={handleCreateCategory}
+        open={dialogCreate.value}
+        onClose={dialogCreate.onFalse}
+      />
+      <ProductCategoryEditDialog
+        handler={handleEditCategory}
+        open={dialogEdit.value}
+        onClose={dialogEdit.onFalse}
+        category={selectedCategory}
+      />
+    </>
   );
-}
+};
+export default ProductCategoryView;
 
 function applyFilter({ inputData, comparator, filters, dateError }) {
   const { status, name, startDate, endDate } = filters;
@@ -276,8 +299,13 @@ function applyFilter({ inputData, comparator, filters, dateError }) {
     inputData = inputData.filter(
       (product) =>
         product.id.toString().toLowerCase().indexOf(name.toLowerCase()) !== -1 ||
-        product.name.toLowerCase().indexOf(name.toLowerCase()) !== -1
+        product.name.toLowerCase().indexOf(name.toLowerCase()) !== -1 ||
+        product.description.toLowerCase().indexOf(name.toLowerCase()) !== -1
     );
+  }
+
+  if (status !== 'all') {
+    inputData = inputData.filter((order) => order.status === status);
   }
 
   if (!dateError) {

@@ -135,7 +135,7 @@ const CustomersListView = ({ customers }) => {
   const { mutate: handleEditCustomer } = useMutation({
     mutationFn: ({ id, payload }) => axios.patch(endpoints.customers.edit + id, payload),
     onSuccess: async () => {
-      toast.success('New Customer Has Been Modified!');
+      toast.success('Customer Has Been Modified!');
     },
     onSettled: async () => {
       await queryClient.invalidateQueries({ queryKey: ['customers'] });

@@ -35,10 +35,9 @@ const StaffTableRow = ({ row, index, selected, onEditRow, onDeleteRow, handler }
   const renderPrimary = (
     <TableRow hover selected={selected}>
       <TableCell>{index || row?.id}</TableCell>
-      <TableCell>{`${row?.firstName} ${row?.lastName}`}</TableCell>
-      <TableCell>{row?.phoneNumber}</TableCell>
+      <TableCell>{`${row?.firstName} ${row?.lastName || ''}`}</TableCell>
+      <TableCell>{row?.phoneNumber || '-'}</TableCell>
       <TableCell>{row?.email}</TableCell>
-
       <TableCell>
         <Switch checked={isChecked} onChange={handleStatusChange(row.id)} color="primary" />
       </TableCell>

@@ -35,11 +35,19 @@ export default function Page() {
     },
   });
 
-  if (response.isLoading || responseImages.isLoading) {
+  const responseCat = useQuery({
+    queryKey: ['product-categories'],
+    queryFn: async () => {
+      const { data } = await axios.get(endpoints.productCategories.list);
+      return data;
+    },
+  });
+
+  if (response.isLoading || responseImages.isLoading || responseCat.isLoading) {
     return <LoadingScreen />;
   }
 
-  if (response.isError || responseImages.isError) {
+  if (response.isError || responseImages.isError || responseCat.isError) {
     return <ErrorBlock route={paths.dashboard.products.root} />;
   }
 
@@ -49,7 +57,11 @@ export default function Page() {
         <title> {metadata.title}</title>
       </Helmet>
 
-      <ProductEditView product={response.data} productsImages={responseImages.data} />
+      <ProductEditView
+        product={response.data}
+        productsImages={responseImages.data}
+        categories={responseCat.data}
+      />
     </>
   );
 }

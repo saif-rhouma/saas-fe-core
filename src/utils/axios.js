@@ -92,6 +92,13 @@ export const endpoints = {
     productsImages: '/api/files/products',
     stock: '/api/stock/',
   },
+  productCategories: {
+    list: '/api/categories/',
+    create: '/api/categories/create',
+    delete: '/api/categories/',
+    details: '/api/categories/',
+    edit: '/api/categories/',
+  },
   productAddons: {
     list: '/api/product-addons/',
     create: '/api/product-addons/create',
@@ -159,5 +166,12 @@ export const endpoints = {
     create: '/api/financial/create',
     edit: '/api/financial/',
     delete: '/api/financial/',
+  },
+  permissionsGroup: {
+    list: '/api/permissions-group/',
+    create: '/api/permissions-group/create',
+    edit: '/api/permissions-group/',
+    delete: '/api/permissions-group/',
+    details: '/api/permissions-group/',
   },
 };

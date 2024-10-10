@@ -24,10 +24,18 @@ export default function Page() {
     },
   });
 
-  if (response.isPending || response.isLoading) {
+  const responseCat = useQuery({
+    queryKey: ['product-categories'],
+    queryFn: async () => {
+      const { data } = await axios.get(endpoints.productCategories.list);
+      return data;
+    },
+  });
+
+  if (responseCat.isLoading || response.isLoading) {
     return <LoadingScreen />;
   }
-  if (response.isError) {
+  if (response.isError || responseCat.isError) {
     return <ErrorBlock route={paths.dashboard.products.root} />;
   }
   return (
@@ -36,7 +44,7 @@ export default function Page() {
         <title> {metadata.title}</title>
       </Helmet>
 
-      <ProductCreateView productsImages={response.data} />
+      <ProductCreateView productsImages={response.data} categories={responseCat.data} />
     </>
   );
 }
